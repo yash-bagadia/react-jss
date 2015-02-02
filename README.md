@@ -25,11 +25,20 @@ var Button = React.createClass({
   mixins: [useSheet(buttonStyle)],
 
   render() {
+  
+    // Set multiple classes.
+    var containerClasses = this.classSet({
+      navBar: true,
+      isNavOpen: this.state.isOpen
+    });
+  
     // JSS sheet is available as this.sheet:
     return (
-      <button className={this.sheet.classes.button}>
-        {this.props.children}
-      </button>
+      <div className={containerClasses}
+        <button className={this.sheet.classes.button}>
+          {this.props.children}
+        </button>
+      </div>
     );
   }
 });
