@@ -43,6 +43,22 @@ function useSheet(rules, options) {
     componentWillUnmount: function () {
       deref();
       this.sheet = null;
+    },
+
+    classSet : function (classNames) {
+      return Object.keys(classNames)
+        .filter(function(className) {
+          return classNames[className];
+        })
+        .map(function(className) {
+
+          // Allow non-jss classes to be set
+          if (this.sheet.classes[className] === undefined) {
+            return className;
+          }
+
+          return this.sheet.classes[className];
+        }.bind(this)).join(' ');
     }
   };
 
