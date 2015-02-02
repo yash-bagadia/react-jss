@@ -13,6 +13,13 @@ This mixin is compatible with live reloading via [React Hot Loader](https://gith
 module.exports = {
   'button': {
     'background-color': 'yellow'
+  },
+  'navBar': {
+    'background-color': 'red',
+    'display' : 'none'
+  },
+  'isNavOpen' : {
+    'display' : 'block'
   }
 };
 
