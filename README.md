@@ -32,14 +32,14 @@ var Button = React.createClass({
   mixins: [useSheet(buttonStyle)],
 
   render() {
-  
-    // Set multiple classes.
+    // this.classSet is like React.addons.classSet, but gives you
+    // unique classes prefixed by JSS for this component's sheet
     var containerClasses = this.classSet({
       navBar: true,
       isNavOpen: this.state.isOpen
     });
   
-    // JSS sheet is available as this.sheet:
+    // JSS sheet is also directly available as this.sheet:
     return (
       <div className={containerClasses}
         <button className={this.sheet.classes.button}>
