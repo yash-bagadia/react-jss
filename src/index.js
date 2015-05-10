@@ -1,10 +1,8 @@
-'use strict';
+import jss from 'jss';
 
-var jss = require('jss');
-
-function useSheet(rules, options) {
-  var refs = 0,
-      sheet;
+export default function useSheet(rules, options) {
+  let refs = 0;
+  let sheet = null;
 
   function attach() {
     if (!sheet)
@@ -32,18 +30,18 @@ function useSheet(rules, options) {
       detach();
   }
 
-  var Mixin = {
-    componentWillMount: function () {
+  const Mixin = {
+    componentWillMount() {
       this.sheet = ref();
     },
 
-    componentWillUnmount: function () {
+    componentWillUnmount() {
       deref();
       this.sheet = null;
     },
 
-    classSet: function (classNames) {
-      var sheet = this.sheet;
+    classSet(classNames) {
+      const sheet = this.sheet;
 
       return Object
         .keys(classNames)
@@ -69,5 +67,3 @@ function useSheet(rules, options) {
 
   return Mixin;
 }
-
-module.exports = useSheet;

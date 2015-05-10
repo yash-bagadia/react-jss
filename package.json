@@ -2,9 +2,10 @@
   "name": "react-jss",
   "version": "0.1.3",
   "description": "JSS mixin for React components",
-  "main": "index.js",
+  "main": "modules/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "./scripts/build",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -27,5 +28,8 @@
   "peerDependencies": {
     "jss": "^1.0.0",
     "react": ">=0.12"
+  },
+  "devDependencies": {
+    "babel": "^5.2.17"
   }
 }
