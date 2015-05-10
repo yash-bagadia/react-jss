@@ -27,7 +27,7 @@
   "homepage": "https://github.com/jsstyles/react-jss",
   "peerDependencies": {
     "jss": "^1.0.0",
-    "react": ">=0.12"
+    "react": ">=0.13"
   },
   "devDependencies": {
     "babel": "^5.2.17"

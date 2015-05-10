@@ -1,6 +1,7 @@
+import React from 'react';
 import jss from 'jss';
 
-export default function useSheet(rules, options) {
+export default function injectSheet(rules, options) {
   let refs = 0;
   let sheet = null;
 
@@ -30,40 +31,41 @@ export default function useSheet(rules, options) {
       detach();
   }
 
-  const Mixin = {
-    componentWillMount() {
-      this.sheet = ref();
-    },
+  return function wrap(DecoratedComponent) {
+    const displayName =
+      DecoratedComponent.displayName ||
+      DecoratedComponent.name ||
+      'Component';
 
-    componentWillUnmount() {
-      deref();
-      this.sheet = null;
-    },
+    return class StyleSheetWrapper {
+      static wrapped = DecoratedComponent;
+      static displayName = `JSS(${displayName})`;
 
-    classSet(classNames) {
-      const sheet = this.sheet;
-
-      return Object
-        .keys(classNames)
-        .filter(function (className) {
-          return classNames[className];
-        })
-        .map(function (className) {
-          return sheet.classes[className] || className;
-        })
-        .join(' ');
-    }
-  };
-
-  // Support React Hot Loader
-  if (module.hot) {
-    Mixin.componentWillUpdate = function () {
-      if (this.sheet !== sheet) {
-        this.sheet.detach();
+      componentWillMount() {
         this.sheet = ref();
       }
-    };
-  }
 
-  return Mixin;
+      componentWillUpdate() {
+        if (process.env.NODE_ENV !== 'production') {
+          // Support React Hot Loader
+          if (this.sheet !== sheet) {
+            this.sheet.detach();
+            this.sheet = ref();
+          }
+        }
+      }
+
+      componentWillUnmount() {
+        deref();
+        this.sheet = null;
+      }
+
+      render() {
+        return (
+          <DecoratedComponent {...this.props}
+                              sheet={this.sheet} />
+        );
+      }
+    }
+  };
 }
