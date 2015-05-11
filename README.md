@@ -1,9 +1,8 @@
 ## React JSS
 
-Use this [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750) to inject [JSS](https://github.com/jsstyles/jss) stylesheets in your React components. The stylesheet is attached when there is at least one mounted component that uses it, and automatically detached when all components using it are unmounted. React JSS is compatible with live reloading using [React Hot Loader](https://github.com/gaearon/react-hot-loader).
+Use this [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750) to inject [JSS](https://github.com/jsstyles/jss) stylesheets into your React components. The stylesheet is attached when there is at least one mounted component that uses it, and automatically detached when all components using it are unmounted. React JSS is compatible with live reloading using [React Hot Loader](https://github.com/gaearon/react-hot-loader).
 
-
-React JSS wraps your React component and injects `this.props.sheet`, which is just a regular [JSS stylesheet](https://github.com/jsstyles/jss), as a prop to your component. This is a common pattern that is used for composition in React instead of mixins, and works equally well with old-style `createClass` classes, as well as the ES6 classes.
+React JSS wraps your React component and injects `this.props.sheet`, which is just a regular [JSS stylesheet](https://github.com/jsstyles/jss), as a prop into your component. This is a common pattern that is used for composition in React instead of mixins, and works equally well with old-style `createClass` classes, as well as the ES6 classes.
 
 Because JSS class names are namespaced by default, you will need to reach into `this.props.sheet.classes` to get their real names. For example, if you define a `button` class in your JSS stylesheet, its real name will be available as `this.props.sheet.classes.button`.
 
@@ -144,7 +143,7 @@ If you're still writing in ES5 ([you should consider Babel though!](https://babe
  render: function () {
     var classes = this.props.sheet.classes;
     return (
-      <div className={classNames(
+      <div className={classSet(
         classes.normal,
         this.state.active && classes.active
       )}>
