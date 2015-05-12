@@ -1,6 +1,6 @@
 ## React JSS
 
-Use this [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750) to inject [JSS](https://github.com/jsstyles/jss) stylesheets into your React components. The stylesheet is attached when there is at least one mounted component that uses it, and automatically detached when all components using it are unmounted. React JSS is compatible with live reloading using [React Hot Loader](https://github.com/gaearon/react-hot-loader).
+Use this [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750) to inject [JSS](https://github.com/jsstyles/jss) stylesheets into your React components. It can act both as a simple wrapping function and as an [ES7 decorator](https://github.com/wycats/javascript-decorators). The stylesheet is attached when there is at least one mounted component that uses it, and automatically detached when all components using it are unmounted. React JSS is compatible with live reloading using [React Hot Loader](https://github.com/gaearon/react-hot-loader).
 
 React JSS wraps your React component and injects `this.props.sheet`, which is just a regular [JSS stylesheet](https://github.com/jsstyles/jss), as a prop into your component. This is a common pattern that is used for composition in React instead of mixins, and works equally well with old-style `createClass` classes, as well as the ES6 classes.
 
@@ -18,7 +18,7 @@ npm install --save react-jss
 
 ```js
 var React = require('react');
-var injectJSS = require('react-jss');
+var useSheet = require('react-jss');
 
 var styles = {
   button: {
@@ -43,14 +43,14 @@ var Button = React.createClass({
   }
 })
 
-module.exports = injectJSS(styles)(Button);
+module.exports = useSheet(Button, styles);
 ```
 
 #### ES6
 
 ```js
 import React, { Component } from 'react';
-import injectJSS from 'react-jss';
+import useSheet from 'react-jss';
 
 const styles = {
   button: {
@@ -75,14 +75,14 @@ class Button extends Component {
   }
 }
 
-export default injectJSS(styles)(Button);
+export default useSheet(Button, styles);
 ```
 
 #### ES7 with [decorators](https://github.com/wycats/javascript-decorators) (`{ "stage": 0 }` in [.babelrc](https://babeljs.io/docs/usage/babelrc/))
 
 ```js
 import React, { Component } from 'react';
-import injectJSS from 'react-jss';
+import useSheet from 'react-jss';
 
 const styles = {
   button: {
@@ -93,7 +93,7 @@ const styles = {
   }
 };
 
-@injectJSS(styles)
+@useSheet(styles)
 export default class Button extends Component {
   render() {
     const { classes } = this.props.sheet;
@@ -157,13 +157,26 @@ Either way, you can see now that there is no real need for a dedicated `classSet
 
 ### API
 
-React JSS exports a function that, when invoked with `rules` and `options`, will return another function. That second function takes a `ReactClass` and wraps it, returning the wrapper `ReactClass`. Both `rules` and `options` are passed as arguments to `jss.createStyleSheet` call internally.
+React JSS has two overloads.
+If you're using ES5 or ES6, use this overload:
 
-```
-injectJSS: (rules, [, options]) => (ReactClass) => ReactClass
+```js
+// ES5 and ES6
+useSheet: (ReactClass, rules[, options]) => ReactClass
 ```
 
-This partial application matches the signature for [ES7 decorators](https://github.com/wycats/javascript-decorators).
+It lets you pass your React component class as the first parameter.
+
+There is also another signature designed specifically to be used with [ES7 decorators](https://github.com/wycats/javascript-decorators). It activates if you are passing the styles as the first parameter instead of the component:
+
+```js
+// ES7
+useSheet: (rules, [, options]) => (ReactClass) => ReactClass
+```
+
+This overload returns a partial function, to which you then should pass your React component class. This is only useful because [ES7 decorators](https://github.com/wycats/javascript-decorators) expect such signature. If you use ES5 or ES6, just ignore it and use the first overload instead.
+
+In both overloads, `rules` and `options` are the arguments to the `jss.createStyleSheet` call inside.
 
 ### License
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import jss from 'jss';
 
-export default function injectSheet(rules, options) {
+function decorate(DecoratedComponent, rules, options) {
   let refs = 0;
   let sheet = null;
 
@@ -31,41 +31,46 @@ export default function injectSheet(rules, options) {
       detach();
   }
 
-  return function wrap(DecoratedComponent) {
-    const displayName =
-      DecoratedComponent.displayName ||
-      DecoratedComponent.name ||
-      'Component';
+  const displayName =
+    DecoratedComponent.displayName ||
+    DecoratedComponent.name ||
+    'Component';
 
-    return class StyleSheetWrapper {
-      static wrapped = DecoratedComponent;
-      static displayName = `JSS(${displayName})`;
+  return class StyleSheetWrapper {
+    static wrapped = DecoratedComponent;
+    static displayName = `JSS(${displayName})`;
 
-      componentWillMount() {
-        this.sheet = ref();
-      }
+    componentWillMount() {
+      this.sheet = ref();
+    }
 
-      componentWillUpdate() {
-        if (process.env.NODE_ENV !== 'production') {
-          // Support React Hot Loader
-          if (this.sheet !== sheet) {
-            this.sheet.detach();
-            this.sheet = ref();
-          }
+    componentWillUpdate() {
+      if (process.env.NODE_ENV !== 'production') {
+        // Support React Hot Loader
+        if (this.sheet !== sheet) {
+          this.sheet.detach();
+          this.sheet = ref();
         }
       }
+    }
 
-      componentWillUnmount() {
-        deref();
-        this.sheet = null;
-      }
+    componentWillUnmount() {
+      deref();
+      this.sheet = null;
+    }
 
-      render() {
-        return (
-          <DecoratedComponent {...this.props}
-                              sheet={this.sheet} />
-        );
-      }
+    render() {
+      return (
+        <DecoratedComponent {...this.props} sheet={this.sheet} />
+      );
     }
   };
+}
+
+export default function useSheet(rulesOrComponent) {
+  if (typeof rulesOrComponent === 'function') {
+    return decorate(...arguments);
+  }
+
+  return (DecoratedComponent) => decorate(DecoratedComponent, ...arguments);
 }
