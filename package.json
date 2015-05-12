@@ -1,6 +1,6 @@
 {
   "name": "react-jss",
-  "version": "0.1.3",
+  "version": "1.0.0",
   "description": "JSS mixin for React components",
   "main": "modules/index.js",
   "scripts": {
@@ -17,7 +17,8 @@
     "css",
     "stylesheet",
     "jss",
-    "mixin"
+    "hoc",
+    "decorator"
   ],
   "author": "Dan Abramov <dan.abramov@me.com> (http://github.com/gaearon)",
   "license": "MIT",
@@ -27,7 +28,7 @@
   "homepage": "https://github.com/jsstyles/react-jss",
   "peerDependencies": {
     "jss": "^1.0.0",
-    "react": ">=0.12"
+    "react": ">=0.13"
   },
   "devDependencies": {
     "babel": "^5.2.17"
