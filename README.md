@@ -22,6 +22,11 @@ npm install --save react-jss
 var React = require('react');
 var useSheet = require('react-jss');
 
+// You can use jss directly too!
+var jss = require('jss');
+var vendorPrefixer = require('jss-vendor-prefixer');
+jss.use(vendorPrefixer);
+
 var styles = {
   button: {
     'background-color': 'yellow'
