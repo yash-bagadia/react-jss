@@ -59,6 +59,11 @@ module.exports = useSheet(Button, styles);
 import React, { Component } from 'react';
 import useSheet from 'react-jss';
 
+// You can use jss directly too!
+import jss from 'jss';
+import vendorPrefixer from 'jss-vendor-prefixer';
+jss.use(vendorPrefixer);
+
 const styles = {
   button: {
     'background-color': 'yellow'
@@ -90,6 +95,11 @@ export default useSheet(Button, styles);
 ```js
 import React, { Component } from 'react';
 import useSheet from 'react-jss';
+
+// You can use jss directly too!
+import jss from 'jss';
+import vendorPrefixer from 'jss-vendor-prefixer';
+jss.use(vendorPrefixer);
 
 const styles = {
   button: {
