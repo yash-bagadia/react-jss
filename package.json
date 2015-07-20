@@ -1,6 +1,6 @@
 {
   "name": "react-jss",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "JSS mixin for React components",
   "main": "modules/index.js",
   "scripts": {
@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/jsstyles/react-jss",
   "peerDependencies": {
-    "jss": "^1.0.0",
+    "jss": "^2.0.0",
     "react": ">=0.13"
   },
   "devDependencies": {
