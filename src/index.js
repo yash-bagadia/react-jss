@@ -69,10 +69,14 @@ function decorate(DecoratedComponent, rules, options = {}) {
 
 export default function useSheet(rulesOrComponentOrJss) {
   if (rulesOrComponentOrJss instanceof jss.Jss) {
-    return (rulesOrComponent, options = {}) => {
+    return (component, rules = {}, options = {}) => {
+      if (typeof component != 'function') {
+        rules = component;
+        options = rules;
+      }
       options.jss = rulesOrComponentOrJss;
-      return useSheet(rulesOrComponent, options);
-   } 
+      return useSheet(component, rules, options);
+    } 
   }
 
   if (typeof rulesOrComponentOrJss === 'function') {

@@ -1,6 +1,6 @@
 {
   "name": "react-jss",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "JSS mixin for React components",
   "main": "modules/index.js",
   "scripts": {
