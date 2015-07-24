@@ -14,6 +14,37 @@ Because JSS class names are namespaced by default, you will need to reach into `
 npm install --save react-jss
 ```
 
+### Reusable components
+
+You should use a local jss instance if you create components which will be used by external projects to avoid conflicts with their jss setup.
+
+#### ES5
+// jss.js
+```js
+// Create a new instance of jss.
+var jss = require('jss').create();
+// Now all plugins are used by this instance only.
+jss.use(require('jss-vendor-prefixer'));
+
+// Pass your jss instance to react-jss
+var useSheet = require('react-jss')(jss);
+
+exports.jss = jss;
+exports.useSheet = useSheet;
+```
+
+#### ES6
+```js
+import {Jss} from 'jss' 
+import reactJss from 'react-jss'
+import vendorPrefixer from 'jss-vendor-prefixer'
+
+export let jss = new Jss()
+export let useSheet = reactJss(jss)
+
+jss.use(vendorPrefixer)
+```
+
 ### Examples
 
 #### ES5

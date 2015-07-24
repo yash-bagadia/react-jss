@@ -1,13 +1,13 @@
 import React from 'react';
 import jss from 'jss';
 
-function decorate(DecoratedComponent, rules, options) {
+function decorate(DecoratedComponent, rules, options = {}) {
   let refs = 0;
   let sheet = null;
 
   function attach() {
     if (!sheet)
-      sheet = jss.createStyleSheet(rules, options);
+      sheet = (options.jss || jss).createStyleSheet(rules, options);
 
     sheet.attach();
   }
@@ -67,8 +67,15 @@ function decorate(DecoratedComponent, rules, options) {
   };
 }
 
-export default function useSheet(rulesOrComponent) {
-  if (typeof rulesOrComponent === 'function') {
+export default function useSheet(rulesOrComponentOrJss) {
+  if (rulesOrComponentOrJss instanceof jss.Jss) {
+    return (rulesOrComponent, options = {}) => {
+      options.jss = rulesOrComponentOrJss;
+      return useSheet(rulesOrComponent, options);
+   } 
+  }
+
+  if (typeof rulesOrComponentOrJss === 'function') {
     return decorate(...arguments);
   }
 

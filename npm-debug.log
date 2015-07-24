@@ -1,0 +1,97 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/bin/iojs', '/usr/local/bin/npm', 'pu' ]
+2 info using npm@2.13.0
+3 info using node@v2.4.0
+4 verbose publish [ '.' ]
+5 silly cache add args [ '.', null ]
+6 verbose cache add spec .
+7 silly cache add parsed spec { raw: '.',
+7 silly cache add   scope: null,
+7 silly cache add   name: null,
+7 silly cache add   rawSpec: '.',
+7 silly cache add   spec: '/Users/kof/work/projects/kof/react-jss',
+7 silly cache add   type: 'directory' }
+8 verbose addLocalDirectory /Users/kof/.npm/react-jss/1.0.2/package.tgz not in flight; packing
+9 verbose tar pack [ '/Users/kof/.npm/react-jss/1.0.2/package.tgz',
+9 verbose tar pack   '/Users/kof/work/projects/kof/react-jss' ]
+10 verbose tarball /Users/kof/.npm/react-jss/1.0.2/package.tgz
+11 verbose folder /Users/kof/work/projects/kof/react-jss
+12 info prepublish react-jss@1.0.2
+13 verbose unsafe-perm in lifecycle true
+14 verbose addLocalTarball adding from inside cache /Users/kof/.npm/react-jss/1.0.2/package.tgz
+15 silly cache afterAdd react-jss@1.0.2
+16 verbose afterAdd /Users/kof/.npm/react-jss/1.0.2/package/package.json not in flight; writing
+17 verbose afterAdd /Users/kof/.npm/react-jss/1.0.2/package/package.json written
+18 silly publish { name: 'react-jss',
+18 silly publish   version: '1.0.2',
+18 silly publish   description: 'JSS mixin for React components',
+18 silly publish   main: 'modules/index.js',
+18 silly publish   scripts: { build: './scripts/build', prepublish: 'npm run build' },
+18 silly publish   repository:
+18 silly publish    { type: 'git',
+18 silly publish      url: 'git+https://github.com/jsstyles/react-jss.git' },
+18 silly publish   keywords: [ 'react', 'style', 'css', 'stylesheet', 'jss', 'hoc', 'decorator' ],
+18 silly publish   author:
+18 silly publish    { name: 'Dan Abramov',
+18 silly publish      email: 'dan.abramov@me.com',
+18 silly publish      url: 'http://github.com/gaearon' },
+18 silly publish   license: 'MIT',
+18 silly publish   bugs: { url: 'https://github.com/jsstyles/react-jss/issues' },
+18 silly publish   homepage: 'https://github.com/jsstyles/react-jss',
+18 silly publish   peerDependencies: { jss: '^2.1.1', react: '>=0.13' },
+18 silly publish   devDependencies: { babel: '^5.2.17' },
+18 silly publish   readme: '## React JSS\n\nUse this [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750) to inject [JSS](https://github.com/jsstyles/jss) stylesheets into your React components. It can act both as a simple wrapping function and as an [ES7 decorator](https://github.com/wycats/javascript-decorators).\n\nReact JSS wraps your React component and injects `this.props.sheet`, which is just a regular [JSS stylesheet](https://github.com/jsstyles/jss), as a prop into your component. This is a common pattern that is used for composition in React instead of mixins, and works equally well with old-style `createClass` classes, as well as the ES6 classes.\n\nThe stylesheet is attached when there is at least one mounted component that uses it, and automatically detached when all components using it are unmounted. React JSS is compatible with live reloading using [React Hot Loader](https://github.com/gaearon/react-hot-loader).\n\nBecause JSS class names are namespaced by default, you will need to reach into `this.props.sheet.classes` to get their real names. For example, if you define a `button` class in your JSS stylesheet, its real name will be available as `this.props.sheet.classes.button`.\n\n### Installation\n\n```\nnpm install --save react-jss\n```\n\n### Reusable components\n\nYou should use a local jss instance if you create components which will be used by external projects to avoid conflicts with their jss setup.\n\n#### ES5\n// jss.js\n```js\n// Create a new instance of jss.\nvar jss = require(\'jss\').create();\n// Now all plugins are used by this instance only.\njss.use(require(\'jss-vendor-prefixer\'));\n\n// Pass your jss instance to react-jss\nvar useSheet = require(\'react-jss\')(jss);\n\nexports.jss = jss;\nexports.useSheet = useSheet;\n```\n\n#### ES6\n```js\nimport {Jss} from \'jss\' \nimport reactJss from \'react-jss\'\nimport vendorPrefixer from \'jss-vendor-prefixer\'\n\nexport let jss = new Jss()\nexport let useSheet = reactJss(jss)\n\njss.use(vendorPrefixer)\n```\n\n### Examples\n\n#### ES5\n\n```js\nvar React = require(\'react\');\nvar useSheet = require(\'react-jss\');\n\n// You can use jss directly too!\nvar jss = require(\'jss\');\nvar vendorPrefixer = require(\'jss-vendor-prefixer\');\njss.use(vendorPrefixer);\n\nvar styles = {\n  button: {\n    \'background-color\': \'yellow\'\n  },\n  label: {\n    \'font-weight\': \'bold\'\n  }\n};\n\nvar Button = React.createClass({\n  render: function () {\n    var classes = this.props.sheet.classes;\n\n    return (\n      <div className={classes.button}>\n        <span className={classes.label}>\n          {this.props.children}\n        </span>\n      </div>\n    );\n  }\n})\n\nmodule.exports = useSheet(Button, styles);\n```\n\n#### ES6\n\n```js\nimport React, { Component } from \'react\';\nimport useSheet from \'react-jss\';\n\n// You can use jss directly too!\nimport jss from \'jss\';\nimport vendorPrefixer from \'jss-vendor-prefixer\';\njss.use(vendorPrefixer);\n\nconst styles = {\n  button: {\n    \'background-color\': \'yellow\'\n  },\n  label: {\n    \'font-weight\': \'bold\'\n  }\n};\n\nclass Button extends Component {\n  render() {\n    const { classes } = this.props.sheet;\n\n    return (\n      <div className={classes.button}>\n        <span className={classes.label}>\n          {this.props.children}\n        </span>\n      </div>\n    );\n  }\n}\n\nexport default useSheet(Button, styles);\n```\n\n#### ES7 with [decorators](https://github.com/wycats/javascript-decorators) (`{ "stage": 0 }` in [.babelrc](https://babeljs.io/docs/usage/babelrc/))\n\n```js\nimport React, { Component } from \'react\';\nimport useSheet from \'react-jss\';\n\n// You can use jss directly too!\nimport jss from \'jss\';\nimport vendorPrefixer from \'jss-vendor-prefixer\';\njss.use(vendorPrefixer);\n\nconst styles = {\n  button: {\n    \'background-color\': \'yellow\'\n  },\n  label: {\n    \'font-weight\': \'bold\'\n  }\n};\n\n@useSheet(styles)\nexport default class Button extends Component {\n  render() {\n    const { classes } = this.props.sheet;\n\n    return (\n      <div className={classes.button}>\n        <span className={classes.label}>\n          {this.props.children}\n        </span>\n      </div>\n    );\n  }\n};\n```\n\n### Do you have a `classSet` helper?\n\nWe used to support a `classSet` helper in 0.x, but React is removing `React.addons.classSet` soon, and so are we. There are many alternative userland solutions, such as Jed Watson\'s excellent [classnames](https://github.com/JedWatson/classnames) library, so we suggest you use it instead.\n\nIt\'s easy to use with generated class names. If you\'re writing in ES6, you can use computed property names in the object literal:\n\n```js\nimport classSet from \'classnames\';\n\n  // ...\n\n  render() {\n    const { classes } = this.props.sheet;\n    return (\n      <div className={classSet({\n        [classes.normal]: true,\n        [classes.active]: this.state.active\n      })}>\n        {this.props.children}\n      </div>\n    );\n  );\n```\n\nIf you\'re still writing in ES5 ([you should consider Babel though!](https://babeljs.io/)), you can just supply an array:\n\n```js\n var classSet = require(\'classnames\');\n\n  // ...\n\n render: function () {\n    var classes = this.props.sheet.classes;\n    return (\n      <div className={classSet(\n        classes.normal,\n        this.state.active && classes.active\n      )}>\n        {this.props.children}\n      </div>\n    );\n  }\n```\n\nEither way, you can see now that there is no real need for a dedicated `classSet` helper in this project.\n\n### API\n\nReact JSS has two overloads.\nIf you are using ES5 or ES6, use this overload:\n\n```js\n// ES5 and ES6\nuseSheet: (ReactClass, rules[, options]) => ReactClass\n```\n\nIt lets you pass your React component class as the first parameter.\n\nThere is also another signature designed specifically to be used with [ES7 decorators](https://github.com/wycats/javascript-decorators). It activates if pass the styles as the first parameter instead of the component:\n\n```js\n// ES7\nuseSheet: (rules, [, options]) => (ReactClass) => ReactClass\n```\n\nThis overload returns a partial function, to which you then should pass your React component class. This is only useful because [ES7 decorators](https://github.com/wycats/javascript-decorators) expect such signature. If you use ES5 or ES6, just ignore it and use the first overload instead.\n\nIn both overloads, `rules` and `options` are the arguments to the `jss.createStyleSheet` call inside.  \nIf you\'re not sure which overload to use, go with the first one.\n\n### License\n\nMIT\n',
+18 silly publish   readmeFilename: 'README.md',
+18 silly publish   gitHead: 'acf18d54d4b66dd165fe4d6910effa27d8b94742',
+18 silly publish   _id: 'react-jss@1.0.2',
+18 silly publish   _shasum: 'f1ed52712a497159dfe9f381a39065511d8d16a0',
+18 silly publish   _from: '.' }
+19 verbose getPublishConfig undefined
+20 silly mapToRegistry name react-jss
+21 silly mapToRegistry using default registry
+22 silly mapToRegistry registry https://registry.npmjs.org/
+23 silly mapToRegistry uri https://registry.npmjs.org/react-jss
+24 verbose publish registryBase https://registry.npmjs.org/
+25 silly publish uploading /Users/kof/.npm/react-jss/1.0.2/package.tgz
+26 verbose request uri https://registry.npmjs.org/react-jss
+27 verbose request sending authorization for write operation
+28 info attempt registry request try #1 at 11:49:28
+29 verbose request id 0014128100dbc370
+30 http request PUT https://registry.npmjs.org/react-jss
+31 http 403 https://registry.npmjs.org/react-jss
+32 verbose headers { 'content-type': 'application/json',
+32 verbose headers   'cache-control': 'max-age=60',
+32 verbose headers   'content-length': '95',
+32 verbose headers   'accept-ranges': 'bytes',
+32 verbose headers   date: 'Fri, 24 Jul 2015 09:49:29 GMT',
+32 verbose headers   via: '1.1 varnish',
+32 verbose headers   connection: 'keep-alive',
+32 verbose headers   'x-served-by': 'cache-fra1230-FRA',
+32 verbose headers   'x-cache': 'MISS',
+32 verbose headers   'x-cache-hits': '0',
+32 verbose headers   'x-timer': 'S1437731368.327112,VS0,VE1460' }
+33 verbose request invalidating /Users/kof/.npm/registry.npmjs.org/react-jss on PUT
+34 error publish Failed PUT 403
+35 verbose stack Error: "You cannot publish over the previously published version 1.0.2." : react-jss
+35 verbose stack     at CachingRegistryClient.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:247:14)
+35 verbose stack     at Request._callback (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:170:14)
+35 verbose stack     at Request.self.callback (/usr/local/lib/node_modules/npm/node_modules/request/request.js:197:22)
+35 verbose stack     at emitTwo (events.js:87:13)
+35 verbose stack     at Request.emit (events.js:172:7)
+35 verbose stack     at Request.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:1050:14)
+35 verbose stack     at emitOne (events.js:82:20)
+35 verbose stack     at Request.emit (events.js:169:7)
+35 verbose stack     at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:996:12)
+35 verbose stack     at emitNone (events.js:72:20)
+36 verbose statusCode 403
+37 verbose pkgid react-jss
+38 verbose cwd /Users/kof/work/projects/kof/react-jss
+39 error Darwin 14.4.0
+40 error argv "/usr/local/bin/iojs" "/usr/local/bin/npm" "pu"
+41 error node v2.4.0
+42 error npm  v2.13.0
+43 error code E403
+44 error "You cannot publish over the previously published version 1.0.2." : react-jss
+45 error If you need help, you may report this error at:
+45 error     <https://github.com/npm/npm/issues>
+46 verbose exit [ 1, true ]
