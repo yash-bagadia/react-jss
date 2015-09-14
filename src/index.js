@@ -36,7 +36,7 @@ function decorate(DecoratedComponent, rules, options = {}) {
     DecoratedComponent.name ||
     'Component';
 
-  return class StyleSheetWrapper {
+  return class StyleSheetWrapper extends React.Component {
     static wrapped = DecoratedComponent;
     static displayName = `JSS(${displayName})`;
 
