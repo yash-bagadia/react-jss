@@ -60,7 +60,7 @@ function decorate(DecoratedComponent, rules, options = {}) {
 }
 
 export default function useSheet(rulesOrComponentOrJss) {
-  if (rulesOrComponentOrJss instanceof jss.Jss) {
+  if (rulesOrComponentOrJss instanceof jss.constructor) {
     return (component, rules = {}, options = {}) => {
       if (typeof component != 'function') {
         rules = component
