@@ -20,26 +20,26 @@ You should use a local jss instance if you create components which will be used 
 
 #### ES5
 // jss.js
-```js
+```javascript
 // Create a new instance of jss.
-var jss = require('jss').create();
+var jss = require('jss').create()
 // Now all plugins are used by this instance only.
-jss.use(require('jss-vendor-prefixer'));
+jss.use(require('jss-vendor-prefixer'))
 
 // Pass your jss instance to react-jss
-var useSheet = require('react-jss')(jss);
+var useSheet = require('react-jss')(jss)
 
-exports.jss = jss;
-exports.useSheet = useSheet;
+exports.jss = jss
+exports.useSheet = useSheet
 ```
 
 #### ES6
-```js
-import {Jss} from 'jss' 
+```javascript
+import {create} from 'jss'
 import reactJss from 'react-jss'
 import vendorPrefixer from 'jss-vendor-prefixer'
 
-export let jss = new Jss()
+export let jss = create()
 export let useSheet = reactJss(jss)
 
 jss.use(vendorPrefixer)
@@ -49,14 +49,14 @@ jss.use(vendorPrefixer)
 
 #### ES5
 
-```js
-var React = require('react');
-var useSheet = require('react-jss');
+```javascript
+var React = require('react')
+var useSheet = require('react-jss')
 
 // You can use jss directly too!
-var jss = require('jss');
-var vendorPrefixer = require('jss-vendor-prefixer');
-jss.use(vendorPrefixer);
+var jss = require('jss')
+var vendorPrefixer = require('jss-vendor-prefixer')
+jss.use(vendorPrefixer)
 
 var styles = {
   button: {
@@ -65,11 +65,11 @@ var styles = {
   label: {
     'font-weight': 'bold'
   }
-};
+}
 
 var Button = React.createClass({
   render: function () {
-    var classes = this.props.sheet.classes;
+    var classes = this.props.sheet.classes
 
     return (
       <div className={classes.button}>
@@ -77,23 +77,23 @@ var Button = React.createClass({
           {this.props.children}
         </span>
       </div>
-    );
+    )
   }
 })
 
-module.exports = useSheet(Button, styles);
+module.exports = useSheet(Button, styles)
 ```
 
 #### ES6
 
-```js
-import React, { Component } from 'react';
-import useSheet from 'react-jss';
+```javascript
+import React, { Component } from 'react'
+import useSheet from 'react-jss'
 
 // You can use jss directly too!
-import jss from 'jss';
-import vendorPrefixer from 'jss-vendor-prefixer';
-jss.use(vendorPrefixer);
+import jss from 'jss'
+import vendorPrefixer from 'jss-vendor-prefixer'
+jss.use(vendorPrefixer)
 
 const styles = {
   button: {
@@ -102,11 +102,11 @@ const styles = {
   label: {
     'font-weight': 'bold'
   }
-};
+}
 
 class Button extends Component {
   render() {
-    const { classes } = this.props.sheet;
+    const { classes } = this.props.sheet
 
     return (
       <div className={classes.button}>
@@ -114,23 +114,23 @@ class Button extends Component {
           {this.props.children}
         </span>
       </div>
-    );
+    )
   }
 }
 
-export default useSheet(Button, styles);
+export default useSheet(Button, styles)
 ```
 
 #### ES7 with [decorators](https://github.com/wycats/javascript-decorators) (`{ "stage": 0 }` in [.babelrc](https://babeljs.io/docs/usage/babelrc/))
 
-```js
-import React, { Component } from 'react';
-import useSheet from 'react-jss';
+```javascript
+import React, { Component } from 'react'
+import useSheet from 'react-jss'
 
 // You can use jss directly too!
-import jss from 'jss';
-import vendorPrefixer from 'jss-vendor-prefixer';
-jss.use(vendorPrefixer);
+import jss from 'jss'
+import vendorPrefixer from 'jss-vendor-prefixer'
+jss.use(vendorPrefixer)
 
 const styles = {
   button: {
@@ -139,12 +139,12 @@ const styles = {
   label: {
     'font-weight': 'bold'
   }
-};
+}
 
 @useSheet(styles)
 export default class Button extends Component {
   render() {
-    const { classes } = this.props.sheet;
+    const { classes } = this.props.sheet
 
     return (
       <div className={classes.button}>
@@ -152,9 +152,9 @@ export default class Button extends Component {
           {this.props.children}
         </span>
       </div>
-    );
+    )
   }
-};
+}
 ```
 
 ### Do you have a `classSet` helper?
@@ -163,13 +163,13 @@ We used to support a `classSet` helper in 0.x, but React is removing `React.addo
 
 It's easy to use with generated class names. If you're writing in ES6, you can use computed property names in the object literal:
 
-```js
-import classSet from 'classnames';
+```javascript
+import classSet from 'classnames'
 
   // ...
 
   render() {
-    const { classes } = this.props.sheet;
+    const { classes } = this.props.sheet
     return (
       <div className={classSet({
         [classes.normal]: true,
@@ -177,19 +177,19 @@ import classSet from 'classnames';
       })}>
         {this.props.children}
       </div>
-    );
-  );
+    )
+  )
 ```
 
 If you're still writing in ES5 ([you should consider Babel though!](https://babeljs.io/)), you can just supply an array:
 
-```js
- var classSet = require('classnames');
+```javascript
+ var classSet = require('classnames')
 
   // ...
 
  render: function () {
-    var classes = this.props.sheet.classes;
+    var classes = this.props.sheet.classes
     return (
       <div className={classSet(
         classes.normal,
@@ -197,7 +197,7 @@ If you're still writing in ES5 ([you should consider Babel though!](https://babe
       )}>
         {this.props.children}
       </div>
-    );
+    )
   }
 ```
 
@@ -224,7 +224,7 @@ useSheet: (rules, [, options]) => (ReactClass) => ReactClass
 
 This overload returns a partial function, to which you then should pass your React component class. This is only useful because [ES7 decorators](https://github.com/wycats/javascript-decorators) expect such signature. If you use ES5 or ES6, just ignore it and use the first overload instead.
 
-In both overloads, `rules` and `options` are the arguments to the `jss.createStyleSheet` call inside.  
+In both overloads, `rules` and `options` are the arguments to the `jss.createStyleSheet` call inside.
 If you're not sure which overload to use, go with the first one.
 
 ### License
