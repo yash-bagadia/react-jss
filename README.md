@@ -4,9 +4,9 @@ This is a ref counter in order to attach/detach [JSS](https://github.com/jsstyle
 
 ### Usage
 
-You can use it as a [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750) to inject [JSS](https://github.com/jsstyles/jss). It can act both as a simple wrapping function and as an [ES7 decorator](https://github.com/wycats/javascript-decorators).
+You can use it as a [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750) to inject [JSS](https://github.com/jsstyles/jss). It can act both as a simple wrapping function and as a [ES7 decorator](https://github.com/wycats/javascript-decorators).
 
-React JSS wraps your React component and injects `this.props.sheet`, which is just a regular [JSS styles heet](https://github.com/jsstyles/jss), as a prop into your component. This is a common pattern that is used for composition in React instead of mixins, and works equally well with old-style `createClass` classes, as well as the ES6 classes.
+React JSS wraps your React component and injects `this.props.sheet`, which is just a regular [JSS style sheet](https://github.com/jsstyles/jss), as a prop into your component. This is a common pattern that is used for composition in React instead of mixins, and works equally well with old-style `createClass` classes, as well as the ES6 classes.
 
 Because JSS class names are namespaced by default, you will need to reach into `this.props.sheet.classes` to get their real names. For example, if you define a `button` class in your JSS stylesheet, its real name will be available as `this.props.sheet.classes.button`.
 
