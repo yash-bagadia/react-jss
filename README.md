@@ -1,6 +1,6 @@
 ## React JSS
 
-This is a ref counter in order to attach/detach [JSS](https://github.com/jsstyles/jss) style sheets when any component using them is mounted. You need this module only if you build a big application where leaving all styles in the DOM might have performance impact or you are going to hit [IE limits](http://blogs.msdn.com/b/ieinternals/archive/2011/05/14/10164546.aspx).
+This modules does ref counting and detaches [JSS](https://github.com/jsstyles/jss) style sheets when all components using them are unmounted. You need this module only if you build a big application where leaving all styles in the DOM might have performance impact or you are going to hit [IE limits](http://blogs.msdn.com/b/ieinternals/archive/2011/05/14/10164546.aspx).
 
 ### Usage
 
