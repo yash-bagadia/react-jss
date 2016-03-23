@@ -46,7 +46,7 @@ import vendorPrefixer from 'jss-vendor-prefixer'
 export let jss = create()
 export let useSheet = reactJss(jss)
 
-jss.use(vendorPrefixer)
+jss.use(vendorPrefixer())
 ```
 
 ### Examples
@@ -60,7 +60,7 @@ var useSheet = require('react-jss')
 // You can use jss directly too!
 var jss = require('jss')
 var vendorPrefixer = require('jss-vendor-prefixer')
-jss.use(vendorPrefixer)
+jss.use(vendorPrefixer())
 
 var styles = {
   button: {
@@ -97,7 +97,7 @@ import useSheet from 'react-jss'
 // You can use jss directly too!
 import jss from 'jss'
 import vendorPrefixer from 'jss-vendor-prefixer'
-jss.use(vendorPrefixer)
+jss.use(vendorPrefixer())
 
 const styles = {
   button: {
@@ -134,7 +134,7 @@ import useSheet from 'react-jss'
 // You can use jss directly too!
 import jss from 'jss'
 import vendorPrefixer from 'jss-vendor-prefixer'
-jss.use(vendorPrefixer)
+jss.use(vendorPrefixer())
 
 const styles = {
   button: {
