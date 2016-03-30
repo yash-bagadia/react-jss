@@ -1,6 +1,6 @@
 ## React JSS
 
-The benefit of using react-jss instead of using [JSS](https://github.com/jsstyles/jss) directly is lazy evaluation and ref counting. It will compile your styles to CSS only when a component using is mounted for the first time. Ref counting will unmount style sheets when they are not in use by any mounted component.
+The benefit of using react-jss instead of using [JSS](https://github.com/jsstyles/jss) directly is lazy evaluation and auto mount/unmount. It will compile your styles to CSS only when a component using them is mounted for the first time. Through ref counting, it will unmount styles when they are not in use by any of mounted component.
 
 You need this module if you build a big application where leaving all styles in the DOM might have performance impact or you are going to hit [IE limits](http://blogs.msdn.com/b/ieinternals/archive/2011/05/14/10164546.aspx).
 
