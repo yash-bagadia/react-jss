@@ -60,8 +60,8 @@ function decorate(_jss, DecoratedComponent, rules, options) {
 }
 
 export default function useSheet(_jss, DecoratedComponent, rules, options) {
-  // User didn't pass an own jss instance, lets use the global one.
-  if (!(_jss instanceof jss.constructor)) {
+  // User creates a useSheet function bound to a specific jss version.
+  if (_jss instanceof jss.constructor && !DecoratedComponent) {
     return useSheet.bind(null, jss)
   }
 
