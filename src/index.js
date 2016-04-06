@@ -1,12 +1,12 @@
 import React from 'react'
 import jss from 'jss'
 
-function decorate(DecoratedComponent, rules, options = {}) {
+function decorate(_jss, DecoratedComponent, rules, options) {
   let refs = 0
   let sheet = null
 
   function attach() {
-    if (!sheet) sheet = (options.jss || jss).createStyleSheet(rules, options)
+    if (!sheet) sheet = _jss.createStyleSheet(rules, options)
     sheet.attach()
   }
 
@@ -40,7 +40,7 @@ function decorate(DecoratedComponent, rules, options = {}) {
 
     componentWillUpdate() {
       if (process.env.NODE_ENV !== 'production') {
-        // Support React Hot Loader
+        // Support React Hot Loader.
         if (this.sheet !== sheet) {
           this.sheet.detach()
           this.sheet = ref()
@@ -59,21 +59,20 @@ function decorate(DecoratedComponent, rules, options = {}) {
   }
 }
 
-export default function useSheet(rulesOrComponentOrJss) {
-  if (rulesOrComponentOrJss instanceof jss.constructor) {
-    return (component, rules = {}, options = {}) => {
-      if (typeof component != 'function') {
-        rules = component
-        options = rules
-      }
-      options.jss = rulesOrComponentOrJss
-      return useSheet(component, rules, options)
-    }
+export default function useSheet(_jss, DecoratedComponent, rules, options) {
+  // User didn't pass an own jss instance, lets use the global one.
+  if (!(_jss instanceof jss.constructor)) {
+    return useSheet.bind(null, jss)
   }
 
-  if (typeof rulesOrComponentOrJss === 'function') {
+  // Manually called by user: `useSheet(DecoratedComponent, rules, options)`
+  if (typeof DecoratedComponent === 'function') {
     return decorate(...arguments)
   }
 
-  return (DecoratedComponent) => decorate(DecoratedComponent, ...arguments)
+  // Used a decorator: `useSheet(rules, options)(DecoratedComponent)`
+  rules = DecoratedComponent
+  options = rules
+
+  return (_DecoratedComponent) => decorate(_jss, _DecoratedComponent, rules, options)
 }
