@@ -1,7 +1,7 @@
 import React from 'react'
 import jss from 'jss'
 
-function decorate(_jss, DecoratedComponent, rules, options) {
+function decorate(DecoratedComponent, rules, options, _jss = jss) {
   let refs = 0
   let sheet = null
 
@@ -59,20 +59,31 @@ function decorate(_jss, DecoratedComponent, rules, options) {
   }
 }
 
-export default function useSheet(_jss, DecoratedComponent, rules, options) {
+/**
+ * It has 3 different use cases:
+ *
+ * - binding to a specific jss version `useSheet(jss)`, returns a bound useSheet
+ * function, default is the global jss instance
+ * - manual decoration `useSheet(Component, rules, options)`
+ * - decoration by @decorator, which produces `useSheet(rules, options)(Component)`
+ */
+export default function useSheet(DecoratedComponent, rules, options) {
   // User creates a useSheet function bound to a specific jss version.
-  if (_jss instanceof jss.constructor && !DecoratedComponent) {
-    return useSheet.bind(null, jss)
+  // DecoratedComponent is Jss instance.
+  if (DecoratedComponent instanceof jss.constructor && !rules) {
+    return useSheet.bind(DecoratedComponent)
   }
 
-  // Manually called by user: `useSheet(DecoratedComponent, rules, options)`
+  const _jss = this instanceof jss.constructor ? this : undefined
+
+  // Manually called by user: `useSheet(DecoratedComponent, rules, options)`.
   if (typeof DecoratedComponent === 'function') {
-    return decorate(...arguments)
+    return decorate(...arguments, _jss)
   }
 
-  // Used a decorator: `useSheet(rules, options)(DecoratedComponent)`
-  rules = DecoratedComponent
+  // Used as a decorator: `useSheet(rules, options)(DecoratedComponent)`.
   options = rules
+  rules = DecoratedComponent
 
-  return (_DecoratedComponent) => decorate(_jss, _DecoratedComponent, rules, options)
+  return (_DecoratedComponent) => decorate(_DecoratedComponent, rules, options, _jss)
 }
