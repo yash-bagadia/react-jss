@@ -78,7 +78,7 @@ export default function useSheet(DecoratedComponent, rules, options) {
 
   // Manually called by user: `useSheet(DecoratedComponent, rules, options)`.
   if (typeof DecoratedComponent === 'function') {
-    return decorate(...arguments, _jss)
+    return decorate(DecoratedComponent, rules, options, _jss)
   }
 
   // Used as a decorator: `useSheet(rules, options)(DecoratedComponent)`.
