@@ -127,7 +127,7 @@ class Button extends Component {
 export default useSheet(Button, styles)
 ```
 
-#### ES7 with [decorators](https://github.com/wycats/javascript-decorators) (`{ "presets": ["stage-1"] }` in [.babelrc](https://babeljs.io/docs/usage/babelrc/))
+#### ES7 with [decorators](https://github.com/wycats/javascript-decorators) (using [babel-plugin-transform-decorators-legacy](https://github.com/loganfsmyth/babel-plugin-transform-decorators-legacy))
 
 ```javascript
 import React, { Component } from 'react'
