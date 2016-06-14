@@ -1,5 +1,6 @@
 import React from 'react'
 import jss from 'jss'
+import hoistNonReactStatics from 'hoist-non-react-statics'
 
 function decorate(DecoratedComponent, rules, options, _jss = jss) {
   let refs = 0
@@ -30,7 +31,7 @@ function decorate(DecoratedComponent, rules, options, _jss = jss) {
     DecoratedComponent.name ||
     'Component'
 
-  return class StyleSheetWrapper extends React.Component {
+  class StyleSheetWrapper extends React.Component {
     static wrapped = DecoratedComponent
     static displayName = `JSS(${displayName})`
 
@@ -57,6 +58,10 @@ function decorate(DecoratedComponent, rules, options, _jss = jss) {
       return <DecoratedComponent {...this.props} sheet={this.sheet} />
     }
   }
+
+  return hoistNonReactStatics(StyleSheetWrapper, DecoratedComponent, {
+    wrapped: true
+  })
 }
 
 /**
@@ -74,16 +79,16 @@ export default function useSheet(DecoratedComponent, rules, options) {
     return useSheet.bind(DecoratedComponent)
   }
 
-  const _jss = this instanceof jss.constructor ? this : undefined
+  const customJss = this instanceof jss.constructor ? this : undefined
 
   // Manually called by user: `useSheet(DecoratedComponent, rules, options)`.
   if (typeof DecoratedComponent === 'function') {
-    return decorate(DecoratedComponent, rules, options, _jss)
+    return decorate(DecoratedComponent, rules, options, customJss)
   }
 
   // Used as a decorator: `useSheet(rules, options)(DecoratedComponent)`.
   options = rules
   rules = DecoratedComponent
 
-  return (_DecoratedComponent) => decorate(_DecoratedComponent, rules, options, _jss)
+  return (_DecoratedComponent) => decorate(_DecoratedComponent, rules, options, customJss)
 }
