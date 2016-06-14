@@ -4,9 +4,9 @@
   "description": "JSS mixin for React components",
   "main": "lib/index.js",
   "scripts": {
-    "build": "./node_modules/.bin/cross-env NODE_ENV=production BABEL_ENV=commonjs ./node_modules/.bin/babel src --out-dir lib",
+    "build": "cross-env NODE_ENV=production BABEL_ENV=commonjs babel src --out-dir lib",
     "prepublish": "npm run lint && npm run build",
-    "lint": "./node_modules/.bin/eslint ./src"
+    "lint": "eslint ./src"
   },
   "repository": {
     "type": "git",
