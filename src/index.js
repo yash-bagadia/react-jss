@@ -74,16 +74,16 @@ export default function useSheet(DecoratedComponent, rules, options) {
     return useSheet.bind(DecoratedComponent)
   }
 
-  const _jss = this instanceof jss.constructor ? this : undefined
+  const customJss = this instanceof jss.constructor ? this : undefined
 
   // Manually called by user: `useSheet(DecoratedComponent, rules, options)`.
   if (typeof DecoratedComponent === 'function') {
-    return decorate(DecoratedComponent, rules, options, _jss)
+    return decorate(DecoratedComponent, rules, options, customJss)
   }
 
   // Used as a decorator: `useSheet(rules, options)(DecoratedComponent)`.
   options = rules
   rules = DecoratedComponent
 
-  return (_DecoratedComponent) => decorate(_DecoratedComponent, rules, options, _jss)
+  return (_DecoratedComponent) => decorate(_DecoratedComponent, rules, options, customJss)
 }
