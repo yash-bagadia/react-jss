@@ -1,5 +1,6 @@
 import React from 'react'
 import jss from 'jss'
+import hoistNonReactStatics from 'hoist-non-react-statics'
 
 function decorate(DecoratedComponent, rules, options, _jss = jss) {
   let refs = 0
@@ -30,7 +31,7 @@ function decorate(DecoratedComponent, rules, options, _jss = jss) {
     DecoratedComponent.name ||
     'Component'
 
-  return class StyleSheetWrapper extends React.Component {
+  class StyleSheetWrapper extends React.Component {
     static wrapped = DecoratedComponent
     static displayName = `JSS(${displayName})`
 
@@ -57,6 +58,10 @@ function decorate(DecoratedComponent, rules, options, _jss = jss) {
       return <DecoratedComponent {...this.props} sheet={this.sheet} />
     }
   }
+
+  return hoistNonReactStatics(StyleSheetWrapper, DecoratedComponent, {
+    wrapped: true
+  })
 }
 
 /**

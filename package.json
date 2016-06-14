@@ -48,5 +48,8 @@
     "jss": "^3.11.1",
     "react": "^15.1.0",
     "webpack": "^1.13.1"
+  },
+  "dependencies": {
+    "hoist-non-react-statics": "1.1.0"
   }
 }
