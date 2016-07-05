@@ -92,3 +92,6 @@ export default function useSheet(DecoratedComponent, rules, options) {
 
   return (_DecoratedComponent) => decorate(_DecoratedComponent, rules, options, customJss)
 }
+
+// Hotfix for babel 5 migration, will be removed in the next major version.
+module.exports = exports = useSheet
