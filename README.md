@@ -1,14 +1,16 @@
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/cssinjs/lobby)
+
 ## React JSS
 
-The benefit of using react-jss instead of using [JSS](https://github.com/jsstyles/jss) directly is lazy evaluation and auto mount/unmount. It will compile your styles to CSS only when a component using them is mounted for the first time. Through ref counting, it will unmount styles when they are not in use by any of mounted component.
+The benefit of using react-jss instead of using [JSS](https://github.com/cssinjs/jss) directly is lazy evaluation and auto mount/unmount. It will compile your styles to CSS only when a component using them is mounted for the first time. Through ref counting, it will unmount styles when they are not in use by any of mounted component.
 
 You need this module if you build a big application where leaving all styles in the DOM or compiling all styles at once might have performance impact or you are going to hit [IE limits](http://blogs.msdn.com/b/ieinternals/archive/2011/05/14/10164546.aspx).
 
 ### Usage
 
-You can use it as a [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750) to inject [JSS](https://github.com/jsstyles/jss). It can act both as a simple wrapping function and as a [ES7 decorator](https://github.com/wycats/javascript-decorators).
+You can use it as a [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750) to inject [JSS](https://github.com/cssinjs/jss). It can act both as a simple wrapping function and as a [ES7 decorator](https://github.com/wycats/javascript-decorators).
 
-React JSS wraps your React component and injects `this.props.sheet`, which is just a regular [JSS style sheet](https://github.com/jsstyles/jss), as a prop into your component. This is a common pattern that is used for composition in React instead of mixins, and works equally well with old-style `createClass` classes, as well as the ES6 classes.
+React JSS wraps your React component and injects `this.props.sheet`, which is just a regular [JSS style sheet](https://github.com/cssinjs/jss), as a prop into your component. This is a common pattern that is used for composition in React instead of mixins, and works equally well with old-style `createClass` classes, as well as the ES6 classes.
 
 Because JSS class names are namespaced by default, you will need to reach into `this.props.sheet.classes` to get their real names. For example, if you define a `button` class in your JSS stylesheet, its real name will be available as `this.props.sheet.classes.button`.
 
