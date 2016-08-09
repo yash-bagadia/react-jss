@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/cssinjs/react-jss",
   "peerDependencies": {
-    "jss": "5.2.0",
+    "jss": "^5.2.0",
     "react": ">=0.13"
   },
   "devDependencies": {
