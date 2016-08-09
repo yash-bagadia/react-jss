@@ -1,6 +1,6 @@
 {
   "name": "react-jss",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "JSS mixin for React components",
   "main": "lib/index.js",
   "scripts": {
