@@ -1,13 +1,30 @@
-import React from 'react'
-import jss from 'jss'
+import React, {Component} from 'react'
+import {create as createJss} from 'jss'
+import preset from 'jss-preset-default'
 import hoistNonReactStatics from 'hoist-non-react-statics'
 
-function decorate(DecoratedComponent, rules, options, _jss = jss) {
+/**
+ * Wrap a Component into a JSS Container Component.
+ *
+ * @param {Jss} jss
+ * @param {Component} WrappedComponent
+ * @param {Object} styles
+ * @param {Object} [options]
+ * @return {Component}
+ */
+function wrap(jss, WrappedComponent, styles, options = {}) {
   let refs = 0
   let sheet = null
 
+  const displayName =
+    WrappedComponent.displayName ||
+    WrappedComponent.name ||
+    'Component'
+
+  if (!options.meta) options.meta = displayName
+
   function attach() {
-    if (!sheet) sheet = _jss.createStyleSheet(rules, options)
+    if (!sheet) sheet = jss.createStyleSheet(styles, options)
     sheet.attach()
   }
 
@@ -26,14 +43,9 @@ function decorate(DecoratedComponent, rules, options, _jss = jss) {
     if (refs === 0) detach()
   }
 
-  const displayName =
-    DecoratedComponent.displayName ||
-    DecoratedComponent.name ||
-    'Component'
-
-  class StyleSheetWrapper extends React.Component {
-    static wrapped = DecoratedComponent
-    static displayName = `JSS(${displayName})`
+  return class Jss extends Component {
+    static wrapped = WrappedComponent
+    static displayName = `Jss(${displayName})`
 
     componentWillMount() {
       this.sheet = ref()
@@ -55,40 +67,36 @@ function decorate(DecoratedComponent, rules, options, _jss = jss) {
     }
 
     render() {
-      return <DecoratedComponent {...this.props} sheet={this.sheet} />
+      return <WrappedComponent {...this.props} sheet={this.sheet} />
     }
   }
-
-  return hoistNonReactStatics(StyleSheetWrapper, DecoratedComponent, {
-    wrapped: true
-  })
 }
 
 /**
- * It has 3 different use cases:
+ * Create a `injectSheet` function that will use the passed JSS instance.
  *
- * - binding to a specific jss version `useSheet(jss)`, returns a bound useSheet
- * function, default is the global jss instance
- * - manual decoration `useSheet(Component, rules, options)`
- * - decoration by @decorator, which produces `useSheet(rules, options)(Component)`
+ * @param {Jss} jss
+ * @return {Function}
+ * @api public
  */
-export default function useSheet(DecoratedComponent, rules, options) {
-  // User creates a useSheet function bound to a specific jss version.
-  // DecoratedComponent is Jss instance.
-  if (DecoratedComponent instanceof jss.constructor && !rules) {
-    return useSheet.bind(DecoratedComponent)
+export function create(jss) {
+  return function injectSheet(styles, options) {
+    return (WrappedComponent) => {
+      const Jss = wrap(jss, WrappedComponent, styles, options)
+      return hoistNonReactStatics(Jss, WrappedComponent, {wrapped: true})
+    }
   }
-
-  const customJss = this instanceof jss.constructor ? this : undefined
-
-  // Manually called by user: `useSheet(DecoratedComponent, rules, options)`.
-  if (typeof DecoratedComponent === 'function') {
-    return decorate(DecoratedComponent, rules, options, customJss)
-  }
-
-  // Used as a decorator: `useSheet(rules, options)(DecoratedComponent)`.
-  options = rules
-  rules = DecoratedComponent
-
-  return (_DecoratedComponent) => decorate(_DecoratedComponent, rules, options, customJss)
 }
+
+/**
+ * Exports injectSheet function as default.
+ * Returns a function which needs to be invoked with a Component.
+ *
+ * `injectSheet(styles, [options])(Component)`
+ *
+ * @param {Object} styles
+ * @param {Object} [options]
+ * @return {Function}
+ * @api public
+ */
+export default create(createJss(preset()))
