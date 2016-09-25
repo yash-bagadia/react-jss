@@ -63,4 +63,21 @@ describe('react-jss', () => {
       expect(document.querySelectorAll('style').length).to.be(0)
     })
   })
+
+  describe('.injectSheet() without a component for global styles', () => {
+    let Component
+
+    beforeEach(() => {
+      Component = injectSheet({
+        button: {color: 'red'}
+      })()
+    })
+
+    it('should attach and detach a sheet', () => {
+      render(<Component />, node)
+      expect(document.querySelectorAll('style').length).to.be(1)
+      unmountComponentAtNode(node)
+      expect(document.querySelectorAll('style').length).to.be(0)
+    })
+  })
 })

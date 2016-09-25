@@ -1,6 +1,10 @@
+## 4.0.2 / 2016-09-25
+
+- Maked passing a component optional.
+
 ## 4.0.1 / 2016-09-25
 
-- fix test runner for jss main repo
+- Fix test runner for jss main repo.
 
 ## 4.0.0 / 2016-09-24
 

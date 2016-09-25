@@ -81,7 +81,7 @@ function wrap(jss, WrappedComponent, styles, options = {}) {
  */
 export function create(jss) {
   return function injectSheet(styles, options) {
-    return (WrappedComponent) => {
+    return (WrappedComponent = () => null) => {
       const Jss = wrap(jss, WrappedComponent, styles, options)
       return hoistNonReactStatics(Jss, WrappedComponent, {wrapped: true})
     }
