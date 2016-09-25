@@ -1,4 +1,6 @@
+/* eslint-disable strict */
 
+'use strict'
 
 const webpack = require('webpack')
 
@@ -16,7 +18,11 @@ const plugins = [
 ]
 
 if (isProd) {
-  plugins.push(new webpack.optimize.UglifyJsPlugin())
+  plugins.push(new webpack.optimize.UglifyJsPlugin({
+    compress: {
+      warnings: false
+    }
+  }))
 }
 
 let externals
