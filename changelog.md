@@ -1,3 +1,7 @@
+## 4.0.1 / 2016-09-25
+
+- fix test runner for jss main repo
+
 ## 4.0.0 / 2016-09-24
 
 - Added jss and jss-preset-default as a dependency, uses jss-preset-default by default #49.
