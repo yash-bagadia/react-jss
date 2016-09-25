@@ -1,3 +1,7 @@
+## 4.0.3 / 2016-09-25
+
+- Default Container component should render children to allow wrapping.
+
 ## 4.0.2 / 2016-09-25
 
 - Maked passing a component optional.

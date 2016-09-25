@@ -72,6 +72,8 @@ function wrap(jss, WrappedComponent, styles, options = {}) {
   }
 }
 
+const Container = ({children}) => (children || null)
+
 /**
  * Create a `injectSheet` function that will use the passed JSS instance.
  *
@@ -81,7 +83,7 @@ function wrap(jss, WrappedComponent, styles, options = {}) {
  */
 export function create(jss) {
   return function injectSheet(styles, options) {
-    return (WrappedComponent = () => null) => {
+    return (WrappedComponent = Container) => {
       const Jss = wrap(jss, WrappedComponent, styles, options)
       return hoistNonReactStatics(Jss, WrappedComponent, {wrapped: true})
     }

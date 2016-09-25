@@ -65,19 +65,30 @@ describe('react-jss', () => {
   })
 
   describe('.injectSheet() without a component for global styles', () => {
-    let Component
+    let Container
 
     beforeEach(() => {
-      Component = injectSheet({
+      Container = injectSheet({
         button: {color: 'red'}
       })()
     })
 
     it('should attach and detach a sheet', () => {
-      render(<Component />, node)
+      render(<Container />, node)
       expect(document.querySelectorAll('style').length).to.be(1)
       unmountComponentAtNode(node)
       expect(document.querySelectorAll('style').length).to.be(0)
+    })
+
+    it('should render children', () => {
+      let isRendered = true
+      const Component = () => {
+        isRendered = true
+        return null
+      }
+      render(<Container><Component /></Container>, node)
+      unmountComponentAtNode(node)
+      expect(isRendered).to.be(true)
     })
   })
 })
