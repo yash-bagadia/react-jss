@@ -1,20 +1,20 @@
 import expect from 'expect.js'
-import {create as createJss} from 'jss'
+import jss, {create as createJss} from 'jss'
 import React from 'react'
 import {render, unmountComponentAtNode} from 'react-dom'
 
-import injectSheet, {create as createInjectSheet} from './'
+import injectSheet, {create as createInjectSheet, jss as reactJss} from './'
 
 const node = document.createElement('div')
 
 describe('react-jss', () => {
   describe('.create()', () => {
     let localInjectSheet
-    let jss
+    let localJss
 
     beforeEach(() => {
-      jss = createJss()
-      localInjectSheet = createInjectSheet(jss)
+      localJss = createJss()
+      localInjectSheet = createInjectSheet(localJss)
     })
 
     afterEach(() => {
@@ -34,7 +34,17 @@ describe('react-jss', () => {
       const WrappedComponent = localInjectSheet()(Component)
       render(<WrappedComponent />, node)
       expect(injectSheet)
-      expect(passedJss).to.be(jss)
+      expect(passedJss).to.be(localJss)
+    })
+  })
+
+  describe('global jss instance', () => {
+    it('should return a function', () => {
+      expect(injectSheet).to.be.a(Function)
+    })
+
+    it('should be available', () => {
+      expect(reactJss).to.be.an(jss.constructor)
     })
   })
 

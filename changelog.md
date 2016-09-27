@@ -1,3 +1,7 @@
+## 4.1.0 / 2016-09-27
+
+- Make default Jss instance available.
+
 ## 4.0.3 / 2016-09-25
 
 - Default Container component should render children to allow wrapping.

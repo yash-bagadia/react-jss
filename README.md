@@ -61,6 +61,12 @@ jss.use(vendorPrefixer())
 export const injectSheet = createInjectSheet(jss)
 ```
 
+You can also access the Jss instance being used by default.
+
+```javascript
+import {jss} from 'react-jss'
+```
+
 #### Using decorators.
 
 You can use ES7 with [decorators](https://github.com/wycats/javascript-decorators) (using [babel-plugin-transform-decorators-legacy](https://github.com/loganfsmyth/babel-plugin-transform-decorators-legacy)).
