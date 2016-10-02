@@ -1,3 +1,8 @@
+## 4.1.1 / 2016-09-27
+
+- Update dependencies
+- Tests integration for jss repo
+
 ## 4.1.0 / 2016-09-27
 
 - Make default Jss instance available.

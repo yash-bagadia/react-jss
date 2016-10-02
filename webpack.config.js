@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 'use strict'
 
 const webpack = require('webpack')
@@ -48,5 +46,6 @@ module.exports = {
       }
     ]
   },
-  externals
+  externals,
+  devtool: 'source-map'
 }

@@ -4,9 +4,9 @@ module.exports = (config) => {
   config.set({
     browsers: ['Chrome'],
     frameworks: ['mocha'],
-    files: ['tests-src.webpack.js'],
+    files: ['tests.webpack.js'],
     preprocessors: {
-      'tests-src.webpack.js': ['webpack', 'sourcemap']
+      'tests.webpack.js': ['webpack', 'sourcemap']
     },
     webpack: Object.assign(webpackConfig, {
       devtool: 'inline-source-map'
