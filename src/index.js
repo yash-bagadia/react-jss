@@ -62,8 +62,12 @@ function wrap(jss, WrappedComponent, styles, options = {}) {
     }
 
     componentWillUnmount() {
-      deref()
-      this.sheet = null
+      if (this.sheet && !sheet && !refs) {
+        this.sheet.detach()
+      }
+      else {
+        deref()
+      }
     }
 
     render() {
