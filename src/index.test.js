@@ -103,7 +103,7 @@ describe('react-jss', () => {
   })
 
   describe('.injectSheet() hot reloading', () => {
-    function imitateHotReloading(container, TargetClass, SourceClass) {
+    function simulateHotReloading(container, TargetClass, SourceClass) {
       // Crude imitation of hot reloading that does the job
       Object.getOwnPropertyNames(SourceClass.prototype)
         .filter(key => typeof SourceClass.prototype[key] === 'function')
@@ -142,12 +142,12 @@ describe('react-jss', () => {
       expect(document.querySelectorAll('style').length).to.be(1)
       expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: red')
 
-      imitateHotReloading(container, WrappedComponentA, WrappedComponentB)
+      simulateHotReloading(container, WrappedComponentA, WrappedComponentB)
 
       expect(document.querySelectorAll('style').length).to.be(1)
       expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: green')
 
-      imitateHotReloading(container, WrappedComponentA, WrappedComponentC)
+      simulateHotReloading(container, WrappedComponentA, WrappedComponentC)
 
       expect(document.querySelectorAll('style').length).to.be(1)
       expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: blue')
@@ -171,12 +171,12 @@ describe('react-jss', () => {
       expect(document.querySelectorAll('style').length).to.be(1)
       expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: red')
 
-      imitateHotReloading(container, WrappedComponentA, WrappedComponentB)
+      simulateHotReloading(container, WrappedComponentA, WrappedComponentB)
 
       expect(document.querySelectorAll('style').length).to.be(1)
       expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: green')
 
-      imitateHotReloading(container, WrappedComponentA, WrappedComponentC)
+      simulateHotReloading(container, WrappedComponentA, WrappedComponentC)
 
       expect(document.querySelectorAll('style').length).to.be(1)
       expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: blue')
