@@ -65,9 +65,7 @@ function wrap(jss, WrappedComponent, styles, options = {}) {
       if (this.sheet && !sheet && !refs) {
         this.sheet.detach()
       }
-      else {
-        deref()
-      }
+      else deref()
     }
 
     render() {
