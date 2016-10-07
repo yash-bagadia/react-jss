@@ -1,3 +1,7 @@
+## 4.1.2 / 2016-10-07
+
+-  Fix refs inconsistency on hot reloading #18
+
 ## 4.1.1 / 2016-09-27
 
 - Update dependencies
