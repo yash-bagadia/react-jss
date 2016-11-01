@@ -8,6 +8,10 @@ import injectSheet, {create as createInjectSheet, jss as reactJss} from './'
 const node = document.createElement('div')
 
 describe('react-jss', () => {
+  afterEach(() => {
+    unmountComponentAtNode(node)
+  })
+
   describe('.create()', () => {
     let localInjectSheet
     let localJss
@@ -15,10 +19,6 @@ describe('react-jss', () => {
     beforeEach(() => {
       localJss = createJss()
       localInjectSheet = createInjectSheet(localJss)
-    })
-
-    afterEach(() => {
-      unmountComponentAtNode(node)
     })
 
     it('should return a function', () => {
