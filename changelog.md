@@ -1,3 +1,7 @@
+## 4.1.3 / 2016-11-03
+
+- Fixing tests (React regression https://github.com/facebook/react/issues/7803)
+
 ## 4.1.2 / 2016-10-07
 
 -  Fix refs inconsistency on hot reloading #18

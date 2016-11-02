@@ -33,7 +33,6 @@ describe('react-jss', () => {
       }
       const WrappedComponent = localInjectSheet()(Component)
       render(<WrappedComponent />, node)
-      expect(injectSheet)
       expect(passedJss).to.be(localJss)
     })
   })
