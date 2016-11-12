@@ -1,7 +1,10 @@
-import React, {Component} from 'react'
-import {create as createJss} from 'jss'
+import React, {Component, PropTypes} from 'react'
+import {create as createJss, SheetsRegistry} from 'jss'
 import preset from 'jss-preset-default'
 import hoistNonReactStatics from 'hoist-non-react-statics'
+import JssSheetsRegistry from './JssSheetsRegistry'
+
+export {JssSheetsRegistry}
 
 /**
  * Wrap a Component into a JSS Container Component.
@@ -46,9 +49,14 @@ function wrap(jss, WrappedComponent, styles, options = {}) {
   return class Jss extends Component {
     static wrapped = WrappedComponent
     static displayName = `Jss(${displayName})`
+    static contextTypes = {
+      jssSheetsRegistry: PropTypes.instanceOf(SheetsRegistry)
+    }
 
     componentWillMount() {
       this.sheet = ref()
+      const {jssSheetsRegistry} = this.context
+      if (jssSheetsRegistry) jssSheetsRegistry.add(this.sheet)
     }
 
     componentWillUpdate() {
@@ -64,6 +72,8 @@ function wrap(jss, WrappedComponent, styles, options = {}) {
     componentWillUnmount() {
       if (this.sheet && !sheet && !refs) {
         this.sheet.detach()
+        const {jssSheetsRegistry} = this.context
+        if (jssSheetsRegistry) jssSheetsRegistry.remove(this.sheet)
       }
       else deref()
     }

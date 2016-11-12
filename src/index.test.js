@@ -1,5 +1,5 @@
 import expect from 'expect.js'
-import jss, {create as createJss} from 'jss'
+import jss, {create as createJss, SheetsRegistry} from 'jss'
 import React from 'react'
 import {render, unmountComponentAtNode} from 'react-dom'
 import deepForceUpdate from 'react-deep-force-update'
@@ -179,6 +179,27 @@ describe('react-jss', () => {
 
       expect(document.querySelectorAll('style').length).to.be(1)
       expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: blue')
+    })
+  })
+
+  describe('with JssSheetsRegistry', () => {
+    it('should add style sheets to the registry from context', () => {
+      class AppContainer extends React.Component {
+        render() {
+          const sheets = new SheetsRegistry()
+
+          return (
+            <JssSheetsRegistry registry={sheets}>
+              <WrappedComponentA
+                {...this.props}
+                key={Math.random()} // Require children to unmount on every render
+              />
+            </JssSheetsRegistry>
+          )
+
+          expect(sheets.registry.length).to.equal(2)
+        }
+      }
     })
   })
 })

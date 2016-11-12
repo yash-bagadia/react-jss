@@ -117,6 +117,41 @@ const Component = ({sheet: {classes}, children, isActive}) => (
 )
 ```
 
+### Using `JssSheetsRegistry` for server-side rendering
+
+```es6
+import {renderToString} from 'react-dom/server'
+import {SheetsRegistry} from 'jss'
+import {JssSheetsRegistry} from 'react-jss'
+import MyApp from './MyApp'
+
+export default function render(req, res) {
+  const sheets = new SheetsRegistry()
+
+  const body = renderToString(
+    <JssSheetsRegistry registry={sheets}>
+      <MyApp />
+    </JssSheetsRegistry>
+  )
+
+  // any instances of `injectStyle` within `<MyApp />` will have gotten `sheets`
+  // from `context` and added their style sheets to it by now.
+
+  return res.send(renderToString(
+    <html>
+      <head>
+        <style type="text/css">
+          {sheets.toString()}
+        </style>
+      </head>
+      <body>
+        {body}
+      </body>
+    </html>
+  ))
+}
+```
+
 ### Installation.
 
 ```
