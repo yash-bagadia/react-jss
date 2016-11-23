@@ -123,6 +123,10 @@ const Component = ({sheet: {classes}, children, isActive}) => (
 npm install --save react-jss
 ```
 
+### Contributing
+
+See our [contribution guidelines](./contributing.md).
+
 ### License
 
 MIT
