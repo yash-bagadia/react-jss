@@ -15,5 +15,5 @@ Or manually
 
 ```bash
 npm run build:tests
-open index.html
+open tests.html
 ```
