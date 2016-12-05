@@ -1,4 +1,4 @@
-import {Component, PropTypes} from 'react'
+import React, {Component, PropTypes, Children} from 'react'
 import {SheetsRegistry} from 'jss'
 
 export default class JssSheetsRegistry extends Component {
@@ -15,7 +15,12 @@ export default class JssSheetsRegistry extends Component {
     }
   }
   render() {
-    return this.props.children || null
+    const {children} = this.props
+    return (
+      Children.count(children) > 1
+        ? <div>{children}</div>
+        : children
+    )
   }
 }
 

@@ -3,7 +3,7 @@ import jss, {create as createJss, SheetsRegistry} from 'jss'
 import React from 'react'
 import {render, unmountComponentAtNode} from 'react-dom'
 import deepForceUpdate from 'react-deep-force-update'
-import injectSheet, {create as createInjectSheet, jss as reactJss} from './'
+import injectSheet, {create as createInjectSheet, jss as reactJss, JssSheetsRegistry} from './'
 
 const node = document.createElement('div')
 
@@ -184,22 +184,25 @@ describe('react-jss', () => {
 
   describe('with JssSheetsRegistry', () => {
     it('should add style sheets to the registry from context', () => {
-      class AppContainer extends React.Component {
-        render() {
-          const sheets = new SheetsRegistry()
+      const sheets = new SheetsRegistry()
 
-          return (
-            <JssSheetsRegistry registry={sheets}>
-              <WrappedComponentA
-                {...this.props}
-                key={Math.random()} // Require children to unmount on every render
-              />
-            </JssSheetsRegistry>
-          )
+      const Component = () => null
+      const WrappedComponentA = injectSheet({
+        button: {color: 'red'}
+      })(Component)
+      const WrappedComponentB = injectSheet({
+        button: {color: 'blue'}
+      })(Component)
 
-          expect(sheets.registry.length).to.equal(2)
-        }
-      }
+      render(
+        <JssSheetsRegistry registry={sheets}>
+          <WrappedComponentA />
+          <WrappedComponentB />
+        </JssSheetsRegistry>,
+        node
+      )
+
+      expect(sheets.registry.length).to.equal(2)
     })
   })
 })
