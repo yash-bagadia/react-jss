@@ -1,6 +1,6 @@
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/cssinjs/lobby)
+# React integration of JSS
 
-## React integration of JSS
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/cssinjs/lobby)
 
 There is a number of benefits when using react-jss instead of [JSS](https://github.com/cssinjs/jss) directly:
 
@@ -11,7 +11,7 @@ There is a number of benefits when using react-jss instead of [JSS](https://gith
 
 Also you may need this module if you build a big application where leaving all styles in the DOM or compiling all styles at once may have a performance overhead or you are going to hit [IE limits](http://blogs.msdn.com/b/ieinternals/archive/2011/05/14/10164546.aspx).
 
-### Usage
+## Usage
 
 You can use it as a [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750) to inject [JSS](https://github.com/cssinjs/jss). It can act both as a simple wrapping function and as a [ES7 decorator](https://github.com/wycats/javascript-decorators).
 
@@ -46,7 +46,7 @@ const Button = ({sheet: {classes}, children}) => (
 export default injectSheet(styles)(Button)
 ```
 
-### Custom setup.
+## Custom setup.
 
 If you want to specify a jss version and plugins to use, you should create your [own jss instance](https://github.com/cssinjs/jss/blob/master/docs/js-api.md#create-an-own-jss-instance), [setup plugins](https://github.com/cssinjs/jss/blob/master/docs/setup.md#setup-with-plugins) and create a `injectSheet` function which has your jss version bound.
 
@@ -67,7 +67,7 @@ You can also access the Jss instance being used by default.
 import {jss} from 'react-jss'
 ```
 
-#### Using decorators.
+## Using decorators.
 
 You can use ES7 with [decorators](https://github.com/wycats/javascript-decorators) (using [babel-plugin-transform-decorators-legacy](https://github.com/loganfsmyth/babel-plugin-transform-decorators-legacy)).
 
@@ -99,7 +99,7 @@ export default class Button extends Component {
 }
 ```
 
-### Using classNames helper.
+## Using classNames helper.
 
 You can use [classNames](https://github.com/JedWatson/classnames) together with JSS same way you do it with global CSS.
 
@@ -117,16 +117,16 @@ const Component = ({sheet: {classes}, children, isActive}) => (
 )
 ```
 
-### Installation.
+## Installation.
 
 ```
 npm install --save react-jss
 ```
 
-### Contributing
+## Contributing
 
 See our [contribution guidelines](./contributing.md).
 
-### License
+## License
 
 MIT
