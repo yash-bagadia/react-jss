@@ -1,3 +1,7 @@
+## 5.0.0 / 2016-12-09
+
+- support jss 6.0
+
 ## 4.2.0 / 2016-11-21
 
 - Upgrade to jss-present-default 0.9.0
