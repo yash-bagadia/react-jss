@@ -1,3 +1,11 @@
+## 5.0.0 / 2016-12-09
+
+- support jss 6.0
+
+## 4.2.0 / 2016-11-21
+
+- Upgrade to jss-present-default 0.9.0
+
 ## 4.1.3 / 2016-11-03
 
 - Fixing tests (React regression https://github.com/facebook/react/issues/7803)
