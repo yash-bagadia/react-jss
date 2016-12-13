@@ -1,9 +1,9 @@
 import expect from 'expect.js'
-import jss, {create as createJss} from 'jss'
+import jss, {create as createJss, SheetsRegistry} from 'jss'
 import React from 'react'
 import {render, unmountComponentAtNode} from 'react-dom'
 import deepForceUpdate from 'react-deep-force-update'
-import injectSheet, {create as createInjectSheet, jss as reactJss} from './'
+import injectSheet, {create as createInjectSheet, jss as reactJss, JssSheetsRegistry} from './'
 
 const node = document.createElement('div')
 
@@ -179,6 +179,30 @@ describe('react-jss', () => {
 
       expect(document.querySelectorAll('style').length).to.be(1)
       expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: blue')
+    })
+  })
+
+  describe('with JssSheetsRegistry', () => {
+    it('should add style sheets to the registry from context', () => {
+      const sheets = new SheetsRegistry()
+
+      const Component = () => null
+      const WrappedComponentA = injectSheet({
+        button: {color: 'red'}
+      })(Component)
+      const WrappedComponentB = injectSheet({
+        button: {color: 'blue'}
+      })(Component)
+
+      render(
+        <JssSheetsRegistry registry={sheets}>
+          <WrappedComponentA />
+          <WrappedComponentB />
+        </JssSheetsRegistry>,
+        node
+      )
+
+      expect(sheets.registry.length).to.equal(2)
     })
   })
 })
