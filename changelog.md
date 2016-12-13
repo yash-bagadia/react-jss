@@ -1,6 +1,10 @@
+## 5.1.0 / 2016-13-09
+
+- Export SheetsRegistryProvider and SheetsRegistry
+
 ## 5.0.0 / 2016-12-09
 
-- support jss 6.0
+- Support JSS 6.0
 
 ## 4.2.0 / 2016-11-21
 
