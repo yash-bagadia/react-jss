@@ -117,21 +117,20 @@ const Component = ({sheet: {classes}, children, isActive}) => (
 )
 ```
 
-## Using `JssSheetsRegistry` for server-side rendering
+## Using `SheetsRegistryProvider` for server-side rendering
 
 ```es6
 import {renderToString} from 'react-dom/server'
-import {SheetsRegistry} from 'jss'
-import {JssSheetsRegistry} from 'react-jss'
+import {SheetsRegistryProvider, SheetsRegistry} from 'react-jss'
 import MyApp from './MyApp'
 
 export default function render(req, res) {
   const sheets = new SheetsRegistry()
 
   const body = renderToString(
-    <JssSheetsRegistry registry={sheets}>
+    <SheetsRegistryProvider registry={sheets}>
       <MyApp />
-    </JssSheetsRegistry>
+    </SheetsRegistryProvider>
   )
 
   // any instances of `injectStyle` within `<MyApp />` will have gotten `sheets`

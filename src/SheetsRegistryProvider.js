@@ -1,7 +1,7 @@
 import React, {Component, PropTypes, Children} from 'react'
 import {SheetsRegistry} from 'jss'
 
-export default class JssSheetsRegistry extends Component {
+export default class SheetsRegistryProvider extends Component {
   static propTypes = {
     registry: PropTypes.instanceOf(SheetsRegistry).isRequired,
     children: PropTypes.node.isRequired

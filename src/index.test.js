@@ -1,9 +1,14 @@
 import expect from 'expect.js'
-import jss, {create as createJss, SheetsRegistry} from 'jss'
+import jss, {create as createJss} from 'jss'
 import React from 'react'
 import {render, unmountComponentAtNode} from 'react-dom'
 import deepForceUpdate from 'react-deep-force-update'
-import injectSheet, {create as createInjectSheet, jss as reactJss, JssSheetsRegistry} from './'
+import injectSheet, {
+  create as createInjectSheet,
+  jss as reactJss,
+  SheetsRegistry,
+  SheetsRegistryProvider
+} from './'
 
 const node = document.createElement('div')
 
@@ -182,7 +187,7 @@ describe('react-jss', () => {
     })
   })
 
-  describe('with JssSheetsRegistry', () => {
+  describe('with SheetsRegistryProvider', () => {
     it('should add style sheets to the registry from context', () => {
       const sheets = new SheetsRegistry()
 
@@ -195,10 +200,10 @@ describe('react-jss', () => {
       })(Component)
 
       render(
-        <JssSheetsRegistry registry={sheets}>
+        <SheetsRegistryProvider registry={sheets}>
           <WrappedComponentA />
           <WrappedComponentB />
-        </JssSheetsRegistry>,
+        </SheetsRegistryProvider>,
         node
       )
 

@@ -2,9 +2,7 @@ import React, {Component, PropTypes} from 'react'
 import {create as createJss, SheetsRegistry} from 'jss'
 import preset from 'jss-preset-default'
 import hoistNonReactStatics from 'hoist-non-react-statics'
-import JssSheetsRegistry from './JssSheetsRegistry'
-
-export {JssSheetsRegistry}
+import SheetsRegistryProvider from './SheetsRegistryProvider'
 
 /**
  * Wrap a Component into a JSS Container Component.
@@ -116,3 +114,7 @@ export function create(localJss = jss) {
  * @api public
  */
 export default create()
+
+export {SheetsRegistryProvider}
+
+export {SheetsRegistry}
