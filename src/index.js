@@ -86,6 +86,9 @@ const Container = ({children}) => (children || null)
 
 export const jss = createJss(preset())
 
+// global index counter to preserve source order.
+let indexCounter = -100000
+
 /**
  * Create a `injectSheet` function that will use the passed JSS instance.
  *
@@ -94,7 +97,10 @@ export const jss = createJss(preset())
  * @api public
  */
 export function create(localJss = jss) {
-  return function injectSheet(styles, options) {
+  return function injectSheet(styles, options = {}) {
+    if (options.index === undefined) {
+      options.index = indexCounter++
+    }
     return (WrappedComponent = Container) => {
       const Jss = wrap(localJss, WrappedComponent, styles, options)
       return hoistNonReactStatics(Jss, WrappedComponent, {wrapped: true})

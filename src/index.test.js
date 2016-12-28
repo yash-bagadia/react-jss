@@ -1,22 +1,49 @@
+
+/* eslint-disable global-require */
+
 import expect from 'expect.js'
-import jss, {create as createJss} from 'jss'
 import React from 'react'
 import {render, unmountComponentAtNode} from 'react-dom'
 import deepForceUpdate from 'react-deep-force-update'
-import injectSheet, {
-  create as createInjectSheet,
-  jss as reactJss,
-  SheetsRegistry,
-  SheetsRegistryProvider
-} from './'
 
 const node = document.createElement('div')
 
-describe('react-jss', () => {
-  afterEach(() => {
-    unmountComponentAtNode(node)
-  })
+let jss
+let sheets
+let createJss
+let injectSheet
+let createInjectSheet
+let reactJss
+let SheetsRegistry
+let SheetsRegistryProvider
 
+loadModules()
+
+function reloadModules() {
+  Object.keys(require.cache).forEach(key => delete require.cache[key])
+  loadModules()
+}
+
+function loadModules() {
+  const jssModule = require('jss')
+  jss = jssModule.default
+  sheets = jssModule.sheets
+  createJss = jssModule.create
+
+  const reactJssModule = require('./')
+  injectSheet = reactJssModule.default
+  createInjectSheet = reactJssModule.create
+  reactJss = reactJssModule.jss
+  SheetsRegistry = reactJssModule.SheetsRegistry
+  SheetsRegistryProvider = reactJssModule.SheetsRegistryProvider
+}
+
+function reset() {
+  unmountComponentAtNode(node)
+  reloadModules()
+}
+
+describe('react-jss', () => {
   describe('.create()', () => {
     let localInjectSheet
     let localJss
@@ -25,6 +52,8 @@ describe('react-jss', () => {
       localJss = createJss()
       localInjectSheet = createInjectSheet(localJss)
     })
+
+    afterEach(reset)
 
     it('should return a function', () => {
       expect(injectSheet).to.be.a(Function)
@@ -62,6 +91,8 @@ describe('react-jss', () => {
       })(Component)
     })
 
+    afterEach(reset)
+
     it('should attach and detach a sheet', () => {
       render(<WrappedComponent />, node)
       expect(document.querySelectorAll('style').length).to.be(1)
@@ -78,6 +109,63 @@ describe('react-jss', () => {
     })
   })
 
+  describe('.injectSheet() preserving source order', () => {
+    let WrappedComponentA
+    let WrappedComponentB
+    let WrappedComponentC
+
+    beforeEach(() => {
+      const Component = () => null
+      WrappedComponentA = injectSheet({
+        button: {color: 'red'}
+      })(Component)
+      WrappedComponentB = injectSheet({
+        button: {color: 'blue'}
+      })(Component)
+      WrappedComponentC = injectSheet({
+        button: {color: 'green'}
+      }, {index: 1234})(Component)
+    })
+
+    afterEach(reset)
+
+    it('should provide a default index in ascending order', () => {
+      render(<WrappedComponentA />, node)
+      expect(sheets.registry.length).to.equal(1)
+      const indexA = sheets.registry[0].options.index
+      sheets.reset()
+      render(<WrappedComponentB />, node)
+      expect(sheets.registry.length).to.equal(1)
+      const indexB = sheets.registry[0].options.index
+
+      expect(indexA).to.be.lessThan(0)
+      expect(indexB).to.be.lessThan(0)
+      expect(indexA).to.be.lessThan(indexB)
+    })
+
+    it('should not be affected by rendering order', () => {
+      render(<WrappedComponentB />, node)
+      expect(sheets.registry.length).to.equal(1)
+      const indexB = sheets.registry[0].options.index
+      sheets.reset()
+      render(<WrappedComponentA />, node)
+      expect(sheets.registry.length).to.equal(1)
+      const indexA = sheets.registry[0].options.index
+
+      expect(indexA).to.be.lessThan(0)
+      expect(indexB).to.be.lessThan(0)
+      expect(indexA).to.be.lessThan(indexB)
+    })
+
+    it('should keep custom index', () => {
+      render(<WrappedComponentC />, node)
+      expect(sheets.registry.length).to.equal(1)
+      const indexC = sheets.registry[0].options.index
+      expect(indexC).to.equal(1234)
+    })
+  })
+
+
   describe('.injectSheet() without a component for global styles', () => {
     let Container
 
@@ -86,6 +174,8 @@ describe('react-jss', () => {
         button: {color: 'red'}
       })()
     })
+
+    afterEach(reset)
 
     it('should attach and detach a sheet', () => {
       render(<Container />, node)
@@ -125,8 +215,6 @@ describe('react-jss', () => {
     let WrappedComponentC
 
     beforeEach(() => {
-      unmountComponentAtNode(node)
-
       WrappedComponentA = injectSheet({
         button: {color: 'red'}
       })(() => null)
@@ -139,6 +227,8 @@ describe('react-jss', () => {
         button: {color: 'blue'}
       })(() => null)
     })
+
+    afterEach(reset)
 
     it('should hot reload component and attach new sheets', () => {
       const container = render(<WrappedComponentA />, node)
@@ -186,10 +276,11 @@ describe('react-jss', () => {
       expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: blue')
     })
   })
-
   describe('with SheetsRegistryProvider', () => {
+    afterEach(reset)
+
     it('should add style sheets to the registry from context', () => {
-      const sheets = new SheetsRegistry()
+      const customSheets = new SheetsRegistry()
 
       const Component = () => null
       const WrappedComponentA = injectSheet({
@@ -200,14 +291,14 @@ describe('react-jss', () => {
       })(Component)
 
       render(
-        <SheetsRegistryProvider registry={sheets}>
+        <SheetsRegistryProvider registry={customSheets}>
           <WrappedComponentA />
           <WrappedComponentB />
         </SheetsRegistryProvider>,
         node
       )
 
-      expect(sheets.registry.length).to.equal(2)
+      expect(customSheets.registry.length).to.equal(2)
     })
   })
 })
