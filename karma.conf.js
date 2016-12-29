@@ -16,9 +16,10 @@ module.exports = (config) => {
     },
     reporters: ['mocha', 'coverage'],
     coverageReporter: {
-      dir: 'coverage',
-      file: 'coverage.json',
-      type: 'json'
+      reporters: [
+        { type: 'text' },
+        { type: 'json', dir: 'coverage', file: 'coverage.json' }
+      ],
     }
   })
 }
