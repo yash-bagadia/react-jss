@@ -1,6 +1,6 @@
 # React integration of JSS
 
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/cssinjs/lobby)
+[![Gitter](https://badges.gitter.im/JoinChat.svg)](https://gitter.im/cssinjs/lobby)
 
 There is a number of benefits when using react-jss instead of [JSS](https://github.com/cssinjs/jss) directly:
 
