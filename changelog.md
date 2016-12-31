@@ -1,4 +1,8 @@
-## 5.1.0 / 2016-13-09
+## 5.1.1 / 2016-12-31
+
+- Fix specificity for the most cases cssinjs/react-jss#61
+
+## 5.1.0 / 2016-12-13
 
 - Export SheetsRegistryProvider and SheetsRegistry
 
