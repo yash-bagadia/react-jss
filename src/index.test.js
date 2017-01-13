@@ -1,4 +1,3 @@
-
 /* eslint-disable global-require */
 
 import expect from 'expect.js'
@@ -44,6 +43,8 @@ function reset() {
 }
 
 describe('react-jss', () => {
+  afterEach(reset)
+
   describe('.create()', () => {
     let localInjectSheet
     let localJss
@@ -52,8 +53,6 @@ describe('react-jss', () => {
       localJss = createJss()
       localInjectSheet = createInjectSheet(localJss)
     })
-
-    afterEach(reset)
 
     it('should return a function', () => {
       expect(injectSheet).to.be.a(Function)
@@ -91,8 +90,6 @@ describe('react-jss', () => {
       })(Component)
     })
 
-    afterEach(reset)
-
     it('should attach and detach a sheet', () => {
       render(<WrappedComponent />, node)
       expect(document.querySelectorAll('style').length).to.be(1)
@@ -126,8 +123,6 @@ describe('react-jss', () => {
         button: {color: 'green'}
       }, {index: 1234})(Component)
     })
-
-    afterEach(reset)
 
     it('should provide a default index in ascending order', () => {
       render(<WrappedComponentA />, node)
@@ -174,8 +169,6 @@ describe('react-jss', () => {
         button: {color: 'red'}
       })()
     })
-
-    afterEach(reset)
 
     it('should attach and detach a sheet', () => {
       render(<Container />, node)
@@ -228,8 +221,6 @@ describe('react-jss', () => {
       })(() => null)
     })
 
-    afterEach(reset)
-
     it('should hot reload component and attach new sheets', () => {
       const container = render(<WrappedComponentA />, node)
 
@@ -276,9 +267,8 @@ describe('react-jss', () => {
       expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: blue')
     })
   })
-  describe('with SheetsRegistryProvider', () => {
-    afterEach(reset)
 
+  describe('with SheetsRegistryProvider', () => {
     it('should add style sheets to the registry from context', () => {
       const customSheets = new SheetsRegistry()
 
@@ -301,4 +291,5 @@ describe('react-jss', () => {
       expect(customSheets.registry.length).to.equal(2)
     })
   })
+
 })
