@@ -1,6 +1,7 @@
 ## 5.2.0 / 2017-13-01
 
 - Function injectSheet(styleSheet) now accepts StyleSheet instance.
+- You can override the sheet property now from the parent component. (#47)
 
 ## 5.1.1 / 2016-12-31
 

@@ -80,7 +80,7 @@ function wrap(jss, WrappedComponent, stylesOrSheet, options = {}) {
     }
 
     render() {
-      return <WrappedComponent {...this.props} sheet={this.sheet} />
+      return <WrappedComponent sheet={this.sheet} {...this.props} />
     }
   }
 }

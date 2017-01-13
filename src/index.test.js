@@ -305,6 +305,26 @@ describe('react-jss', () => {
     })
   })
 
+  describe('override sheet prop', () => {
+    let WrappedComponent
+    let receivedSheet
+    const mock = {}
+
+    beforeEach(() => {
+      const Component = (props) => {
+        receivedSheet = props.sheet
+        return null
+      }
+      WrappedComponent = injectSheet()(Component)
+    })
+
+    it('should be able to override the sheet prop', () => {
+      const Parent = () => <WrappedComponent sheet={mock} />
+      render(<Parent />, node)
+      expect(receivedSheet).to.be(mock)
+    })
+  })
+
   describe('with SheetsRegistryProvider', () => {
     it('should add style sheets to the registry from context', () => {
       const customSheets = new SheetsRegistry()
