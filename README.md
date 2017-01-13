@@ -99,6 +99,30 @@ export default class Button extends Component {
 }
 ```
 
+## Reuse same StyleSheet in different Components.
+
+Sometimes you may need to reuse the same `StyleSheet` in different components, without generating new styles for each. You can pass `StyleSheet` instance to the `injectSheet?` function instead of `styles` object.
+
+```javascript
+import React, {Component} from 'react'
+import injectSheet from 'react-jss'
+import jss from 'jss'
+
+const sheet = jss.createStyleSheet({
+  button: {
+    color: 'red'
+  }
+})
+
+@injectSheet(sheet)
+class Button extends Component {
+  render() {
+    const {sheet: {classes}} = this.props
+    return <button className={classes.button}></button>
+  }
+}
+```
+
 ## Using classNames helper.
 
 You can use [classNames](https://github.com/JedWatson/classnames) together with JSS same way you do it with global CSS.

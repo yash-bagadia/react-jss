@@ -1,3 +1,7 @@
+## 5.2.0 / 2017-13-01
+
+- Function injectSheet(styleSheet) now accepts StyleSheet instance.
+
 ## 5.1.1 / 2016-12-31
 
 - Fix specificity for the most cases cssinjs/react-jss#61

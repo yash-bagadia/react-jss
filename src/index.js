@@ -4,18 +4,29 @@ import preset from 'jss-preset-default'
 import hoistNonReactStatics from 'hoist-non-react-statics'
 import SheetsRegistryProvider from './SheetsRegistryProvider'
 
+const refNs = `ref-${String(Math.random()).substr(2)}`
+const refs = sheet => sheet[refNs] || 0
+const dec = sheet => --sheet[refNs]
+const inc = sheet => ++sheet[refNs]
+
 /**
  * Wrap a Component into a JSS Container Component.
  *
  * @param {Jss} jss
  * @param {Component} WrappedComponent
- * @param {Object} styles
+ * @param {Object} stylesOrSheet
  * @param {Object} [options]
  * @return {Component}
  */
-function wrap(jss, WrappedComponent, styles, options = {}) {
-  let refs = 0
+function wrap(jss, WrappedComponent, stylesOrSheet, options = {}) {
   let sheet = null
+  let styles = stylesOrSheet
+
+  // Accept StyleSheet instance.
+  if (stylesOrSheet && typeof stylesOrSheet.attach === 'function') {
+    sheet = stylesOrSheet
+    styles = null
+  }
 
   const displayName =
     WrappedComponent.displayName ||
@@ -24,24 +35,16 @@ function wrap(jss, WrappedComponent, styles, options = {}) {
 
   if (!options.meta) options.meta = displayName
 
-  function attach() {
-    if (!sheet) sheet = jss.createStyleSheet(styles, options)
-    sheet.attach()
-  }
-
-  function detach() {
-    sheet.detach()
-  }
-
   function ref() {
-    if (refs === 0) attach()
-    refs++
+    if (!sheet) sheet = jss.createStyleSheet(styles, options)
+    if (sheet[refNs] === undefined) sheet[refNs] = 0
+    if (refs(sheet) === 0) sheet.attach()
+    inc(sheet)
     return sheet
   }
 
   function deref() {
-    refs--
-    if (refs === 0) detach()
+    if (dec(sheet) === 0) sheet.detach()
   }
 
   return class Jss extends Component {
@@ -68,7 +71,7 @@ function wrap(jss, WrappedComponent, styles, options = {}) {
     }
 
     componentWillUnmount() {
-      if (this.sheet && !sheet && !refs) {
+      if (this.sheet && !sheet) {
         this.sheet.detach()
         const {jssSheetsRegistry} = this.context
         if (jssSheetsRegistry) jssSheetsRegistry.remove(this.sheet)
@@ -86,7 +89,14 @@ const Container = ({children}) => (children || null)
 
 export const jss = createJss(preset())
 
-// global index counter to preserve source order.
+// Global index counter to preserve source order.
+// As we create the style sheet during componentWillMount lifecycle,
+// children are handled after the parents, so the order of style elements would
+// be parent->child. It is a problem though when a parent passes a className
+// which needs to override any childs styles. StyleSheet of the child has a higher
+// specificity, because of the source order.
+// So our solution is to render sheets them in the reverse order child->sheet, so
+// that parent has a higher specificity.
 let indexCounter = -100000
 
 /**
@@ -97,12 +107,12 @@ let indexCounter = -100000
  * @api public
  */
 export function create(localJss = jss) {
-  return function injectSheet(styles, options = {}) {
+  return function injectSheet(stylesOrSheet, options = {}) {
     if (options.index === undefined) {
       options.index = indexCounter++
     }
     return (WrappedComponent = Container) => {
-      const Jss = wrap(localJss, WrappedComponent, styles, options)
+      const Jss = wrap(localJss, WrappedComponent, stylesOrSheet, options)
       return hoistNonReactStatics(Jss, WrappedComponent, {wrapped: true})
     }
   }

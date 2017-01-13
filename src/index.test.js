@@ -84,10 +84,9 @@ describe('react-jss', () => {
     let WrappedComponent
 
     beforeEach(() => {
-      const Component = () => null
       WrappedComponent = injectSheet({
         button: {color: 'red'}
-      })(Component)
+      })()
     })
 
     it('should attach and detach a sheet', () => {
@@ -112,16 +111,15 @@ describe('react-jss', () => {
     let WrappedComponentC
 
     beforeEach(() => {
-      const Component = () => null
       WrappedComponentA = injectSheet({
         button: {color: 'red'}
-      })(Component)
+      })()
       WrappedComponentB = injectSheet({
         button: {color: 'blue'}
-      })(Component)
+      })()
       WrappedComponentC = injectSheet({
         button: {color: 'green'}
-      }, {index: 1234})(Component)
+      }, {index: 1234})()
     })
 
     it('should provide a default index in ascending order', () => {
@@ -159,7 +157,6 @@ describe('react-jss', () => {
       expect(indexC).to.equal(1234)
     })
   })
-
 
   describe('.injectSheet() without a component for global styles', () => {
     let Container
@@ -268,17 +265,56 @@ describe('react-jss', () => {
     })
   })
 
+  describe('.injectSheet() with StyleSheet arg', () => {
+    describe('accept StyleSheet', () => {
+      let WrappedComponent
+
+      beforeEach(() => {
+        const sheet = jss.createStyleSheet({a: {color: 'red'}})
+        WrappedComponent = injectSheet(sheet)()
+      })
+
+      it('should attach and detach a sheet', () => {
+        render(<WrappedComponent />, node)
+        expect(document.querySelectorAll('style').length).to.be(1)
+        unmountComponentAtNode(node)
+        expect(document.querySelectorAll('style').length).to.be(0)
+      })
+    })
+
+    describe('share StyleSheet', () => {
+      let WrappedComponent1
+      let WrappedComponent2
+
+      beforeEach(() => {
+        const sheet = jss.createStyleSheet({a: {color: 'red'}})
+        WrappedComponent1 = injectSheet(sheet)()
+        WrappedComponent2 = injectSheet(sheet)()
+      })
+
+      it('should not detach sheet if it is used in another mounted component', () => {
+        const node2 = document.body.appendChild(document.createElement('div'))
+        render(<WrappedComponent1 />, node)
+        render(<WrappedComponent2 />, node2)
+        expect(document.querySelectorAll('style').length).to.be(1)
+        unmountComponentAtNode(node)
+        expect(document.querySelectorAll('style').length).to.be(1)
+        unmountComponentAtNode(node2)
+        expect(document.querySelectorAll('style').length).to.be(0)
+      })
+    })
+  })
+
   describe('with SheetsRegistryProvider', () => {
     it('should add style sheets to the registry from context', () => {
       const customSheets = new SheetsRegistry()
 
-      const Component = () => null
       const WrappedComponentA = injectSheet({
         button: {color: 'red'}
-      })(Component)
+      })()
       const WrappedComponentB = injectSheet({
         button: {color: 'blue'}
-      })(Component)
+      })()
 
       render(
         <SheetsRegistryProvider registry={customSheets}>
@@ -291,5 +327,4 @@ describe('react-jss', () => {
       expect(customSheets.registry.length).to.equal(2)
     })
   })
-
 })
