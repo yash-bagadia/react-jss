@@ -15,9 +15,9 @@ Also you may need this module if you build a big application where leaving all s
 
 You can use it as a [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750) to inject [JSS](https://github.com/cssinjs/jss). It can act both as a simple wrapping function and as a [ES7 decorator](https://github.com/wycats/javascript-decorators).
 
-React JSS wraps your React component and injects `props.sheet`, which is just a regular [JSS style sheet](https://github.com/cssinjs/jss), as a prop into your component. This is a common pattern that is used for composition in React instead of mixins, and works equally well with old-style `createClass` classes, as well as the ES6 classes.
+React JSS wraps your React component and injects `props.classes` and `props.sheet`, which is a regular [JSS StyleSheet](https://github.com/cssinjs/jss), as props into your component. This is a common pattern that is used for composition in React instead of mixins, and works equally well with old-style `createClass` classes, as well as the ES6 classes.
 
-Because JSS class names are namespaced by default, you will need to reach into `this.props.sheet.classes` to get their real names. For example, if you define a `button` class in your JSS stylesheet, its real name will be available as `props.sheet.classes.button`.
+Because JSS class names are namespaced by default, you will need to reach into `this.props.classes` to get their real names. For example, if you define a `button` class in your JSS stylesheet, its real name will be available as `props.classes.button`.
 
 By default react-jss comes with [jss](https://github.com/cssinjs/jss) and [presets](https://github.com/cssinjs/jss-preset-default).
 
@@ -35,7 +35,7 @@ const styles = {
   }
 }
 
-const Button = ({sheet: {classes}, children}) => (
+const Button = ({classes, children}) => (
   <button className={classes.button}>
     <span className={classes.label}>
       {children}
@@ -87,7 +87,7 @@ const styles = {
 @injectSheet(styles)
 export default class Button extends Component {
   render() {
-    const {sheet: {classes}, children} = this.props
+    const {classes, children} = this.props
     return (
       <button className={classes.button}>
         <span className={classes.label}>
@@ -117,7 +117,7 @@ const sheet = jss.createStyleSheet({
 @injectSheet(sheet)
 class Button extends Component {
   render() {
-    const {sheet: {classes}} = this.props
+    const {classes} = this.props
     return <button className={classes.button}></button>
   }
 }
@@ -130,7 +130,7 @@ You can use [classNames](https://github.com/JedWatson/classnames) together with 
 ```javascript
 import classNames from 'classnames'
 
-const Component = ({sheet: {classes}, children, isActive}) => (
+const Component = ({classes, children, isActive}) => (
   <div
     className={classNames({
       [classes.normal]: true,

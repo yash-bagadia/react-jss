@@ -1,4 +1,8 @@
-## 5.2.0 / 2017-13-01
+## 5.3.0 / 2017-01-30
+
+- Pass `classes` object over props additionally to `sheet` prop.
+
+## 5.2.0 / 2017-01-13
 
 - Function injectSheet(styleSheet) now accepts StyleSheet instance.
 - You can override the sheet property now from the parent component. (#47)
