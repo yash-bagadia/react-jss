@@ -105,6 +105,32 @@ describe('react-jss', () => {
     })
   })
 
+  describe('.injectSheet() classes prop', () => {
+    let passedClasses
+    let WrappedComponent
+
+    beforeEach(() => {
+      const Component = ({classes}) => {
+        passedClasses = classes
+        return null
+      }
+      WrappedComponent = injectSheet({
+        button: {color: 'red'}
+      })(Component)
+    })
+
+    it('should inject classes map as a prop', () => {
+      render(<WrappedComponent />, node)
+      expect(passedClasses).to.only.have.keys(['button'])
+    })
+
+    it('should not overwrite existing classes property', () => {
+      const classes = 'classes prop'
+      render(<WrappedComponent classes={classes} />, node)
+      expect(passedClasses).to.equal(classes)
+    })
+  })
+
   describe('.injectSheet() preserving source order', () => {
     let WrappedComponentA
     let WrappedComponentB
