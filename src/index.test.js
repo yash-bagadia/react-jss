@@ -1,8 +1,8 @@
 /* eslint-disable global-require */
 
 import expect from 'expect.js'
-import React from 'react'
-import {render, unmountComponentAtNode} from 'react-dom'
+import React, {PureComponent} from 'react'
+import {render, unmountComponentAtNode, findDOMNode} from 'react-dom'
 import deepForceUpdate from 'react-deep-force-update'
 
 let node
@@ -393,7 +393,7 @@ describe('react-jss', () => {
       Component = injectSheet({
         button: {
           color,
-          height: ({height = '1px'}) => height
+          height: ({height = 1}) => `${height}px`
         }
       })(WrappedComponent)
     })
@@ -418,11 +418,19 @@ describe('react-jss', () => {
       expect(document.querySelectorAll('style').length).to.be(0)
     })
 
-    it('should reuse static sheet, but generate separate dynamic once', () => {
+
+    it('should use the default value', () => {
+      const node0 = render(<Component />, node)
+      const style0 = getComputedStyle(findDOMNode(node0))
+      expect(style0.color).to.be(color)
+      expect(style0.height).to.be('1px')
+    })
+
+    it('should generate different dynamic values', () => {
       const componentNode = render(
         <div>
-          <Component height="10px" />
-          <Component height="20px" />
+          <Component height={10} />
+          <Component height={20} />
         </div>,
         node
       )
@@ -434,6 +442,42 @@ describe('react-jss', () => {
       expect(style0.height).to.be('10px')
       expect(style1.color).to.be(color)
       expect(style1.height).to.be('20px')
+    })
+
+    it('should update dynamic values', () => {
+      /* eslint-disable react/no-multi-comp, react/prefer-stateless-function, react/prop-types */
+      class Container extends PureComponent {
+        render() {
+          const {height} = this.props
+          return (
+            <div>
+              <Component height={height} />
+              <Component height={height * 2} />
+            </div>
+          )
+        }
+      }
+      /* eslint-enable */
+
+      const component = render(<Container height={10} />, node)
+      const componentNode = findDOMNode(component)
+      const [node0, node1] = componentNode.children
+      const style0 = getComputedStyle(node0)
+      const style1 = getComputedStyle(node1)
+
+      expect(style0.color).to.be(color)
+      expect(style0.height).to.be('10px')
+      expect(style1.color).to.be(color)
+      expect(style1.height).to.be('20px')
+
+      render(<Container height={20} />, node)
+
+      expect(style0.color).to.be(color)
+      expect(style0.height).to.be('20px')
+      expect(style1.color).to.be(color)
+      expect(style1.height).to.be('40px')
+
+      expect(document.querySelectorAll('style').length).to.be(3)
     })
   })
 })
