@@ -83,7 +83,7 @@
   },
   "dependencies": {
     "hoist-non-react-statics": "^1.2.0",
-    "jss": "^6.0.0",
+    "jss": "^6.5.0",
     "jss-preset-default": "^1.0.0"
   },
   "lint-staged": {

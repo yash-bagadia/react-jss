@@ -28,7 +28,7 @@ import injectSheet from 'react-jss'
 
 const styles = {
   button: {
-    backgroundColor: 'yellow'
+    background: props => props.color
   },
   label: {
     fontWeight: 'bold'
