@@ -6,14 +6,17 @@ export default class SheetsRegistryProvider extends Component {
     registry: PropTypes.instanceOf(SheetsRegistry).isRequired,
     children: PropTypes.node.isRequired
   }
+
   static childContextTypes = {
     jssSheetsRegistry: PropTypes.instanceOf(SheetsRegistry).isRequired
   }
+
   getChildContext() {
     return {
       jssSheetsRegistry: this.props.registry
     }
   }
+
   render() {
     const {children} = this.props
     return (
