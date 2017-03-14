@@ -5,8 +5,7 @@ import React from 'react'
 import {render, unmountComponentAtNode} from 'react-dom'
 import deepForceUpdate from 'react-deep-force-update'
 
-const node = document.createElement('div')
-
+let node
 let jss
 let sheets
 let createJss
@@ -40,9 +39,13 @@ function loadModules() {
 function reset() {
   unmountComponentAtNode(node)
   reloadModules()
+  node.parentNode.removeChild(node)
 }
 
 describe('react-jss', () => {
+  beforeEach(() => {
+    node = document.body.appendChild(document.createElement('div'))
+  })
   afterEach(reset)
 
   describe('.create()', () => {
@@ -60,12 +63,12 @@ describe('react-jss', () => {
 
     it('should use passed jss', () => {
       let passedJss
-      const Component = ({sheet}) => {
+      const WrappedComponent = ({sheet}) => {
         passedJss = sheet.options.jss
         return null
       }
-      const WrappedComponent = localInjectSheet()(Component)
-      render(<WrappedComponent />, node)
+      const Component = localInjectSheet()(WrappedComponent)
+      render(<Component />, node)
       expect(passedJss).to.be(localJss)
     })
   })
@@ -81,24 +84,29 @@ describe('react-jss', () => {
   })
 
   describe('.injectSheet()', () => {
-    let WrappedComponent
+    let Component
 
     beforeEach(() => {
-      WrappedComponent = injectSheet({
+      Component = injectSheet({
         button: {color: 'red'}
       })()
     })
 
     it('should attach and detach a sheet', () => {
-      render(<WrappedComponent />, node)
+      render(<Component />, node)
       expect(document.querySelectorAll('style').length).to.be(1)
       unmountComponentAtNode(node)
       expect(document.querySelectorAll('style').length).to.be(0)
     })
 
     it('should reuse one sheet for 2 elements and detach sheet', () => {
-      render(<WrappedComponent />, node)
-      render(<WrappedComponent />, node)
+      render(
+        <div>
+          <Component />
+          <Component />
+        </div>,
+        node
+      )
       expect(document.querySelectorAll('style').length).to.be(1)
       unmountComponentAtNode(node)
       expect(document.querySelectorAll('style').length).to.be(0)
@@ -107,53 +115,53 @@ describe('react-jss', () => {
 
   describe('.injectSheet() classes prop', () => {
     let passedClasses
-    let WrappedComponent
+    let Component
 
     beforeEach(() => {
-      const Component = ({classes}) => {
+      const WrappedComponent = ({classes}) => {
         passedClasses = classes
         return null
       }
-      WrappedComponent = injectSheet({
+      Component = injectSheet({
         button: {color: 'red'}
-      })(Component)
+      })(WrappedComponent)
     })
 
     it('should inject classes map as a prop', () => {
-      render(<WrappedComponent />, node)
+      render(<Component />, node)
       expect(passedClasses).to.only.have.keys(['button'])
     })
 
     it('should not overwrite existing classes property', () => {
       const classes = 'classes prop'
-      render(<WrappedComponent classes={classes} />, node)
+      render(<Component classes={classes} />, node)
       expect(passedClasses).to.equal(classes)
     })
   })
 
   describe('.injectSheet() preserving source order', () => {
-    let WrappedComponentA
-    let WrappedComponentB
-    let WrappedComponentC
+    let ComponentA
+    let ComponentB
+    let ComponentC
 
     beforeEach(() => {
-      WrappedComponentA = injectSheet({
+      ComponentA = injectSheet({
         button: {color: 'red'}
       })()
-      WrappedComponentB = injectSheet({
+      ComponentB = injectSheet({
         button: {color: 'blue'}
       })()
-      WrappedComponentC = injectSheet({
+      ComponentC = injectSheet({
         button: {color: 'green'}
       }, {index: 1234})()
     })
 
     it('should provide a default index in ascending order', () => {
-      render(<WrappedComponentA />, node)
+      render(<ComponentA />, node)
       expect(sheets.registry.length).to.equal(1)
       const indexA = sheets.registry[0].options.index
       sheets.reset()
-      render(<WrappedComponentB />, node)
+      render(<ComponentB />, node)
       expect(sheets.registry.length).to.equal(1)
       const indexB = sheets.registry[0].options.index
 
@@ -163,11 +171,11 @@ describe('react-jss', () => {
     })
 
     it('should not be affected by rendering order', () => {
-      render(<WrappedComponentB />, node)
+      render(<ComponentB />, node)
       expect(sheets.registry.length).to.equal(1)
       const indexB = sheets.registry[0].options.index
       sheets.reset()
-      render(<WrappedComponentA />, node)
+      render(<ComponentA />, node)
       expect(sheets.registry.length).to.equal(1)
       const indexA = sheets.registry[0].options.index
 
@@ -177,7 +185,7 @@ describe('react-jss', () => {
     })
 
     it('should keep custom index', () => {
-      render(<WrappedComponentC />, node)
+      render(<ComponentC />, node)
       expect(sheets.registry.length).to.equal(1)
       const indexC = sheets.registry[0].options.index
       expect(indexC).to.equal(1234)
@@ -185,16 +193,16 @@ describe('react-jss', () => {
   })
 
   describe('.injectSheet() without a component for global styles', () => {
-    let Container
+    let Component
 
     beforeEach(() => {
-      Container = injectSheet({
+      Component = injectSheet({
         button: {color: 'red'}
       })()
     })
 
     it('should attach and detach a sheet', () => {
-      render(<Container />, node)
+      render(<Component />, node)
       expect(document.querySelectorAll('style').length).to.be(1)
       unmountComponentAtNode(node)
       expect(document.querySelectorAll('style').length).to.be(0)
@@ -202,11 +210,11 @@ describe('react-jss', () => {
 
     it('should render children', () => {
       let isRendered = true
-      const Component = () => {
+      const ChildComponent = () => {
         isRendered = true
         return null
       }
-      render(<Container><Component /></Container>, node)
+      render(<Component><ChildComponent /></Component>, node)
       unmountComponentAtNode(node)
       expect(isRendered).to.be(true)
     })
@@ -226,36 +234,36 @@ describe('react-jss', () => {
       deepForceUpdate(container)
     }
 
-    let WrappedComponentA
-    let WrappedComponentB
-    let WrappedComponentC
+    let ComponentA
+    let ComponentB
+    let ComponentC
 
     beforeEach(() => {
-      WrappedComponentA = injectSheet({
+      ComponentA = injectSheet({
         button: {color: 'red'}
       })(() => null)
 
-      WrappedComponentB = injectSheet({
+      ComponentB = injectSheet({
         button: {color: 'green'}
       })(() => null)
 
-      WrappedComponentC = injectSheet({
+      ComponentC = injectSheet({
         button: {color: 'blue'}
       })(() => null)
     })
 
     it('should hot reload component and attach new sheets', () => {
-      const container = render(<WrappedComponentA />, node)
+      const container = render(<ComponentA />, node)
 
       expect(document.querySelectorAll('style').length).to.be(1)
       expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: red')
 
-      simulateHotReloading(container, WrappedComponentA, WrappedComponentB)
+      simulateHotReloading(container, ComponentA, ComponentB)
 
       expect(document.querySelectorAll('style').length).to.be(1)
       expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: green')
 
-      simulateHotReloading(container, WrappedComponentA, WrappedComponentC)
+      simulateHotReloading(container, ComponentA, ComponentC)
 
       expect(document.querySelectorAll('style').length).to.be(1)
       expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: blue')
@@ -266,7 +274,7 @@ describe('react-jss', () => {
       class AppContainer extends React.Component {
         render() {
           return (
-            <WrappedComponentA
+            <ComponentA
               {...this.props}
               key={Math.random()} // Require children to unmount on every render
             />
@@ -279,12 +287,12 @@ describe('react-jss', () => {
       expect(document.querySelectorAll('style').length).to.be(1)
       expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: red')
 
-      simulateHotReloading(container, WrappedComponentA, WrappedComponentB)
+      simulateHotReloading(container, ComponentA, ComponentB)
 
       expect(document.querySelectorAll('style').length).to.be(1)
       expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: green')
 
-      simulateHotReloading(container, WrappedComponentA, WrappedComponentC)
+      simulateHotReloading(container, ComponentA, ComponentC)
 
       expect(document.querySelectorAll('style').length).to.be(1)
       expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: blue')
@@ -293,15 +301,15 @@ describe('react-jss', () => {
 
   describe('.injectSheet() with StyleSheet arg', () => {
     describe('accept StyleSheet', () => {
-      let WrappedComponent
+      let Component
 
       beforeEach(() => {
-        const sheet = jss.createStyleSheet({a: {color: 'red'}})
-        WrappedComponent = injectSheet(sheet)()
+        const sheet = reactJss.createStyleSheet({a: {color: 'red'}})
+        Component = injectSheet(sheet)()
       })
 
       it('should attach and detach a sheet', () => {
-        render(<WrappedComponent />, node)
+        render(<Component />, node)
         expect(document.querySelectorAll('style').length).to.be(1)
         unmountComponentAtNode(node)
         expect(document.querySelectorAll('style').length).to.be(0)
@@ -309,19 +317,19 @@ describe('react-jss', () => {
     })
 
     describe('share StyleSheet', () => {
-      let WrappedComponent1
-      let WrappedComponent2
+      let Component1
+      let Component2
 
       beforeEach(() => {
-        const sheet = jss.createStyleSheet({a: {color: 'red'}})
-        WrappedComponent1 = injectSheet(sheet)()
-        WrappedComponent2 = injectSheet(sheet)()
+        const sheet = reactJss.createStyleSheet({a: {color: 'red'}})
+        Component1 = injectSheet(sheet)()
+        Component2 = injectSheet(sheet)()
       })
 
       it('should not detach sheet if it is used in another mounted component', () => {
         const node2 = document.body.appendChild(document.createElement('div'))
-        render(<WrappedComponent1 />, node)
-        render(<WrappedComponent2 />, node2)
+        render(<Component1 />, node)
+        render(<Component2 />, node2)
         expect(document.querySelectorAll('style').length).to.be(1)
         unmountComponentAtNode(node)
         expect(document.querySelectorAll('style').length).to.be(1)
@@ -332,20 +340,20 @@ describe('react-jss', () => {
   })
 
   describe('override sheet prop', () => {
-    let WrappedComponent
+    let Component
     let receivedSheet
     const mock = {}
 
     beforeEach(() => {
-      const Component = (props) => {
+      const WrappedComponent = (props) => {
         receivedSheet = props.sheet
         return null
       }
-      WrappedComponent = injectSheet()(Component)
+      Component = injectSheet()(WrappedComponent)
     })
 
     it('should be able to override the sheet prop', () => {
-      const Parent = () => <WrappedComponent sheet={mock} />
+      const Parent = () => <Component sheet={mock} />
       render(<Parent />, node)
       expect(receivedSheet).to.be(mock)
     })
@@ -355,22 +363,77 @@ describe('react-jss', () => {
     it('should add style sheets to the registry from context', () => {
       const customSheets = new SheetsRegistry()
 
-      const WrappedComponentA = injectSheet({
+      const ComponentA = injectSheet({
         button: {color: 'red'}
       })()
-      const WrappedComponentB = injectSheet({
+      const ComponentB = injectSheet({
         button: {color: 'blue'}
       })()
 
       render(
         <SheetsRegistryProvider registry={customSheets}>
-          <WrappedComponentA />
-          <WrappedComponentB />
+          <ComponentA />
+          <ComponentB />
         </SheetsRegistryProvider>,
         node
       )
 
       expect(customSheets.registry.length).to.equal(2)
+    })
+  })
+
+  describe('dynamic sheets', () => {
+    let Component
+    const color = 'rgb(0, 0, 0)'
+
+    beforeEach(() => {
+      // eslint-disable-next-line react/prop-types
+      const WrappedComponent = ({classes}) => <div className={classes.button} />
+
+      Component = injectSheet({
+        button: {
+          color,
+          height: ({height = '1px'}) => height
+        }
+      })(WrappedComponent)
+    })
+
+    it('should attach and detach a sheet', () => {
+      render(<Component />, node)
+      expect(document.querySelectorAll('style').length).to.be(2)
+      unmountComponentAtNode(node)
+      expect(document.querySelectorAll('style').length).to.be(0)
+    })
+
+    it('should reuse static sheet, but generate separate dynamic once', () => {
+      render(
+        <div>
+          <Component />
+          <Component />
+        </div>,
+        node
+      )
+      expect(document.querySelectorAll('style').length).to.be(3)
+      unmountComponentAtNode(node)
+      expect(document.querySelectorAll('style').length).to.be(0)
+    })
+
+    it('should reuse static sheet, but generate separate dynamic once', () => {
+      const componentNode = render(
+        <div>
+          <Component height="10px" />
+          <Component height="20px" />
+        </div>,
+        node
+      )
+      const [node0, node1] = componentNode.children
+      const style0 = getComputedStyle(node0)
+      const style1 = getComputedStyle(node1)
+
+      expect(style0.color).to.be(color)
+      expect(style0.height).to.be('10px')
+      expect(style1.color).to.be(color)
+      expect(style1.height).to.be('20px')
     })
   })
 })
