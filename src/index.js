@@ -23,6 +23,15 @@ const compose = (staticSheet, styles) => {
     if (!className) break
     styles[name] = {...styles[name], composes: className}
   }
+
+  if (styles) {
+    for (const name in staticSheet.classes) {
+      const className = styles[name]
+      if (!className) {
+        styles[name] = {composes: staticSheet.classes[name]}
+      }
+    }
+  }
   return styles
 }
 
