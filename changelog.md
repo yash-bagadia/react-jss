@@ -1,3 +1,11 @@
+## 5.4.1 / 2017-04-03
+
+- Don't ignore static rules when function values are used (#82)
+
+## 5.4.0 / 2017-03-14
+
+- Introduced function values.
+
 ## 5.3.0 / 2017-01-30
 
 - Pass `classes` object over props additionally to `sheet` prop.
