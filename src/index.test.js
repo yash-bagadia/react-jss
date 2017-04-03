@@ -388,9 +388,13 @@ describe('react-jss', () => {
 
     beforeEach(() => {
       // eslint-disable-next-line react/prop-types
-      const WrappedComponent = ({classes}) => <div className={classes.button} />
+      const WrappedComponent = ({classes}) =>
+        <div className={`${classes.button} ${classes.left}`} />
 
       Component = injectSheet({
+        left: {
+          float: 'left'
+        },
         button: {
           color,
           height: ({height = 1}) => `${height}px`
@@ -423,6 +427,14 @@ describe('react-jss', () => {
       const node0 = render(<Component />, node)
       const style0 = getComputedStyle(findDOMNode(node0))
       expect(style0.color).to.be(color)
+      expect(style0.height).to.be('1px')
+    })
+
+    it('should have dynamic and static styles', () => {
+      const node0 = render(<Component />, node)
+      const style0 = getComputedStyle(findDOMNode(node0))
+      expect(style0.color).to.be(color)
+      expect(style0.float).to.be('left')
       expect(style0.height).to.be('1px')
     })
 
