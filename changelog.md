@@ -1,3 +1,7 @@
+## 6.0.0 / 2017-04-10
+
+- Use JSS 7.0
+
 ## 5.4.1 / 2017-04-03
 
 - Don't ignore static rules when function values are used (#82)
