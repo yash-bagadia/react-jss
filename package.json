@@ -1,6 +1,6 @@
 {
   "name": "react-jss",
-  "version": "5.4.1",
+  "version": "6.0.0",
   "description": "Integration of JSS for react.",
   "main": "lib/index.js",
   "engines": {
