@@ -1,4 +1,4 @@
-/* eslint-disable global-require */
+/* eslint-disable global-require, react/prop-types */
 
 import expect from 'expect.js'
 import React, {PureComponent} from 'react'
@@ -395,7 +395,6 @@ describe('react-jss', () => {
     let Component
 
     beforeEach(() => {
-      // eslint-disable-next-line react/prop-types
       const InnerComponent = ({classes}) => (
         <div className={`${classes.button} ${classes.left}`} />
       )
@@ -465,7 +464,7 @@ describe('react-jss', () => {
     })
 
     it('should update dynamic values', () => {
-      /* eslint-disable react/no-multi-comp, react/prefer-stateless-function, react/prop-types */
+      /* eslint-disable react/no-multi-comp, react/prefer-stateless-function */
       class Container extends PureComponent {
         render() {
           const {height} = this.props
@@ -503,10 +502,10 @@ describe('react-jss', () => {
     it('should use the default props', () => {
       const styles = {
         a: {
-          color: ({color}) => color
+          color: props => props.color
         }
       }
-      const InnerComponent = ({classes}) => <a className={classes.a} />
+      const InnerComponent = ({classes}) => <span className={classes.a} />
       InnerComponent.defaultProps = {
         color: 'rgb(255, 0, 0)'
       }
