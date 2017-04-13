@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
+import {instanceOf} from 'prop-types'
 import {SheetsRegistry, getDynamicStyles} from 'jss'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
@@ -59,7 +60,7 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     static displayName = `Jss(${displayName})`
 
     static contextTypes = {
-      jssSheetsRegistry: PropTypes.instanceOf(SheetsRegistry)
+      jssSheetsRegistry: instanceOf(SheetsRegistry)
     }
 
     static defaultProps = InnerComponent.defaultProps
