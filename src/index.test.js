@@ -63,11 +63,11 @@ describe('react-jss', () => {
 
     it('should use passed jss', () => {
       let passedJss
-      const WrappedComponent = ({sheet}) => {
+      const InnerComponent = ({sheet}) => {
         passedJss = sheet.options.jss
         return null
       }
-      const Component = localInjectSheet()(WrappedComponent)
+      const Component = localInjectSheet()(InnerComponent)
       render(<Component />, node)
       expect(passedJss).to.be(localJss)
     })
@@ -118,13 +118,13 @@ describe('react-jss', () => {
     let Component
 
     beforeEach(() => {
-      const WrappedComponent = ({classes}) => {
+      const InnerComponent = ({classes}) => {
         passedClasses = classes
         return null
       }
       Component = injectSheet({
         button: {color: 'red'}
-      })(WrappedComponent)
+      })(InnerComponent)
     })
 
     it('should inject classes map as a prop', () => {
@@ -345,11 +345,11 @@ describe('react-jss', () => {
     const mock = {}
 
     beforeEach(() => {
-      const WrappedComponent = (props) => {
+      const InnerComponent = (props) => {
         receivedSheet = props.sheet
         return null
       }
-      Component = injectSheet()(WrappedComponent)
+      Component = injectSheet()(InnerComponent)
     })
 
     it('should be able to override the sheet prop', () => {
@@ -396,7 +396,7 @@ describe('react-jss', () => {
 
     beforeEach(() => {
       // eslint-disable-next-line react/prop-types
-      const WrappedComponent = ({classes}) => (
+      const InnerComponent = ({classes}) => (
         <div className={`${classes.button} ${classes.left}`} />
       )
 
@@ -408,7 +408,7 @@ describe('react-jss', () => {
           color,
           height: ({height = 1}) => `${height}px`
         }
-      })(WrappedComponent)
+      })(InnerComponent)
     })
 
     it('should attach and detach a sheet', () => {
@@ -430,7 +430,6 @@ describe('react-jss', () => {
       unmountComponentAtNode(node)
       expect(document.querySelectorAll('style').length).to.be(0)
     })
-
 
     it('should use the default value', () => {
       const node0 = render(<Component />, node)
@@ -499,6 +498,23 @@ describe('react-jss', () => {
       expect(style1.height).to.be('40px')
 
       expect(document.querySelectorAll('style').length).to.be(3)
+    })
+
+    it('should use the default props', () => {
+      const styles = {
+        a: {
+          color: ({color}) => color
+        }
+      }
+      const InnerComponent = ({classes}) => <a className={classes.a} />
+      InnerComponent.defaultProps = {
+        color: 'rgb(255, 0, 0)'
+      }
+      const StyledComponent = injectSheet(styles)(InnerComponent)
+
+      const node0 = render(<StyledComponent />, node)
+      const style0 = getComputedStyle(findDOMNode(node0))
+      expect(style0.color).to.be('rgb(255, 0, 0)')
     })
   })
 })

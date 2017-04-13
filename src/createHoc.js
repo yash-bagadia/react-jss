@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import {SheetsRegistry, getDynamicStyles} from 'jss'
 import compose from './compose'
+import getDisplayName from './getDisplayName'
 
 const refNs = `ref-${String(Math.random()).substr(2)}`
 const refs = sheet => sheet[refNs] || 0
@@ -27,10 +28,7 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     styles = null
   }
 
-  const displayName =
-    InnerComponent.displayName ||
-    InnerComponent.name ||
-    'Component'
+  const displayName = getDisplayName(InnerComponent)
 
   if (!options.meta) options.meta = displayName
 
@@ -57,19 +55,26 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
 
   return class Jss extends Component {
     static inner = InnerComponent
+
     static displayName = `Jss(${displayName})`
+
     static contextTypes = {
       jssSheetsRegistry: PropTypes.instanceOf(SheetsRegistry)
     }
+
+    static defaultProps = InnerComponent.defaultProps
 
     componentWillMount() {
       this.staticSheet = ref()
       if (this.dynamicSheet) this.dynamicSheet.attach()
       else if (dynamicStyles) {
-        this.dynamicSheet = jss.createStyleSheet(
-          dynamicStyles,
-          dynamicSheetOptions
-        ).update(this.props).attach()
+        this.dynamicSheet = jss
+          .createStyleSheet(
+            dynamicStyles,
+            dynamicSheetOptions
+          )
+          .update(this.props)
+          .attach()
       }
       const {jssSheetsRegistry} = this.context
       if (jssSheetsRegistry) jssSheetsRegistry.add(this.staticSheet)
