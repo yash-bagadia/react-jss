@@ -1,3 +1,9 @@
+## 6.1.0 / 2017-04-10
+
+- Refactored the structure
+- Exposed and documented `StyledComponent.InnerComponent`
+- Fixed default props not being passed to the function values. (#87)
+
 ## 6.0.0 / 2017-04-10
 
 - Use JSS 7.0
