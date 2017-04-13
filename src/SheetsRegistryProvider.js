@@ -19,11 +19,7 @@ export default class SheetsRegistryProvider extends Component {
 
   render() {
     const {children} = this.props
-    return (
-      Children.count(children) > 1
-        ? <div>{children}</div>
-        : children
-    )
+    return Children.count(children) > 1 ? <div>{children}</div> : children
   }
 }
 

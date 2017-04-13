@@ -362,7 +362,6 @@ describe('react-jss', () => {
   describe('with SheetsRegistryProvider', () => {
     it('should add style sheets to the registry from context', () => {
       const customSheets = new SheetsRegistry()
-
       const ComponentA = injectSheet({
         button: {color: 'red'}
       })()
@@ -382,14 +381,24 @@ describe('react-jss', () => {
     })
   })
 
-  describe('dynamic sheets', () => {
-    let Component
+  describe('access inner component', () => {
+    it('should be exposed using "inner" property', () => {
+      const ComponentOuter = injectSheet({
+        button: {color: 'red'}
+      })()
+      expect(ComponentOuter.inner).to.be.a(Function)
+    })
+  })
+
+  describe('function values', () => {
     const color = 'rgb(0, 0, 0)'
+    let Component
 
     beforeEach(() => {
       // eslint-disable-next-line react/prop-types
-      const WrappedComponent = ({classes}) =>
+      const WrappedComponent = ({classes}) => (
         <div className={`${classes.button} ${classes.left}`} />
+      )
 
       Component = injectSheet({
         left: {
