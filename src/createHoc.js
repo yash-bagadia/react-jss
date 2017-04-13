@@ -54,7 +54,7 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
   }
 
   return class Jss extends Component {
-    static inner = InnerComponent
+    static InnerComponent = InnerComponent
 
     static displayName = `Jss(${displayName})`
 

@@ -180,7 +180,7 @@ export default function render(req, res) {
 ```es6
 const InnerComponent = () => null
 const StyledComponent = injectSheet(styles, InnerComponent)
-console.log(StyledComponent.inner) // Prints out the inner component.
+console.log(StyledComponent.InnerComponent) // Prints out the inner component.
 ```
 
 ## Installation.

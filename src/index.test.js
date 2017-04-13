@@ -382,11 +382,11 @@ describe('react-jss', () => {
   })
 
   describe('access inner component', () => {
-    it('should be exposed using "inner" property', () => {
+    it('should be exposed using "InnerComponent" property', () => {
       const ComponentOuter = injectSheet({
         button: {color: 'red'}
       })()
-      expect(ComponentOuter.inner).to.be.a(Function)
+      expect(ComponentOuter.InnerComponent).to.be.a(Function)
     })
   })
 
