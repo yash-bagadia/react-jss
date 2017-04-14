@@ -70,10 +70,7 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
       if (this.dynamicSheet) this.dynamicSheet.attach()
       else if (dynamicStyles) {
         this.dynamicSheet = jss
-          .createStyleSheet(
-            dynamicStyles,
-            dynamicSheetOptions
-          )
+          .createStyleSheet(dynamicStyles, dynamicSheetOptions)
           .update(this.props)
           .attach()
       }

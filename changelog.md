@@ -1,4 +1,8 @@
-## 6.1.0 / 2017-04-10
+## 6.1.1 / 2017-04-14
+
+- Use prop-types package
+
+## 6.1.0 / 2017-04-14
 
 - Refactored the structure
 - Exposed and documented `StyledComponent.InnerComponent`
