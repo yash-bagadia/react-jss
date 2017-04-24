@@ -405,7 +405,7 @@ describe('react-jss', () => {
         },
         button: {
           color,
-          height: ({height = 1}) => `${height}px`
+          height: ({height = 1}) => height
         }
       })(InnerComponent)
     })
