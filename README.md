@@ -20,7 +20,7 @@ Also you may need this module if you build a big application where leaving all s
   * [Theming](#theming)
   * [Server-side rendering](#server-side-rendering)
   * [Reuse same StyleSheet in different Components](#reuse-same-stylesheet-in-different-components)
-  * [classNames helper](#classnames-helper)
+  * [The classNames helper](#the-classnames-helper)
   * [The inner component](#the-inner-component)
   * [Custom setup](#custom-setup)
   * [Decorators](#decorators)
@@ -72,7 +72,7 @@ export default injectSheet(styles)(Button)
 ### Theming
 
 ```javascript
-import { ThemeProvider, withTheme } from 'react-jss';
+import { ThemeProvider, withTheme } from 'react-jss'
 ```
 
 Idea is simple. You define theme `object`. You pass it to `ThemeProvider` which in turn passes it to `context`, then you use `withTheme` to map it back from `context` to components `props`. After that you may change your theme, and all your components will get new theme automatically.
@@ -85,32 +85,32 @@ In your app you will need `ThemeProvider`:
   * If it is an `Object` and used in a root `ThemeProvider` then it's intact and being passed down the react tree.
   * If it is `Object` and used in a nested `ThemeProvider` then it's being merged with theme from a parent `ThemeProvider` and passed down the react tree.
   * If it is `Function` and used in a nested `ThemeProvider` then it's being applied to the theme from a parent `ThemeProvider`. If result is an `Object` it will be passed down the react tree, throws otherwise.
-* `ThemeProvider` as every other component can render only single children, because it uses `React.Children.only` in render, which returns the only child in children. Throws otherwise.
+* `ThemeProvider` as every other component can render only single child, because it uses `React.Children.only` in render and throws otherwise.
 * [Read more about `ThemeProvider` in `theming`'s documentation.](https://github.com/iamstarkov/theming#themeprovider)
 
 ```javascript
 import React from 'react'
-import { ThemeProvider } from 'react-jss'
-import { Button } from './components'
+import {ThemeProvider} from 'react-jss'
+import {Button} from './components'
 
 const theme = {
-  colorPrimary: 'green',
-};
+  colorPrimary: 'green'
+}
 
-const App = () => {
+const App = () => (
   <ThemeProvider theme={theme}>
     <Button>I am a button with green background</Button>
   </ThemeProvider>
-}
+)
 
-export default App;
+export default App
 ```
 
-In your components you will need `withTheme`. It is a Higher-order Component which takes a single `React.Component` and maps a theme object from context to props. [Read more about `withTheme` in `theming`'s documentation.](https://github.com/iamstarkov/theming#withthemecomponent)
+In your components you will need `withTheme`. It is a Higher-order Component factory which takes a `React.Component` and references the theme object from context to props. [Read more about `withTheme` in `theming`'s documentation.](https://github.com/iamstarkov/theming#withthemecomponent)
 
 ```javascript
 import React from 'react'
-import injectSheet, { withTheme } from 'react-jss'
+import injectSheet, {withTheme} from 'react-jss'
 
 const styles = {
   button: {
@@ -129,7 +129,8 @@ const Button = ({classes, children}) => (
   </button>
 )
 
-export default withTheme(injectSheet(styles)(Button))
+const StyledButton = injectSheet(styles)(Button)
+const StyledButtonWithTheme = withTheme(StyledButton)
 ```
 
 ### Server-side rendering
@@ -148,8 +149,8 @@ export default function render(req, res) {
     </SheetsRegistryProvider>
   )
 
-  // any instances of `injectStyle` within `<MyApp />` will have gotten `sheets`
-  // from `context` and added their style sheets to it by now.
+  // Any instances of `injectSheet` within `<MyApp />` will have gotten sheets
+  // from `context` and added their Style Sheets to it by now.
 
   return res.send(renderToString(
     <html>
@@ -168,11 +169,11 @@ export default function render(req, res) {
 
 ### Reuse same StyleSheet in different Components
 
-Sometimes you may need to reuse the same `StyleSheet` in different components, without generating new styles for each. You can pass `StyleSheet` instance to the `injectSheet?` function instead of `styles` object.
+Sometimes you may need to reuse the same Style Sheet in different components without generating new styles for each. You can pass a `StyleSheet` instance to the `injectSheet` function instead of `styles` object.
 
 ```javascript
 import React, {Component} from 'react'
-import injectSheet, { jss } from 'react-jss'
+import injectSheet, {jss} from 'react-jss'
 
 const sheet = jss.createStyleSheet({
   button: {
@@ -189,7 +190,7 @@ class Button extends Component {
 }
 ```
 
-### classNames helper
+### The classNames helper
 
 You can use [classNames](https://github.com/JedWatson/classnames) together with JSS same way you do it with global CSS.
 
@@ -217,7 +218,7 @@ console.log(StyledComponent.InnerComponent) // Prints out the inner component.
 
 ### Custom setup
 
-If you want to specify a jss version and plugins to use, you should create your [own jss instance](https://github.com/cssinjs/jss/blob/master/docs/js-api.md#create-an-own-jss-instance), [setup plugins](https://github.com/cssinjs/jss/blob/master/docs/setup.md#setup-with-plugins) and create a `injectSheet` function which has your jss version bound.
+If you want to specify a JSS version and plugins to use, you should create your [own Jss instance](https://github.com/cssinjs/jss/blob/master/docs/js-api.md#create-an-own-jss-instance), [setup plugins](https://github.com/cssinjs/jss/blob/master/docs/setup.md#setup-with-plugins) and create a `injectSheet` function which has your jss version bound.
 
 ```javascript
 import {create as createJss} from 'jss'
