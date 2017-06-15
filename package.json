@@ -7,9 +7,10 @@
     "node": ">=4"
   },
   "scripts": {
-    "all": "npm run lint && npm run test && npm run build",
+    "all": "npm run test && npm run build",
     "build": "npm run clean && npm run build:lib && npm run build:tests && npm run build:dist",
     "build:lib": "babel src --out-dir lib",
+    "build:lib:watch": "babel src --out-dir lib --watch",
     "build:tests": "npm run build:tests:lib && npm run build:tests:local",
     "build:tests:lib": "cross-env NODE_ENV=test babel src --out-dir tests",
     "build:tests:local": "cross-env NODE_ENV=test webpack src/index.test.js tmp/tests.js",
@@ -83,6 +84,7 @@
     "webpack": "^1.13.1"
   },
   "dependencies": {
+    "@iamstarkov/theming-w-listener": "^1.0.1",
     "hoist-non-react-statics": "^1.2.0",
     "jss": "^7.0.0",
     "jss-preset-default": "^2.0.0",
