@@ -47,10 +47,11 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     contextTypes = Object.assign({}, contextTypes, themeListener.contextTypes)
   }
 
-  function ref() {
+  function ref(theme) {
+    const compiledStyles = theme ? styles(theme) : styles;
     if (!staticSheet) {
-      staticSheet = jss.createStyleSheet(styles, options)
-      dynamicStyles = compose(staticSheet, getDynamicStyles(styles))
+      staticSheet = jss.createStyleSheet(compiledStyles, options)
+      dynamicStyles = compose(staticSheet, getDynamicStyles(compiledStyles))
     }
     if (staticSheet[refNs] === undefined) staticSheet[refNs] = 0
     if (refs(staticSheet) === 0) staticSheet.attach()
@@ -78,7 +79,13 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     }
 
     componentWillMount() {
-      this.staticSheet = ref()
+      let theme;
+      if (isThemingEnabled) {
+        theme = themeListener.initial(this.context)
+        this.setTheme(theme)
+      }
+
+      this.staticSheet = ref(theme)
       if (this.dynamicSheet) this.dynamicSheet.attach()
       else if (dynamicStyles) {
         this.dynamicSheet = jss
