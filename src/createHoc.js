@@ -76,6 +76,20 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
         this.state = {theme: {}}
         this.setTheme = theme => this.setState({theme})
       }
+
+      this.compileSheet = (theme) => {
+        this.staticSheet = ref(theme)
+        if (this.dynamicSheet) this.dynamicSheet.attach()
+        else if (dynamicStyles) {
+          this.dynamicSheet = jss
+          .createStyleSheet(dynamicStyles, dynamicSheetOptions)
+          .update(this.props)
+          .attach()
+        }
+        const {jssSheetsRegistry} = this.context
+        if (jssSheetsRegistry) jssSheetsRegistry.add(this.staticSheet)
+      }
+
     }
 
     componentWillMount() {
@@ -84,17 +98,7 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
         theme = themeListener.initial(this.context)
         this.setTheme(theme)
       }
-
-      this.staticSheet = ref(theme)
-      if (this.dynamicSheet) this.dynamicSheet.attach()
-      else if (dynamicStyles) {
-        this.dynamicSheet = jss
-          .createStyleSheet(dynamicStyles, dynamicSheetOptions)
-          .update(this.props)
-          .attach()
-      }
-      const {jssSheetsRegistry} = this.context
-      if (jssSheetsRegistry) jssSheetsRegistry.add(this.staticSheet)
+      this.compileSheet(theme)
     }
 
     componentWillReceiveProps(nextProps) {
