@@ -69,6 +69,13 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     static contextTypes = contextTypes;
 
     static defaultProps = InnerComponent.defaultProps
+    constructor(props) {
+      super(props)
+      if (isThemingEnabled) {
+        this.state = {theme: {}}
+        this.setTheme = theme => this.setState({theme})
+      }
+    }
 
     componentWillMount() {
       this.staticSheet = ref()
