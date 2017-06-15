@@ -1,8 +1,10 @@
 import React, {Component} from 'react'
 import {instanceOf} from 'prop-types'
 import {SheetsRegistry, getDynamicStyles} from 'jss'
+import { themeListener } from 'theming'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
+
 
 const refNs = `ref-${String(Math.random()).substr(2)}`
 const refs = sheet => sheet[refNs] || 0
@@ -22,6 +24,7 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
   let styles = stylesOrSheet
   let staticSheet = null
   let dynamicStyles
+  const isThemingEnabled = typeof stylesOrSheet === 'function'
 
   // Accept StyleSheet instance.
   if (stylesOrSheet && typeof stylesOrSheet.attach === 'function') {
@@ -37,6 +40,11 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     ...options,
     meta: `${options.meta}Dynamic`,
     link: true
+  }
+
+  let contextTypes = { jssSheetsRegistry: instanceOf(SheetsRegistry) }
+  if (isThemingEnabled) {
+    contextTypes = Object.assign({}, contextTypes, themeListener.contextTypes)
   }
 
   function ref() {
@@ -58,10 +66,7 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     static InnerComponent = InnerComponent
 
     static displayName = `Jss(${displayName})`
-
-    static contextTypes = {
-      jssSheetsRegistry: instanceOf(SheetsRegistry)
-    }
+    static contextTypes = contextTypes;
 
     static defaultProps = InnerComponent.defaultProps
 
@@ -106,6 +111,7 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
 
     render() {
       const sheet = this.dynamicSheet || this.staticSheet
+      console.log('render', InnerComponent.name, { isThemingEnabled })
       return <InnerComponent sheet={sheet} classes={sheet.classes} {...this.props} />
     }
   }
