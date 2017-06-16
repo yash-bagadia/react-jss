@@ -93,17 +93,17 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     }
 
     componentDidUpdate(prevProps, prevState) {
-      if (this.state.staticSheet !== prevState.staticSheet) {
+      if (prevState.staticSheet !== this.state.staticSheet) {
         jss.removeStyleSheet(prevState.staticSheet)
       }
-      if (this.state.dynamicSheet !== prevState.dynamicSheet) {
+      if (prevState.dynamicSheet !== this.state.dynamicSheet) {
         jss.removeStyleSheet(prevState.dynamicSheet)
       }
     }
 
     render() {
       const sheet = this.state.dynamicSheet || this.state.staticSheet
-      return <InnerComponent sheet={sheet} classes={sheet.classes} {...this.props} />
+      return <InnerComponent sheet={sheet} classes={sheet.classes} theme={theme} {...this.props} />
     }
   }
 }
