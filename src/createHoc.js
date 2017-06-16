@@ -89,7 +89,6 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
         const {jssSheetsRegistry} = this.context
         if (jssSheetsRegistry) jssSheetsRegistry.add(this.staticSheet)
       }
-
     }
 
     componentWillMount() {
@@ -99,6 +98,10 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
         this.setTheme(theme)
       }
       this.compileSheet(theme)
+    }
+
+    componentDidMount() {
+      this.unsubscribe = themeListener.subscribe(this.context, this.setTheme);
     }
 
     componentWillReceiveProps(nextProps) {
