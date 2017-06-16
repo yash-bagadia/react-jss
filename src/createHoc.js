@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {instanceOf} from 'prop-types'
 import {SheetsRegistry, getDynamicStyles} from 'jss'
-import { themeListener } from 'theming'
+import { themeListener } from '@iamstarkov/theming-w-listener'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
 
@@ -79,13 +79,18 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     createSheets = (theme) => {
       const staticSheet = jss.createStyleSheet(getStyles(stylesOrSheet, theme), options)
       const dynamicStyles = compose(staticSheet, getDynamicStyles(getStyles(stylesOrSheet, theme)))
-      const dynamicSheet = jss.createStyleSheet(dynamicStyles, { link: true })
+      let dynamicSheet;
+      if (dynamicStyles) {
+        dynamicSheet = jss.createStyleSheet(dynamicStyles, { link: true })
+      }
       return { staticSheet, dynamicSheet }
     }
 
     attachSheets = (state) => {
       state.staticSheet.attach()
-      state.dynamicSheet.update(this.props).attach()
+      if (state.dynamicSheet) {
+        state.dynamicSheet.update(this.props).attach()
+      }
     }
 
     setTheme = theme => this.setState({theme})
@@ -118,6 +123,16 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
       }
       if (prevState.dynamicSheet !== this.state.dynamicSheet) {
         jss.removeStyleSheet(prevState.dynamicSheet)
+      }
+    }
+
+    componentWillUnmount() {
+      if (isThemingEnabled && this.unsubscribe) {
+        unsubscribe()
+      }
+      this.state.staticSheet.detach()
+      if (this.state.dynamicSheet) {
+        this.state.dynamicSheet.detach()
       }
     }
 
