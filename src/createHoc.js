@@ -101,6 +101,7 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     }
 
     componentDidMount() {
+      // here im getting theme updates
       this.unsubscribe = themeListener.subscribe(this.context, this.setTheme);
     }
 
@@ -110,7 +111,12 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
       }
     }
 
-    componentWillUpdate() {
+    componentWillUpdate(nextProps, nextState) {
+      if (isThemingEnabled && nextState.theme && JSON.stringify(this.state.theme) !== JSON.stringify(nextState.theme)) {
+        console.log(nextState.theme)
+        // here i want to update static or dynamic sheets
+        // this.staticSheet = ref(nextState.theme)
+      }
       if (process.env.NODE_ENV !== 'production') {
         // Support React Hot Loader.
         if (this.staticSheet !== staticSheet) {
