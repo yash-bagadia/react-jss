@@ -36,6 +36,26 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
 
   const displayName = `Jss(${getDisplayName(InnerComponent)})`
 
+  // TODO: hot reload, current status of it, which version and how people use it
+  // TODO: tests
+  // TODO: if stylesOrSheet is sheet, or function returns a sheet:
+  //  warning in dev, nothing in prod
+  //  warning: we dont support theming for theming
+  // TODO: Server-Side Rendering
+  //  both dynamicSheet and staticSheet should be added in SheetsRegistry
+  //  add tests for SSR's dynamicSheet
+  // TODO: meta
+  // TODO: add options for dynamicSheet and merge createHoc's options with { link: true };
+  // TODO: ref counter
+  // TODO: add reference to InnerComponent
+  // TODO: tests:
+  //  new theming
+  //  fault-tolerant warning when stylesOrSheet is Sheet or its a function when
+  //  rerender on theme updates with static and dynamic sheets
+  //  it does work when functional styles uses different props
+  //  in function styles: theme.color === (props => props.theme.color)()
+  //  TODO theming: deepEqual in componentWillReceiveProps for theme and warning
+
   return class Jss extends Component {
     static displayName = displayName
     static InnerComponent = InnerComponent
