@@ -11,6 +11,13 @@ const refs = sheet => sheet[refNs] || 0
 const dec = sheet => --sheet[refNs]
 const inc = sheet => ++sheet[refNs]
 
+const getStyles = (stylesOrSheet, theme) => {
+  if (typeof stylesOrSheet !== 'function') {
+    return stylesOrSheet;
+  }
+  return stylesOrSheet(theme)
+}
+
 /**
  * Wrap a Component into a JSS Container Component.
  *
@@ -33,26 +40,38 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     static displayName = displayName
     static InnerComponent = InnerComponent
     static contextTypes = contextTypes
-
     static defaultProps = InnerComponent.defaultProps
+
     constructor(props, context) {
       super(props, context)
 
-      let initialState = {
-        staticSheet: null,
-        dynamicSheet: null,
-      }
-
+      let theme;
       if (isThemingEnabled) {
-        initialState.theme = themeListener.initial(context)
+        theme = themeListener.initial(context)
       }
 
-      this.state = initialState;
+      this.state = {
+        ...this.createSheets(theme),
+        theme
+      }
+    }
+
+    createSheets = (theme) => {
+      const staticSheet = jss.createStyleSheet(getStyles(stylesOrSheet, theme), options)
+      const dynamicStyles = compose(staticSheet, getDynamicStyles(getStyles(stylesOrSheet, theme)))
+      const dynamicSheet = jss.createStyleSheet(dynamicStyles, { link: true })
+      return { staticSheet, dynamicSheet }
+    }
+
+    attachSheets = (state) => {
+      state.staticSheet.attach()
+      state.dynamicSheet.update(this.props).attach()
     }
 
     setTheme = theme => this.setState({theme})
 
     componentWillMount() {
+      this.attachSheets(this.state)
     }
 
     componentDidMount() {
@@ -67,8 +86,18 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
 
     componentWillUpdate(nextProps, nextState) {
       if (isThemingEnabled && nextState.theme && this.state.theme !== nextState.theme) {
-        console.log('YOLO', nextState.theme)
-        // this.state.staticSheet.update()
+        const newSheets = this.createSheets(nextState.theme)
+        this.attachSheets(newSheets)
+        this.setState(newSheets)
+      }
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+      if (this.state.staticSheet !== prevState.staticSheet) {
+        jss.removeStyleSheet(prevState.staticSheet)
+      }
+      if (this.state.dynamicSheet !== prevState.dynamicSheet) {
+        jss.removeStyleSheet(prevState.dynamicSheet)
       }
     }
 
