@@ -21,74 +21,85 @@ const inc = sheet => ++sheet[refNs]
  * @return {Component}
  */
 export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
-  let styles = stylesOrSheet
-  let staticSheet = null
-  let dynamicStyles
   const isThemingEnabled = typeof stylesOrSheet === 'function'
-
-  // Accept StyleSheet instance.
-  if (stylesOrSheet && typeof stylesOrSheet.attach === 'function') {
-    staticSheet = stylesOrSheet
-    styles = null
-  }
-
-  const displayName = getDisplayName(InnerComponent)
-
-  if (!options.meta) options.meta = displayName
-
-  const dynamicSheetOptions = {
-    ...options,
-    meta: `${options.meta}Dynamic`,
-    link: true
-  }
-
   let contextTypes = { jssSheetsRegistry: instanceOf(SheetsRegistry) }
   if (isThemingEnabled) {
     contextTypes = Object.assign({}, contextTypes, themeListener.contextTypes)
   }
 
-  function ref(theme) {
-    const compiledStyles = theme ? styles(theme) : styles;
-    if (!staticSheet) {
-      staticSheet = jss.createStyleSheet(compiledStyles, options)
-      dynamicStyles = compose(staticSheet, getDynamicStyles(compiledStyles))
-    }
-    if (staticSheet[refNs] === undefined) staticSheet[refNs] = 0
-    if (refs(staticSheet) === 0) staticSheet.attach()
-    inc(staticSheet)
-    return staticSheet
-  }
-
-  function deref() {
-    if (dec(staticSheet) === 0) staticSheet.detach()
-  }
+  const displayName = `Jss(${getDisplayName(InnerComponent)})`
 
   return class Jss extends Component {
+    static displayName = displayName
     static InnerComponent = InnerComponent
-
-    static displayName = `Jss(${displayName})`
-    static contextTypes = contextTypes;
+    static contextTypes = contextTypes
 
     static defaultProps = InnerComponent.defaultProps
     constructor(props) {
       super(props)
+
+      let styles = stylesOrSheet
+      let staticSheet = null
+      if (!options.meta) options.meta = displayName
+
+      const dynamicSheetOptions = {
+        ...options,
+        meta: `${options.meta}Dynamic`,
+        link: true
+      }
+
+      if (stylesOrSheet && typeof stylesOrSheet.attach === 'function') {
+        staticSheet = stylesOrSheet
+        styles = null
+      }
+
+      let initialState = {
+        styles: stylesOrSheet,
+        staticSheet: null,
+        dynamicSheet: null,
+        options,
+        dynamicStyles: null,
+      }
+
       if (isThemingEnabled) {
-        this.state = {theme: {}}
+        initialState = Object.assign({}, initialState, { theme: {} })
         this.setTheme = theme => this.setState({theme})
       }
 
+      this.state = initialState;
+
       this.compileSheet = (theme) => {
-        this.staticSheet = ref(theme)
-        if (this.dynamicSheet) this.dynamicSheet.attach()
-        else if (dynamicStyles) {
-          this.dynamicSheet = jss
-          .createStyleSheet(dynamicStyles, dynamicSheetOptions)
-          .update(this.props)
-          .attach()
+        // todo
+        this.state.staticSheet = this.ref(theme)
+        if (this.state.dynamicSheet) this.state.dynamicSheet.attach()
+        else if (this.state.dynamicStyles) {
+          this.state.dynamicSheet = jss
+            .createStyleSheet(this.state.dynamicStyles, dynamicSheetOptions)
+            .update(this.props)
+            .attach()
         }
         const {jssSheetsRegistry} = this.context
-        if (jssSheetsRegistry) jssSheetsRegistry.add(this.staticSheet)
+        if (jssSheetsRegistry) jssSheetsRegistry.add(this.state.staticSheet)
       }
+
+      this.ref = (theme) => {
+        const compiledStyles = theme ? styles(theme) : styles;
+
+        if (!this.state.staticSheet) {
+          // todo
+          this.state.staticSheet = jss.createStyleSheet(compiledStyles, this.state.options)
+          this.state.dynamicStyles = compose(this.state.staticSheet, getDynamicStyles(compiledStyles))
+        }
+        if (this.state.staticSheet[refNs] === undefined) this.state.staticSheet[refNs] = 0
+        if (refs(this.state.staticSheet) === 0) this.state.staticSheet.attach()
+        inc(this.state.staticSheet)
+        return this.state.staticSheet
+      }
+
+      this.deref = () => {
+        if (dec(this.state.staticSheet) === 0) this.state.staticSheet.detach()
+      }
+
     }
 
     componentWillMount() {
@@ -106,38 +117,38 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     }
 
     componentWillReceiveProps(nextProps) {
-      if (this.dynamicSheet) {
-        this.dynamicSheet.update(nextProps)
+      if (this.state.dynamicSheet) {
+        this.state.dynamicSheet.update(nextProps)
       }
     }
 
     componentWillUpdate(nextProps, nextState) {
       if (isThemingEnabled && nextState.theme && JSON.stringify(this.state.theme) !== JSON.stringify(nextState.theme)) {
-        console.log(nextState.theme)
-        // here i want to update static or dynamic sheets
-        // this.staticSheet = ref(nextState.theme)
+        console.log('YOLO', nextState.theme)
+        this.compileSheet(nextState.theme)
       }
       if (process.env.NODE_ENV !== 'production') {
         // Support React Hot Loader.
-        if (this.staticSheet !== staticSheet) {
-          this.staticSheet.detach()
-          this.staticSheet = ref()
-        }
+        // if (this.state.staticSheet !== nextState.staticSheet) {
+        //   this.state.staticSheet.detach()
+        //   this.state.staticSheet = this.ref()
+        // }
       }
     }
 
     componentWillUnmount() {
-      if (this.staticSheet && !staticSheet) {
-        this.staticSheet.detach()
-        const {jssSheetsRegistry} = this.context
-        if (jssSheetsRegistry) jssSheetsRegistry.remove(this.staticSheet)
-      }
-      else deref()
-      if (this.dynamicSheet) this.dynamicSheet.detach()
+      // if (this.state.staticSheet && !staticSheet) {
+        // this.state.staticSheet.detach()
+        // const {jssSheetsRegistry} = this.context
+        // if (jssSheetsRegistry) jssSheetsRegistry.remove(this.state.staticSheet)
+      // } else {
+        this.deref()
+      // }
+      if (this.state.dynamicSheet) this.state.dynamicSheet.detach()
     }
 
     render() {
-      const sheet = this.dynamicSheet || this.staticSheet
+      const sheet = this.state.dynamicSheet || this.state.staticSheet
       console.log('render', InnerComponent.name, { isThemingEnabled })
       return <InnerComponent sheet={sheet} classes={sheet.classes} {...this.props} />
     }
