@@ -123,6 +123,7 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
 
     render() {
       const sheet = this.state.dynamicSheet || this.state.staticSheet
+      const theme = this.state.theme;
       return <InnerComponent sheet={sheet} classes={sheet.classes} theme={theme} {...this.props} />
     }
   }
