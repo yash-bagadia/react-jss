@@ -5,11 +5,15 @@ import { themeListener } from '@iamstarkov/theming-w-listener'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
 
-
-const refNs = `ref-${String(Math.random()).substr(2)}`
-const refs = sheet => sheet[refNs] || 0
-const dec = sheet => --sheet[refNs]
-const inc = sheet => ++sheet[refNs]
+const interceptor = initialState => {
+  let state = initialState;
+  return newState => {
+    if (typeof newState !== 'undefined') {
+      state = newState;
+    }
+    return state;
+  };
+}
 
 const getStyles = (stylesOrSheet, theme) => {
   if (typeof stylesOrSheet !== 'function') {
@@ -33,8 +37,9 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
   if (isThemingEnabled) {
     contextTypes = Object.assign({}, contextTypes, themeListener.contextTypes)
   }
-
   const displayName = `Jss(${getDisplayName(InnerComponent)})`
+  const sharedStaticSheet = interceptor();
+  const sharedStaticSheetCount = interceptor(0);
 
   // TODO: hot reload, current status of it, which version and how people use it
   // TODO: tests
@@ -54,7 +59,8 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
   //  rerender on theme updates with static and dynamic sheets
   //  it does work when functional styles uses different props
   //  in function styles: theme.color === (props => props.theme.color)()
-  //  TODO theming: deepEqual in componentWillReceiveProps for theme and warning
+  // TODO theming: deepEqual in componentWillReceiveProps for theme and warning
+  // TODO two insctances of the same component with same functional styles but with different themes
 
   return class Jss extends Component {
     static displayName = displayName
@@ -77,20 +83,28 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     }
 
     createSheets = (theme) => {
-      const staticSheet = jss.createStyleSheet(getStyles(stylesOrSheet, theme), options)
-      const dynamicStyles = compose(staticSheet, getDynamicStyles(getStyles(stylesOrSheet, theme)))
+      if (!sharedStaticSheet()) {
+        sharedStaticSheet(
+          jss.createStyleSheet(getStyles(stylesOrSheet, theme), options)
+        )
+      }
+      const dynamicStyles = compose(sharedStaticSheet(), getDynamicStyles(getStyles(stylesOrSheet, theme)))
       let dynamicSheet;
       if (dynamicStyles) {
         dynamicSheet = jss.createStyleSheet(dynamicStyles, { link: true })
       }
-      return { staticSheet, dynamicSheet }
+      return { staticSheet: sharedStaticSheet, dynamicSheet }
     }
 
     attachSheets = (state) => {
-      state.staticSheet.attach()
+      if (sharedStaticSheetCount() === 0) {
+        state.staticSheet().attach()
+      }
+      sharedStaticSheetCount(sharedStaticSheetCount() + 1)
       if (state.dynamicSheet) {
         state.dynamicSheet.update(this.props).attach()
       }
+      console.log(sharedStaticSheetCount())
     }
 
     setTheme = theme => this.setState({theme})
@@ -118,8 +132,11 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     }
 
     componentDidUpdate(prevProps, prevState) {
-      if (prevState.staticSheet !== this.state.staticSheet) {
-        jss.removeStyleSheet(prevState.staticSheet)
+      if (prevState.staticSheet() !== this.state.staticSheet) {
+        sharedStaticSheetCount(sharedStaticSheetCount() - 1)
+        if (sharedStaticSheetCount() === 0) {
+          jss.removeStyleSheet(prevState.staticSheet)
+        }
       }
       if (prevState.dynamicSheet !== this.state.dynamicSheet) {
         jss.removeStyleSheet(prevState.dynamicSheet)
@@ -130,14 +147,18 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
       if (isThemingEnabled && this.unsubscribe) {
         unsubscribe()
       }
-      this.state.staticSheet.detach()
+      sharedStaticSheetCount(sharedStaticSheetCount() - 1)
+      if (sharedStaticSheetCount() === 0) {
+        this.state.staticSheet().detach()
+      }
       if (this.state.dynamicSheet) {
         this.state.dynamicSheet.detach()
       }
+      console.log(sharedStaticSheetCount())
     }
 
     render() {
-      const sheet = this.state.dynamicSheet || this.state.staticSheet
+      const sheet = this.state.dynamicSheet || this.state.staticSheet()
       const theme = this.state.theme;
       return <InnerComponent sheet={sheet} classes={sheet.classes} theme={theme} {...this.props} />
     }
