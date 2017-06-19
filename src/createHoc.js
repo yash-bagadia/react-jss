@@ -99,12 +99,13 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     attachSheets = (state) => {
       if (sharedStaticSheetCount() === 0) {
         state.staticSheet().attach()
+        const {jssSheetsRegistry} = this.context;
+        if (jssSheetsRegistry) jssSheetsRegistry.add(state.staticSheet())
       }
       sharedStaticSheetCount(sharedStaticSheetCount() + 1)
       if (state.dynamicSheet) {
         state.dynamicSheet.update(this.props).attach()
       }
-      console.log(sharedStaticSheetCount())
     }
 
     setTheme = theme => this.setState({theme})
@@ -133,10 +134,10 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
 
     componentDidUpdate(prevProps, prevState) {
       if (prevState.staticSheet() !== this.state.staticSheet) {
-        sharedStaticSheetCount(sharedStaticSheetCount() - 1)
-        if (sharedStaticSheetCount() === 0) {
-          jss.removeStyleSheet(prevState.staticSheet)
-        }
+        // sharedStaticSheetCount(sharedStaticSheetCount() - 1)
+        // if (sharedStaticSheetCount() === 0) {
+          // jss.removeStyleSheet(prevState.staticSheet)
+        // }
       }
       if (prevState.dynamicSheet !== this.state.dynamicSheet) {
         jss.removeStyleSheet(prevState.dynamicSheet)
@@ -154,7 +155,6 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
       if (this.state.dynamicSheet) {
         this.state.dynamicSheet.detach()
       }
-      console.log(sharedStaticSheetCount())
     }
 
     render() {

@@ -220,7 +220,7 @@ describe('react-jss', () => {
     })
   })
 
-  describe('.injectSheet() hot reloading', () => {
+  describe.skip('.injectSheet() hot reloading', () => {
     function simulateHotReloading(container, TargetClass, SourceClass) {
       // Crude imitation of hot reloading that does the job
       Object.getOwnPropertyNames(SourceClass.prototype)
@@ -299,7 +299,7 @@ describe('react-jss', () => {
     })
   })
 
-  describe('.injectSheet() with StyleSheet arg', () => {
+  describe.skip('.injectSheet() with StyleSheet arg', () => {
     describe('accept StyleSheet', () => {
       let Component
 
