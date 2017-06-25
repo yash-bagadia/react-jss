@@ -70,7 +70,7 @@ export default injectSheet(styles)(Button)
 ### Theming
 
 ```javascript
-import { ThemeProvider, withTheme } from 'react-jss'
+import {ThemeProvider, withTheme} from 'react-jss'
 ```
 
 Idea is simple. You define theme `object`. You pass it to `ThemeProvider` which in turn passes it to `context`, then you use `withTheme` to map it back from `context` to components `props`. After that you may change your theme, and all your components will get new theme automatically.
@@ -135,16 +135,16 @@ const StyledButtonWithTheme = withTheme(StyledButton)
 
 ```javascript
 import {renderToString} from 'react-dom/server'
-import {SheetsRegistryProvider, SheetsRegistry} from 'react-jss'
+import {JssProvider, SheetsRegistry} from 'react-jss'
 import MyApp from './MyApp'
 
 export default function render(req, res) {
   const sheets = new SheetsRegistry()
 
   const body = renderToString(
-    <SheetsRegistryProvider registry={sheets}>
+    <JssProvider registry={sheets}>
       <MyApp />
-    </SheetsRegistryProvider>
+    </JssProvider>
   )
 
   // Any instances of `injectSheet` within `<MyApp />` will have gotten sheets
@@ -216,17 +216,21 @@ console.log(StyledComponent.InnerComponent) // Prints out the inner component.
 
 ### Custom setup
 
-If you want to specify a JSS version and plugins to use, you should create your [own Jss instance](https://github.com/cssinjs/jss/blob/master/docs/js-api.md#create-an-own-jss-instance), [setup plugins](https://github.com/cssinjs/jss/blob/master/docs/setup.md#setup-with-plugins) and create a `injectSheet` function which has your jss version bound.
+If you want to specify a JSS version and plugins to use, you should create your [own Jss instance](https://github.com/cssinjs/jss/blob/master/docs/js-api.md#create-an-own-jss-instance), [setup plugins](https://github.com/cssinjs/jss/blob/master/docs/setup.md#setup-with-plugins) and pass it to `JssProvider`.
 
 ```javascript
 import {create as createJss} from 'jss'
-import {create as createInjectSheet} from 'react-jss'
+import {JssProvider} from 'react-jss'
 import vendorPrefixer from 'jss-vendor-prefixer'
 
 const jss = createJss()
 jss.use(vendorPrefixer())
 
-export const injectSheet = createInjectSheet(jss)
+const Component = () => (
+  <JssProvider jss={jss}>
+    <App />
+  </JssProvider>
+)
 ```
 
 You can also access the Jss instance being used by default.
