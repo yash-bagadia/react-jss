@@ -4,6 +4,8 @@ import expect from 'expect.js'
 import React, {PureComponent} from 'react'
 import {render, unmountComponentAtNode, findDOMNode} from 'react-dom'
 import deepForceUpdate from 'react-deep-force-update'
+import {stripIndent} from 'common-tags'
+import preset from 'jss-preset-default'
 
 let node
 let jss
@@ -372,6 +374,76 @@ describe('react-jss', () => {
       )
 
       expect(receivedSheet.options.jss).to.be(localJss)
+    })
+
+    it('should add dynamic sheets', () => {
+      const customSheets = new SheetsRegistry()
+      const Component = injectSheet({
+        button: {
+          width: () => 10
+        }
+      })()
+
+      render(
+        <JssProvider registry={customSheets}>
+          <Component />
+        </JssProvider>,
+        node
+      )
+
+      expect(customSheets.registry.length).to.be(2)
+    })
+
+    it('should reset the class generator counter', () => {
+      const customJss = createJss({
+        ...preset(),
+        createGenerateClassName: () => {
+          let counter = 0
+          return rule => `${rule.key}-${counter++}`
+        }
+      })
+
+      const customSheets = new SheetsRegistry()
+      const styles = {
+        button: {
+          color: 'red',
+          border: () => 'green'
+        }
+      }
+      const ComponentA = injectSheet(styles)()
+      const ComponentB = injectSheet(styles)()
+
+      render(
+        <JssProvider registry={customSheets} jss={customJss}>
+          <ComponentA />
+        </JssProvider>,
+        node
+      )
+
+      expect(customSheets.toString()).to.equal(stripIndent`
+        .button-0 {
+          color: red;
+        }
+        .button-1 {
+          border: green;
+        }
+      `)
+
+      render(
+        <JssProvider registry={customSheets} jss={customJss}>
+          <ComponentB />
+        </JssProvider>,
+        node
+      )
+
+      expect(customSheets.toString()).to.equal(stripIndent`
+        .button-0 {
+          color: red;
+        }
+        .button-1 {
+          border: green;
+        }
+      `)
     })
   })
 

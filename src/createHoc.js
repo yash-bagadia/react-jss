@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {instanceOf} from 'prop-types'
+import {object, instanceOf} from 'prop-types'
 import {SheetsRegistry, getDynamicStyles} from 'jss'
 import jss from './jss'
 import compose from './compose'
@@ -39,9 +39,9 @@ export default (stylesOrSheet, InnerComponent, options = {}) => {
     link: true
   }
 
-  function ref(localJss) {
+  function ref(localJss, contextSheetOptions) {
     if (!staticSheet) {
-      staticSheet = localJss.createStyleSheet(styles, options)
+      staticSheet = localJss.createStyleSheet(styles, {...options, ...contextSheetOptions})
       dynamicStyles = compose(staticSheet, getDynamicStyles(styles))
     }
     if (staticSheet[refNs] === undefined) staticSheet[refNs] = 0
@@ -61,22 +61,29 @@ export default (stylesOrSheet, InnerComponent, options = {}) => {
 
     static contextTypes = {
       jss: instanceOf(jss.constructor),
+      jssSheetOptions: object,
       jssSheetsRegistry: instanceOf(SheetsRegistry)
     }
 
     static defaultProps = InnerComponent.defaultProps
 
     componentWillMount() {
-      this.staticSheet = ref(this.getJss())
+      this.staticSheet = ref(this.getJss(), this.context.jssSheetOptions)
       if (this.dynamicSheet) this.dynamicSheet.attach()
       else if (dynamicStyles) {
-        this.dynamicSheet = jss
-          .createStyleSheet(dynamicStyles, dynamicSheetOptions)
+        this.dynamicSheet = this.getJss()
+          .createStyleSheet(dynamicStyles, {
+            ...dynamicSheetOptions,
+            ...this.context.jssSheetOptions
+          })
           .update(this.props)
           .attach()
       }
       const {jssSheetsRegistry} = this.context
-      if (jssSheetsRegistry) jssSheetsRegistry.add(this.staticSheet)
+      if (jssSheetsRegistry) {
+        jssSheetsRegistry.add(this.staticSheet)
+        if (this.dynamicSheet) jssSheetsRegistry.add(this.dynamicSheet)
+      }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -90,7 +97,7 @@ export default (stylesOrSheet, InnerComponent, options = {}) => {
         // Support React Hot Loader.
         if (this.staticSheet !== staticSheet) {
           this.staticSheet.detach()
-          this.staticSheet = ref(this.getJss())
+          this.staticSheet = ref(this.getJss(), this.context.jssSheetOptions)
         }
       }
     }
