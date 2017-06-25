@@ -1,8 +1,8 @@
 import React, {Component, Children} from 'react'
 import {instanceOf, node} from 'prop-types'
-import {SheetsRegistry} from 'jss'
+import jss, {SheetsRegistry} from 'jss'
 
-export default class SheetsRegistryProvider extends Component {
+export default class JssProvider extends Component {
   static propTypes = {
     registry: instanceOf(SheetsRegistry).isRequired,
     children: node.isRequired
@@ -19,8 +19,6 @@ export default class SheetsRegistryProvider extends Component {
   }
 
   render() {
-    const {children} = this.props
-    return Children.count(children) > 1 ? <div>{children}</div> : children
+    return Children.only(this.props.children)
   }
 }
-

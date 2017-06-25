@@ -13,7 +13,7 @@ let injectSheet
 let createInjectSheet
 let reactJss
 let SheetsRegistry
-let SheetsRegistryProvider
+let JssProvider
 
 loadModules()
 
@@ -33,7 +33,7 @@ function loadModules() {
   createInjectSheet = reactJssModule.create
   reactJss = reactJssModule.jss
   SheetsRegistry = reactJssModule.SheetsRegistry
-  SheetsRegistryProvider = reactJssModule.SheetsRegistryProvider
+  JssProvider = reactJssModule.JssProvider
 }
 
 function reset() {
@@ -359,7 +359,7 @@ describe('react-jss', () => {
     })
   })
 
-  describe('with SheetsRegistryProvider', () => {
+  describe('with JssProvider', () => {
     it('should add style sheets to the registry from context', () => {
       const customSheets = new SheetsRegistry()
       const ComponentA = injectSheet({
@@ -370,10 +370,12 @@ describe('react-jss', () => {
       })()
 
       render(
-        <SheetsRegistryProvider registry={customSheets}>
-          <ComponentA />
-          <ComponentB />
-        </SheetsRegistryProvider>,
+        <JssProvider registry={customSheets}>
+          <div>
+            <ComponentA />
+            <ComponentB />
+          </div>
+        </JssProvider>,
         node
       )
 
