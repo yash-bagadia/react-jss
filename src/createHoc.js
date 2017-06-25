@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import {instanceOf} from 'prop-types'
 import {SheetsRegistry, getDynamicStyles} from 'jss'
+import jss from './jss'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
 
@@ -12,13 +13,12 @@ const inc = sheet => ++sheet[refNs]
 /**
  * Wrap a Component into a JSS Container Component.
  *
- * @param {Jss} jss
  * @param {Component} InnerComponent
  * @param {Object|StyleSheet} stylesOrSheet
  * @param {Object} [options]
  * @return {Component}
  */
-export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
+export default (stylesOrSheet, InnerComponent, options = {}) => {
   let styles = stylesOrSheet
   let staticSheet = null
   let dynamicStyles
@@ -39,7 +39,7 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     link: true
   }
 
-  function ref() {
+  function ref(jss) {
     if (!staticSheet) {
       staticSheet = jss.createStyleSheet(styles, options)
       dynamicStyles = compose(staticSheet, getDynamicStyles(styles))
@@ -60,13 +60,14 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     static displayName = `Jss(${displayName})`
 
     static contextTypes = {
+      jss: instanceOf(jss.constructor),
       jssSheetsRegistry: instanceOf(SheetsRegistry)
     }
 
     static defaultProps = InnerComponent.defaultProps
 
     componentWillMount() {
-      this.staticSheet = ref()
+      this.staticSheet = ref(this.getJss())
       if (this.dynamicSheet) this.dynamicSheet.attach()
       else if (dynamicStyles) {
         this.dynamicSheet = jss
@@ -89,7 +90,7 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
         // Support React Hot Loader.
         if (this.staticSheet !== staticSheet) {
           this.staticSheet.detach()
-          this.staticSheet = ref()
+          this.staticSheet = ref(this.getJss())
         }
       }
     }
@@ -102,6 +103,13 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
       }
       else deref()
       if (this.dynamicSheet) this.dynamicSheet.detach()
+    }
+
+    getJss() {
+      const {jss: contextJss} = this.context
+      console.log(111, contextJss)
+      if (contextJss) return contextJss
+      return jss
     }
 
     render() {

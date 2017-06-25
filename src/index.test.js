@@ -10,7 +10,6 @@ let jss
 let sheets
 let createJss
 let injectSheet
-let createInjectSheet
 let reactJss
 let SheetsRegistry
 let JssProvider
@@ -30,7 +29,6 @@ function loadModules() {
 
   const reactJssModule = require('./')
   injectSheet = reactJssModule.default
-  createInjectSheet = reactJssModule.create
   reactJss = reactJssModule.jss
   SheetsRegistry = reactJssModule.SheetsRegistry
   JssProvider = reactJssModule.JssProvider
@@ -47,31 +45,6 @@ describe('react-jss', () => {
     node = document.body.appendChild(document.createElement('div'))
   })
   afterEach(reset)
-
-  describe('.create()', () => {
-    let localInjectSheet
-    let localJss
-
-    beforeEach(() => {
-      localJss = createJss()
-      localInjectSheet = createInjectSheet(localJss)
-    })
-
-    it('should return a function', () => {
-      expect(injectSheet).to.be.a(Function)
-    })
-
-    it('should use passed jss', () => {
-      let passedJss
-      const InnerComponent = ({sheet}) => {
-        passedJss = sheet.options.jss
-        return null
-      }
-      const Component = localInjectSheet()(InnerComponent)
-      render(<Component />, node)
-      expect(passedJss).to.be(localJss)
-    })
-  })
 
   describe('global jss instance', () => {
     it('should return a function', () => {
@@ -380,6 +353,25 @@ describe('react-jss', () => {
       )
 
       expect(customSheets.registry.length).to.equal(2)
+    })
+
+    it('should use Jss istance from the context', () => {
+      const localJss = createJss()
+      let receivedSheet
+
+      const Component = injectSheet()(({sheet}) => {
+        receivedSheet = sheet
+        return null
+      })
+
+      render(
+        <JssProvider jss={localJss}>
+          <Component />
+        </JssProvider>,
+        node
+      )
+
+      expect(receivedSheet.options.jss).to.be(localJss)
     })
   })
 

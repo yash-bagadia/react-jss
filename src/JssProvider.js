@@ -4,16 +4,19 @@ import jss, {SheetsRegistry} from 'jss'
 
 export default class JssProvider extends Component {
   static propTypes = {
-    registry: instanceOf(SheetsRegistry).isRequired,
+    jss: instanceOf(jss.constructor),
+    registry: instanceOf(SheetsRegistry),
     children: node.isRequired
   }
 
   static childContextTypes = {
-    jssSheetsRegistry: instanceOf(SheetsRegistry).isRequired
+    jss: instanceOf(jss.constructor),
+    jssSheetsRegistry: instanceOf(SheetsRegistry)
   }
 
   getChildContext() {
     return {
+      jss: this.props.jss,
       jssSheetsRegistry: this.props.registry
     }
   }
