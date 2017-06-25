@@ -39,9 +39,9 @@ export default (stylesOrSheet, InnerComponent, options = {}) => {
     link: true
   }
 
-  function ref(jss) {
+  function ref(localJss) {
     if (!staticSheet) {
-      staticSheet = jss.createStyleSheet(styles, options)
+      staticSheet = localJss.createStyleSheet(styles, options)
       dynamicStyles = compose(staticSheet, getDynamicStyles(styles))
     }
     if (staticSheet[refNs] === undefined) staticSheet[refNs] = 0
@@ -107,7 +107,6 @@ export default (stylesOrSheet, InnerComponent, options = {}) => {
 
     getJss() {
       const {jss: contextJss} = this.context
-      console.log(111, contextJss)
       if (contextJss) return contextJss
       return jss
     }

@@ -1,4 +1,4 @@
-import React, {Component, Children} from 'react'
+import {Component, Children} from 'react'
 import {instanceOf, node} from 'prop-types'
 import jss, {SheetsRegistry} from 'jss'
 

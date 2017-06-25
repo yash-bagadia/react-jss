@@ -1,5 +1,4 @@
 import hoistNonReactStatics from 'hoist-non-react-statics'
-import jss from './jss'
 import createHoc from './createHoc'
 
 /**
