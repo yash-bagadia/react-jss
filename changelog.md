@@ -1,3 +1,14 @@
+## 7.0.0-pre / 2017-06-28
+
+- Theming - `ThemeProvider` and `withTheme`
+- Update to JSS 8
+- Class generator counter will reset on every request for dynamic SSR.
+
+### Breaking changes
+
+- Removed `createInjectSheet`. Use JssProvider to pass a `jss` instead instead.
+- Renamed `SheetsRegistryProvider` to `JssProvider`
+
 ## 6.1.1 / 2017-04-14
 
 - Use prop-types package
@@ -83,4 +94,3 @@
 - Added a `create()` function to create a new `injectSheet` function which takes a `jss` instance.
 - Updated readme.
 - Added lint-staged.
-
