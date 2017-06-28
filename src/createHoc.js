@@ -4,22 +4,81 @@ import {SheetsRegistry, getDynamicStyles} from 'jss'
 import { themeListener } from '@iamstarkov/theming-w-listener'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
-
-const interceptor = initialState => {
-  let state = initialState;
-  return newState => {
-    if (typeof newState !== 'undefined') {
-      state = newState;
-    }
-    return state;
-  };
-}
+import { murmur3 as createHash } from 'murmurhash-js'
 
 const getStyles = (stylesOrSheet, theme) => {
   if (typeof stylesOrSheet !== 'function') {
     return stylesOrSheet;
   }
   return stylesOrSheet(theme)
+}
+
+const hashify = sheet => createHash(JSON.stringify(sheet.rules.raw))
+
+/*
+array of sheets: [ { sheet: StyleSheet, count: Number }, …]
+add:
+  * if its not already there, add it with count: 0,
+  * if counter is 0, attach
+  * inc count
+remove:
+  * if its not already there, throws
+  * if its there, dec count
+  * if counter is 0, detach
+*/
+class SharedStaticSheets {
+  constructor() {
+    this.sheets = []
+  }
+  clean() {
+    // console.log('clean before', this.sheets);
+    this.sheets = this.sheets.filter(item => item.count !== 0);
+    // console.log('clean after', this.sheets);
+  }
+  add(sheet) {
+    // debugger;
+    // console.log('add before', this.sheets);
+    let index = this.sheets.findIndex(item => item.hash === hashify(sheet))
+    if (index === -1) {
+      this.sheets = this.sheets.concat({ sheet, count: 0, hash: hashify(sheet) })
+      index = this.sheets.length - 1
+    }
+    // console.log('add after', this.sheets);
+    return this.sheets[index].sheet;
+  }
+  attach(sheet) {
+    // debugger
+    // console.log('attach before', this.sheets);
+    let index = this.sheets.findIndex(item => item.hash === hashify(sheet))
+    if (index === -1) {
+      throw new Error('[sharedStaticSheets], you can attach non-added sheet: ' + sheet)
+    }
+    // * if counter is 0, attach
+    if (this.sheets[index].count === 0) {
+      this.sheets[index].sheet.attach()
+    }
+    // * inc count
+    this.sheets[index].count = this.sheets[index].count + 1
+    // console.log('attach after', this.sheets);
+  }
+  detach(sheet) {
+    // debugger
+    // console.log('detach before', this.sheets)
+    let index = this.sheets.findIndex(item => item.hash === hashify(sheet))
+    if (index === -1) {
+      throw new Error('[sharedStaticSheets], you can detach non-added sheet: ' + sheet)
+    }
+
+    // * if its there, dec count
+    this.sheets[index].count = this.sheets[index].count - 1
+
+    // * if counter is 0, detach
+    if (this.sheets[index].count === 0) {
+      this.sheets[index].sheet.detach()
+    }
+    this.clean();
+    // console.log('detach after', this.sheets)
+  }
 }
 
 /**
@@ -38,9 +97,7 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     contextTypes = Object.assign({}, contextTypes, themeListener.contextTypes)
   }
   const displayName = `Jss(${getDisplayName(InnerComponent)})`
-  const sharedStaticSheet = interceptor();
-  const sharedStaticSheetCount = interceptor(0);
-
+  const sharedStaticSheets = new SharedStaticSheets();
   // TODO: hot reload, current status of it, which version and how people use it
   // TODO: tests
   // TODO: if stylesOrSheet is sheet, or function returns a sheet:
@@ -83,26 +140,21 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     }
 
     createSheets = (theme) => {
-      if (!sharedStaticSheet()) {
-        sharedStaticSheet(
-          jss.createStyleSheet(getStyles(stylesOrSheet, theme), options)
-        )
-      }
-      const dynamicStyles = compose(sharedStaticSheet(), getDynamicStyles(getStyles(stylesOrSheet, theme)))
+      const sheet = jss.createStyleSheet(getStyles(stylesOrSheet, theme), options);
+      const staticSheet = sharedStaticSheets.add(sheet)
+      const dynamicStyles = compose(staticSheet, getDynamicStyles(getStyles(stylesOrSheet, theme)))
       let dynamicSheet;
       if (dynamicStyles) {
         dynamicSheet = jss.createStyleSheet(dynamicStyles, { link: true })
       }
-      return { staticSheet: sharedStaticSheet, dynamicSheet }
+      return { staticSheet, dynamicSheet }
     }
 
     attachSheets = (state) => {
-      if (sharedStaticSheetCount() === 0) {
-        state.staticSheet().attach()
-        const {jssSheetsRegistry} = this.context;
-        if (jssSheetsRegistry) jssSheetsRegistry.add(state.staticSheet())
+      sharedStaticSheets.attach(state.staticSheet)
+      if (this.context.jssSheetsRegistry) {
+        this.context.jssSheetsRegistry.add(state.staticSheet)
       }
-      sharedStaticSheetCount(sharedStaticSheetCount() + 1)
       if (state.dynamicSheet) {
         state.dynamicSheet.update(this.props).attach()
       }
@@ -133,12 +185,6 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
     }
 
     componentDidUpdate(prevProps, prevState) {
-      if (prevState.staticSheet() !== this.state.staticSheet) {
-        // sharedStaticSheetCount(sharedStaticSheetCount() - 1)
-        // if (sharedStaticSheetCount() === 0) {
-          // jss.removeStyleSheet(prevState.staticSheet)
-        // }
-      }
       if (prevState.dynamicSheet !== this.state.dynamicSheet) {
         jss.removeStyleSheet(prevState.dynamicSheet)
       }
@@ -146,19 +192,16 @@ export default (jss, InnerComponent, stylesOrSheet, options = {}) => {
 
     componentWillUnmount() {
       if (isThemingEnabled && this.unsubscribe) {
-        unsubscribe()
+        this.unsubscribe()
       }
-      sharedStaticSheetCount(sharedStaticSheetCount() - 1)
-      if (sharedStaticSheetCount() === 0) {
-        this.state.staticSheet().detach()
-      }
+      sharedStaticSheets.detach(this.state.staticSheet);
       if (this.state.dynamicSheet) {
         this.state.dynamicSheet.detach()
       }
     }
 
     render() {
-      const sheet = this.state.dynamicSheet || this.state.staticSheet()
+      const sheet = this.state.dynamicSheet || this.state.staticSheet
       const theme = this.state.theme;
       return <InnerComponent sheet={sheet} classes={sheet.classes} theme={theme} {...this.props} />
     }
