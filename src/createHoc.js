@@ -118,9 +118,7 @@ export default (stylesOrSheet, InnerComponent, options = {}) => {
     }
 
     getJss() {
-      const {jss: contextJss} = this.context
-      if (contextJss) return contextJss
-      return jss
+      return this.context.jss || jss
     }
 
     render() {
