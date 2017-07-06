@@ -42,6 +42,12 @@ function reset() {
   node.parentNode.removeChild(node)
 }
 
+const createGenerateClassName = () => {
+  let counter = 0
+  return rule => `${rule.key}-${counter++}`
+}
+
+
 describe('react-jss', () => {
   beforeEach(() => {
     node = document.body.appendChild(document.createElement('div'))
@@ -334,7 +340,7 @@ describe('react-jss', () => {
     })
   })
 
-  describe('with JssProvider', () => {
+  describe('with JssProvider for SSR', () => {
     it('should add style sheets to the registry from context', () => {
       const customSheets = new SheetsRegistry()
       const ComponentA = injectSheet({
@@ -397,30 +403,27 @@ describe('react-jss', () => {
     it('should reset the class generator counter', () => {
       const customJss = createJss({
         ...preset(),
-        createGenerateClassName: () => {
-          let counter = 0
-          return rule => `${rule.key}-${counter++}`
-        }
+        createGenerateClassName
       })
 
-      const customSheets = new SheetsRegistry()
       const styles = {
         button: {
           color: 'red',
-          border: () => 'green'
+          border: ({border}) => border
         }
       }
-      const ComponentA = injectSheet(styles)()
-      const ComponentB = injectSheet(styles)()
+      const Component = injectSheet(styles)()
+
+      let registry = new SheetsRegistry()
 
       render(
-        <JssProvider registry={customSheets} jss={customJss}>
-          <ComponentA />
+        <JssProvider registry={registry} jss={customJss}>
+          <Component border="green" />
         </JssProvider>,
         node
       )
 
-      expect(customSheets.toString()).to.equal(stripIndent`
+      expect(registry.toString()).to.equal(stripIndent`
         .button-0 {
           color: red;
         }
@@ -429,19 +432,21 @@ describe('react-jss', () => {
         }
       `)
 
+      registry = new SheetsRegistry()
+
       render(
-        <JssProvider registry={customSheets} jss={customJss}>
-          <ComponentB />
+        <JssProvider registry={registry} jss={customJss}>
+          <Component border="blue" />
         </JssProvider>,
         node
       )
 
-      expect(customSheets.toString()).to.equal(stripIndent`
+      expect(registry.toString()).to.equal(stripIndent`
         .button-0 {
           color: red;
         }
         .button-1 {
-          border: green;
+          border: blue;
         }
       `)
     })

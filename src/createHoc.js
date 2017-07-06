@@ -13,8 +13,8 @@ const inc = sheet => ++sheet[refNs]
 /**
  * Wrap a Component into a JSS Container Component.
  *
- * @param {Component} InnerComponent
  * @param {Object|StyleSheet} stylesOrSheet
+ * @param {Component} InnerComponent
  * @param {Object} [options]
  * @return {Component}
  */
@@ -79,14 +79,19 @@ export default (stylesOrSheet, InnerComponent, options = {}) => {
           .update(this.props)
           .attach()
       }
-      const {jssSheetsRegistry} = this.context
-      if (jssSheetsRegistry) {
-        jssSheetsRegistry.add(this.staticSheet)
-        if (this.dynamicSheet) jssSheetsRegistry.add(this.dynamicSheet)
-      }
+      this.addToRegistry(this.context.jssSheetsRegistry)
     }
 
-    componentWillReceiveProps(nextProps) {
+    addToRegistry(registry) {
+      if (!registry) return
+      registry.add(this.staticSheet)
+      if (this.dynamicSheet) registry.add(this.dynamicSheet)
+    }
+
+    componentWillReceiveProps(nextProps, nextContext) {
+      if (nextContext.jssSheetsRegistry !== this.context.jssSheetsRegistry) {
+        this.addToRegistry(nextContext.jssSheetsRegistry)
+      }
       if (this.dynamicSheet) {
         this.dynamicSheet.update(nextProps)
       }

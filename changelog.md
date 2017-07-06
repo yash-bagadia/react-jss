@@ -1,3 +1,7 @@
+## 7.0.0-pre.1 / 2017-07-06
+
+- Add sheets to the registry when it is a new instance
+
 ## 7.0.0-pre / 2017-06-28
 
 - Theming - `ThemeProvider` and `withTheme`
