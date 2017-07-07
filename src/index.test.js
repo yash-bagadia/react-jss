@@ -3,18 +3,21 @@
 import expect from 'expect.js'
 import React, {PureComponent} from 'react'
 import {render, unmountComponentAtNode, findDOMNode} from 'react-dom'
+import ReactDOMServer from 'react-dom/server'
 import deepForceUpdate from 'react-deep-force-update'
+import {stripIndent} from 'common-tags'
+import preset from 'jss-preset-default'
 
 let node
 let jss
 let sheets
 let createJss
 let injectSheet
-let createInjectSheet
 let reactJss
 let SheetsRegistry
 let SheetsRegistryProvider
 let ThemeProvider
+let JssProvider
 
 loadModules()
 
@@ -31,11 +34,11 @@ function loadModules() {
 
   const reactJssModule = require('./')
   injectSheet = reactJssModule.default
-  createInjectSheet = reactJssModule.create
   reactJss = reactJssModule.jss
   SheetsRegistry = reactJssModule.SheetsRegistry
   SheetsRegistryProvider = reactJssModule.SheetsRegistryProvider
   ThemeProvider = reactJssModule.ThemeProvider
+  JssProvider = reactJssModule.JssProvider
 }
 
 function reset() {
@@ -44,36 +47,17 @@ function reset() {
   node.parentNode.removeChild(node)
 }
 
+const createGenerateClassName = () => {
+  let counter = 0
+  return rule => `${rule.key}-${counter++}`
+}
+
+
 describe('react-jss', () => {
   beforeEach(() => {
     node = document.body.appendChild(document.createElement('div'))
   })
   afterEach(reset)
-
-  describe('.create()', () => {
-    let localInjectSheet
-    let localJss
-
-    beforeEach(() => {
-      localJss = createJss()
-      localInjectSheet = createInjectSheet(localJss)
-    })
-
-    it('should return a function', () => {
-      expect(injectSheet).to.be.a(Function)
-    })
-
-    it('should use passed jss', () => {
-      let passedJss
-      const InnerComponent = ({sheet}) => {
-        passedJss = sheet.options.jss
-        return null
-      }
-      const Component = localInjectSheet()(InnerComponent)
-      render(<Component />, node)
-      expect(passedJss).to.be(localJss)
-    })
-  })
 
   describe('global jss instance', () => {
     it('should return a function', () => {
@@ -361,7 +345,7 @@ describe('react-jss', () => {
     })
   })
 
-  describe('with SheetsRegistryProvider', () => {
+  describe('with JssProvider for SSR', () => {
     it('should add style sheets to the registry from context', () => {
       const customSheets = new SheetsRegistry()
       const ComponentA = injectSheet({
@@ -372,14 +356,171 @@ describe('react-jss', () => {
       })()
 
       render(
-        <SheetsRegistryProvider registry={customSheets}>
-          <ComponentA />
-          <ComponentB />
-        </SheetsRegistryProvider>,
+        <JssProvider registry={customSheets}>
+          <div>
+            <ComponentA />
+            <ComponentB />
+          </div>
+        </JssProvider>,
         node
       )
 
       expect(customSheets.registry.length).to.equal(2)
+    })
+
+    it('should use Jss istance from the context', () => {
+      const localJss = createJss()
+      let receivedSheet
+
+      const Component = injectSheet()(({sheet}) => {
+        receivedSheet = sheet
+        return null
+      })
+
+      render(
+        <JssProvider jss={localJss}>
+          <Component />
+        </JssProvider>,
+        node
+      )
+
+      expect(receivedSheet.options.jss).to.be(localJss)
+    })
+
+    it('should add dynamic sheets', () => {
+      const customSheets = new SheetsRegistry()
+      const Component = injectSheet({
+        button: {
+          width: () => 10
+        }
+      })()
+
+      render(
+        <JssProvider registry={customSheets}>
+          <Component />
+        </JssProvider>,
+        node
+      )
+
+      expect(customSheets.registry.length).to.be(2)
+    })
+
+    it('should reset the class generator counter', () => {
+      const customJss = createJss({
+        ...preset(),
+        createGenerateClassName
+      })
+
+      const styles = {
+        button: {
+          color: 'red',
+          border: ({border}) => border
+        }
+      }
+      const Component = injectSheet(styles)()
+
+      let registry = new SheetsRegistry()
+
+      render(
+        <JssProvider registry={registry} jss={customJss}>
+          <Component border="green" />
+        </JssProvider>,
+        node
+      )
+
+      expect(registry.toString()).to.equal(stripIndent`
+        .button-0 {
+          color: red;
+        }
+        .button-1 {
+          border: green;
+        }
+      `)
+
+      registry = new SheetsRegistry()
+
+      render(
+        <JssProvider registry={registry} jss={customJss}>
+          <Component border="blue" />
+        </JssProvider>,
+        node
+      )
+
+      expect(registry.toString()).to.equal(stripIndent`
+        .button-0 {
+          color: red;
+        }
+        .button-1 {
+          border: blue;
+        }
+      `)
+    })
+
+    it('should be idempotent', () => {
+      const localJss = createJss({virtual: true})
+
+      const Component = injectSheet({
+        button: {
+          color: props => props.color
+        }
+      })()
+
+      const customSheets1 = new SheetsRegistry()
+      const customSheets2 = new SheetsRegistry()
+
+      ReactDOMServer.renderToString(
+        <JssProvider jss={localJss} registry={customSheets1}>
+          <Component color="#000" />
+        </JssProvider>
+      )
+
+      ReactDOMServer.renderToString(
+        <JssProvider jss={localJss} registry={customSheets2}>
+          <Component color="#000" />
+        </JssProvider>
+      )
+
+      const result1 = customSheets1.toString()
+      const result2 = customSheets2.toString()
+
+      expect(result1).to.equal(result2)
+    })
+
+    it('should render deterministically on server and client', () => {
+      const localJss = createJss({virtual: true})
+
+      const ComponentA = injectSheet({
+        button: {
+          color: props => props.color
+        }
+      })()
+
+      const ComponentB = injectSheet({
+        button: {
+          color: props => props.color
+        }
+      })()
+
+      const customSheets1 = new SheetsRegistry()
+      const customSheets2 = new SheetsRegistry()
+
+      ReactDOMServer.renderToString(
+        <JssProvider jss={localJss} registry={customSheets1}>
+          <ComponentA color="#000" />
+        </JssProvider>
+      )
+
+      render(
+        <JssProvider jss={localJss} registry={customSheets2}>
+          <ComponentB color="#000" />
+        </JssProvider>,
+        node
+      )
+
+      const result1 = customSheets1.toString()
+      const result2 = customSheets2.toString()
+
+      expect(result1).to.equal(result2)
     })
   })
 

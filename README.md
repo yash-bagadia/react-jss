@@ -2,15 +2,15 @@
 
 [![Gitter](https://badges.gitter.im/JoinChat.svg)](https://gitter.im/cssinjs/lobby)
 
-There is a number of benefits when using react-jss instead of [JSS](https://github.com/cssinjs/jss) directly:
+React-JSS provides components for [JSS](https://github.com/cssinjs/jss) as a layer of abstraction. JSS and [presets](https://github.com/cssinjs/jss-preset-default) are already built in! Try it out on [webpackbin](https://www.webpackbin.com/bins/-Kn90iijPuAJO48ItgF-).
+
+The benefits are:
 
 - Theming support out of the box.
 - Lazy evaluation - sheet is created only when component will mount.
-- Auto attach/detach - sheet will be rendered to the dom when component is about to mount and will be removed when no element needs it.
-- A sheet gets shared between all elements.
-- You want to use it with [React Hot Loader](https://github.com/gaearon/react-hot-loader).
-
-Also you may need this module if you build a big application where leaving all styles in the DOM or compiling all styles at once may have a performance overhead or you are going to hit [IE limits](http://blogs.msdn.com/b/ieinternals/archive/2011/05/14/10164546.aspx).
+- Auto attach/detach - sheet will be rendered to the DOM when component is about to mount and will be removed when no element needs it.
+- A Style Sheet gets shared between all elements.
+- Integration with [React Hot Loader](https://github.com/gaearon/react-hot-loader).
 
 ## Table of Contents
 
@@ -35,15 +35,13 @@ npm install --save react-jss
 
 ## Usage
 
-You can use it as a [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750) to inject [JSS](https://github.com/cssinjs/jss). It can act both as a simple wrapping function and as a [ES7 decorator](https://github.com/wycats/javascript-decorators).
+React-JSS wraps your component with an [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750). It injects `classes` and `sheet` into props, where `sheet` is a [JSS StyleSheet](https://github.com/cssinjs/jss) instance. It can act both as a simple wrapping function and as a [ES7 decorator](https://github.com/wycats/javascript-decorators)
 
-React JSS wraps your React component and injects `props.classes` and `props.sheet`, which is a regular [JSS StyleSheet](https://github.com/cssinjs/jss), as props into your component. This is a common pattern that is used for composition in React instead of mixins, and works equally well with old-style `createClass` classes, as well as the ES6 classes.
+JSS class names are scoped by default, you will need to reach into `props.classes` to get the generated class names.
 
-Because JSS class names are namespaced by default, you will need to reach into `this.props.classes` to get their real names. For example, if you define a `button` class in your JSS stylesheet, its real name will be available as `props.classes.button`.
+### Example
 
-By default react-jss comes with [jss](https://github.com/cssinjs/jss) and [presets](https://github.com/cssinjs/jss-preset-default).
-
-### Basic
+Try it out on [webpackbin](https://www.webpackbin.com/bins/-Kn90iijPuAJO48ItgF-).
 
 ```javascript
 import React from 'react'
@@ -72,7 +70,7 @@ export default injectSheet(styles)(Button)
 ### Theming
 
 ```javascript
-import { ThemeProvider, withTheme } from 'react-jss'
+import {ThemeProvider, withTheme} from 'react-jss'
 ```
 
 Idea is simple. You define theme `object`. You pass it to `ThemeProvider` which in turn passes it to `context`, then you use `withTheme` to map it back from `context` to components `props`. After that you may change your theme, and all your components will get new theme automatically.
@@ -137,16 +135,16 @@ const StyledButtonWithTheme = withTheme(StyledButton)
 
 ```javascript
 import {renderToString} from 'react-dom/server'
-import {SheetsRegistryProvider, SheetsRegistry} from 'react-jss'
+import {JssProvider, SheetsRegistry} from 'react-jss'
 import MyApp from './MyApp'
 
 export default function render(req, res) {
   const sheets = new SheetsRegistry()
 
   const body = renderToString(
-    <SheetsRegistryProvider registry={sheets}>
+    <JssProvider registry={sheets}>
       <MyApp />
-    </SheetsRegistryProvider>
+    </JssProvider>
   )
 
   // Any instances of `injectSheet` within `<MyApp />` will have gotten sheets
@@ -218,17 +216,21 @@ console.log(StyledComponent.InnerComponent) // Prints out the inner component.
 
 ### Custom setup
 
-If you want to specify a JSS version and plugins to use, you should create your [own Jss instance](https://github.com/cssinjs/jss/blob/master/docs/js-api.md#create-an-own-jss-instance), [setup plugins](https://github.com/cssinjs/jss/blob/master/docs/setup.md#setup-with-plugins) and create a `injectSheet` function which has your jss version bound.
+If you want to specify a JSS version and plugins to use, you should create your [own Jss instance](https://github.com/cssinjs/jss/blob/master/docs/js-api.md#create-an-own-jss-instance), [setup plugins](https://github.com/cssinjs/jss/blob/master/docs/setup.md#setup-with-plugins) and pass it to `JssProvider`.
 
 ```javascript
 import {create as createJss} from 'jss'
-import {create as createInjectSheet} from 'react-jss'
+import {JssProvider} from 'react-jss'
 import vendorPrefixer from 'jss-vendor-prefixer'
 
 const jss = createJss()
 jss.use(vendorPrefixer())
 
-export const injectSheet = createInjectSheet(jss)
+const Component = () => (
+  <JssProvider jss={jss}>
+    <App />
+  </JssProvider>
+)
 ```
 
 You can also access the Jss instance being used by default.

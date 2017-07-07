@@ -1,5 +1,4 @@
 import hoistNonReactStatics from 'hoist-non-react-statics'
-import jss from './jss'
 import createHoc from './createHoc'
 
 /**
@@ -16,23 +15,21 @@ import createHoc from './createHoc'
  */
 let indexCounter = -100000
 
-const Container = ({children}) => (children || null)
+const NoRenderer = ({children}) => (children || null)
 
 /**
- * Create a `injectSheet` function that will use the passed JSS instance.
+ * HOC creator function that wrapps the user component.
  *
- * @param {Jss} jss
- * @return {Function}
+ * `injectSheet(styles, [options])(Component)`
+ *
  * @api public
  */
-export default (localJss = jss) => (
-  function injectSheet(stylesOrSheet, options = {}) {
-    if (options.index === undefined) {
-      options.index = indexCounter++
-    }
-    return (InnerComponent = Container) => {
-      const Jss = createHoc(localJss, InnerComponent, stylesOrSheet, options)
-      return hoistNonReactStatics(Jss, InnerComponent, {inner: true})
-    }
+export default function injectSheet(stylesOrSheet, options = {}) {
+  if (options.index === undefined) {
+    options.index = indexCounter++
   }
-)
+  return (InnerComponent = NoRenderer) => {
+    const Jss = createHoc(stylesOrSheet, InnerComponent, options)
+    return hoistNonReactStatics(Jss, InnerComponent, {inner: true})
+  }
+}
