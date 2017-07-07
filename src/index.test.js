@@ -3,6 +3,7 @@
 import expect from 'expect.js'
 import React, {PureComponent} from 'react'
 import {render, unmountComponentAtNode, findDOMNode} from 'react-dom'
+import ReactDOMServer from 'react-dom/server'
 import deepForceUpdate from 'react-deep-force-update'
 import {stripIndent} from 'common-tags'
 import preset from 'jss-preset-default'
@@ -449,6 +450,73 @@ describe('react-jss', () => {
           border: blue;
         }
       `)
+    })
+
+    it('should be idempotent', () => {
+      const localJss = createJss({virtual: true})
+
+      const Component = injectSheet({
+        button: {
+          color: props => props.color
+        }
+      })()
+
+      const customSheets1 = new SheetsRegistry()
+      const customSheets2 = new SheetsRegistry()
+
+      ReactDOMServer.renderToString(
+        <JssProvider jss={localJss} registry={customSheets1}>
+          <Component color="#000" />
+        </JssProvider>
+      )
+
+      ReactDOMServer.renderToString(
+        <JssProvider jss={localJss} registry={customSheets2}>
+          <Component color="#000" />
+        </JssProvider>
+      )
+
+      const result1 = customSheets1.toString()
+      const result2 = customSheets2.toString()
+
+      expect(result1).to.equal(result2)
+    })
+
+    it('should render deterministically on server and client', () => {
+      const localJss = createJss({virtual: true})
+
+      const ComponentA = injectSheet({
+        button: {
+          color: props => props.color
+        }
+      })()
+
+      const ComponentB = injectSheet({
+        button: {
+          color: props => props.color
+        }
+      })()
+
+      const customSheets1 = new SheetsRegistry()
+      const customSheets2 = new SheetsRegistry()
+
+      ReactDOMServer.renderToString(
+        <JssProvider jss={localJss} registry={customSheets1}>
+          <ComponentA color="#000" />
+        </JssProvider>
+      )
+
+      render(
+        <JssProvider jss={localJss} registry={customSheets2}>
+          <ComponentB color="#000" />
+        </JssProvider>,
+        node
+      )
+
+      const result1 = customSheets1.toString()
+      const result2 = customSheets2.toString()
+
+      expect(result1).to.equal(result2)
     })
   })
 
