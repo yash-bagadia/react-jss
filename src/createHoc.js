@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {instanceOf} from 'prop-types'
+import {object, instanceOf} from 'prop-types'
 import jss, {SheetsRegistry, getDynamicStyles} from 'jss'
 import { themeListener } from '@iamstarkov/theming-w-listener'
 import compose from './compose'
@@ -41,23 +41,25 @@ const getStyles = (stylesOrCreator, theme) => {
 export default (stylesOrCreator, InnerComponent, options = {}) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
 
-  let contextTypes = { jssSheetsRegistry: instanceOf(SheetsRegistry) }
-  if (isThemingEnabled) {
-    Object.assign(contextTypes, themeListener.contextTypes)
-  }
   const displayName = `Jss(${getDisplayName(InnerComponent)})`
   const manager = new SheetManager();
+  const noTheme = {};
 
   return class Jss extends Component {
     static displayName = displayName
     static InnerComponent = InnerComponent
-    static contextTypes = contextTypes
+    static contextTypes = {
+      jss: instanceOf(jss.constructor),
+      jssSheetOptions: object,
+      jssSheetsRegistry: instanceOf(SheetsRegistry),
+      ...(isThemingEnabled && themeListener.contextTypes)
+    }
     static defaultProps = InnerComponent.defaultProps
 
     constructor(props, context) {
       super(props, context)
 
-      const theme = isThemingEnabled ? themeListener.initial(context) : {};
+      const theme = isThemingEnabled ? themeListener.initial(context) : noTheme;
 
       this.state = this.createState({ theme })
     }
@@ -70,7 +72,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       let staticSheet = manager.get(theme)
       if (!staticSheet) {
         const styles = getStyles(stylesOrCreator, theme)
-        staticSheet = this.getJss().createStyleSheet(styles, options)
+        staticSheet = this.getJss().createStyleSheet(styles, { ...options, ...this.context.contextSheetOptions })
         manager.add(theme, staticSheet)
         dynamicStyles = compose(staticSheet, getDynamicStyles(styles))
       }
@@ -96,12 +98,11 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       }
     }
 
-    setTheme = theme => this.setState({ theme })
-
     componentWillMount() {
       this.manage(this.state)
     }
 
+    setTheme = theme => this.setState({ theme })
     componentDidMount() {
       this.unsubscribe = themeListener.subscribe(this.context, this.setTheme);
     }
@@ -139,6 +140,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     render() {
       const { theme, dynamicSheet } = this.state
       const sheet = dynamicSheet || manager.get(theme)
+
       return <InnerComponent sheet={sheet} classes={sheet.classes} theme={theme} {...this.props} />
     }
   }
