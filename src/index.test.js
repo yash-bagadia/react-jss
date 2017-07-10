@@ -285,46 +285,6 @@ describe('react-jss', () => {
     })
   })
 
-  describe.skip('.injectSheet() with StyleSheet arg', () => {
-    describe('accept StyleSheet', () => {
-      let Component
-
-      beforeEach(() => {
-        const sheet = reactJss.createStyleSheet({a: {color: 'red'}})
-        Component = injectSheet(sheet)()
-      })
-
-      it('should attach and detach a sheet', () => {
-        render(<Component />, node)
-        expect(document.querySelectorAll('style').length).to.be(1)
-        unmountComponentAtNode(node)
-        expect(document.querySelectorAll('style').length).to.be(0)
-      })
-    })
-
-    describe('share StyleSheet', () => {
-      let Component1
-      let Component2
-
-      beforeEach(() => {
-        const sheet = reactJss.createStyleSheet({a: {color: 'red'}})
-        Component1 = injectSheet(sheet)()
-        Component2 = injectSheet(sheet)()
-      })
-
-      it('should not detach sheet if it is used in another mounted component', () => {
-        const node2 = document.body.appendChild(document.createElement('div'))
-        render(<Component1 />, node)
-        render(<Component2 />, node2)
-        expect(document.querySelectorAll('style').length).to.be(1)
-        unmountComponentAtNode(node)
-        expect(document.querySelectorAll('style').length).to.be(1)
-        unmountComponentAtNode(node2)
-        expect(document.querySelectorAll('style').length).to.be(0)
-      })
-    })
-  })
-
   describe('override sheet prop', () => {
     let Component
     let receivedSheet
