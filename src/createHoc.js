@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {instanceOf} from 'prop-types'
-import {SheetsRegistry, getDynamicStyles} from 'jss'
+import jss, {SheetsRegistry, getDynamicStyles} from 'jss'
 import { themeListener } from '@iamstarkov/theming-w-listener'
 import compose from './compose'
 import SheetManager from 'jss/lib/SheetsManager'
@@ -38,7 +38,7 @@ const getStyles = (stylesOrCreator, theme) => {
  * @param {Object} [options]
  * @return {Component}
  */
-export default (jss, InnerComponent, stylesOrCreator, options = {}) => {
+export default (stylesOrCreator, InnerComponent, options = {}) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
 
   let contextTypes = { jssSheetsRegistry: instanceOf(SheetsRegistry) }
