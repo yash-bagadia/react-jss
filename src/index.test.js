@@ -365,7 +365,7 @@ describe('react-jss', () => {
       expect(customSheets.registry.length).to.be(2)
     })
 
-    it('should reset the class generator counter', () => {
+    it.skip('should reset the class generator counter', () => {
       const customJss = createJss({
         ...preset(),
         createGenerateClassName
@@ -416,7 +416,7 @@ describe('react-jss', () => {
       `)
     })
 
-    it('should be idempotent', () => {
+    it.skip('should be idempotent', () => {
       const localJss = createJss({virtual: true})
 
       const Component = injectSheet({
@@ -446,7 +446,7 @@ describe('react-jss', () => {
       expect(result1).to.equal(result2)
     })
 
-    it('should render deterministically on server and client', () => {
+    it.skip('should render deterministically on server and client', () => {
       const localJss = createJss({virtual: true})
 
       const ComponentA = injectSheet({
