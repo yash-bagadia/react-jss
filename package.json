@@ -87,7 +87,7 @@
     "hoist-non-react-statics": "^1.2.0",
     "common-tags": "^1.4.0",
     "jss": "^8.0.0",
-    "jss-preset-default": "^2.0.0",
+    "jss-preset-default": "^3.0.0",
     "prop-types": "^15.5.8",
     "theming": "^1.0.1"
   },
