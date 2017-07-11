@@ -583,5 +583,23 @@ describe('react-jss', () => {
 
       expect(document.querySelectorAll('style').length).to.equal(1)
     })
+
+    it('one themed instance w/ dynamic props = 2 styles, theme update = 2 styles', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(2)
+
+      render(<div>
+        <ThemeProvider theme={ThemeB}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(2)
+    })
   })
 })

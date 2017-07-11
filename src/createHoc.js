@@ -141,6 +141,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       if (isThemingEnabled && this.state.theme !== nextState.theme) {
         const newState = this.createState(nextState)
         this.manage(newState)
+        this.manager.unmanage(this.state.theme)
         this.setState(newState)
       }
     }
