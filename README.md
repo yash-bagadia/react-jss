@@ -10,7 +10,6 @@ The benefits are:
 - Lazy evaluation - sheet is created only when component will mount.
 - Auto attach/detach - sheet will be rendered to the DOM when component is about to mount and will be removed when no element needs it.
 - A Style Sheet gets shared between all elements.
-- Integration with [React Hot Loader](https://github.com/gaearon/react-hot-loader).
 
 ## Table of Contents
 
@@ -69,15 +68,11 @@ export default injectSheet(styles)(Button)
 
 ### Theming
 
-```javascript
-import {ThemeProvider, withTheme} from 'react-jss'
-```
-
-Idea is simple. You define theme `object`. You pass it to `ThemeProvider` which in turn passes it to `context`, then you use `withTheme` to map it back from `context` to components `props`. After that you may change your theme, and all your components will get new theme automatically.
+The idea is that you define theme, wrap your application with `ThemeProvider` and pass the `theme` to `ThemeProvider`. ThemeProvider will pass it over `context` to your styles creator function and to your props. After that you may change your theme, and all your components will get new theme automatically.
 
 Under the hood `react-jss` uses unified CSSinJS `theming` solution for React. You can find [detailed docs in its repo](https://github.com/iamstarkov/theming).
 
-In your app you will need `ThemeProvider`:
+Using `ThemeProvider`:
 
 * It has `theme` prop which should be an `object` or `function`:
   * If it is an `Object` and used in a root `ThemeProvider` then it's intact and being passed down the react tree.
@@ -91,34 +86,6 @@ import React from 'react'
 import {ThemeProvider} from 'react-jss'
 import {Button} from './components'
 
-const theme = {
-  colorPrimary: 'green'
-}
-
-const App = () => (
-  <ThemeProvider theme={theme}>
-    <Button>I am a button with green background</Button>
-  </ThemeProvider>
-)
-
-export default App
-```
-
-In your components you will need `withTheme`. It is a Higher-order Component factory which takes a `React.Component` and references the theme object from context to props. [Read more about `withTheme` in `theming`'s documentation.](https://github.com/iamstarkov/theming#withthemecomponent)
-
-```javascript
-import React from 'react'
-import injectSheet, {withTheme} from 'react-jss'
-
-const styles = {
-  button: {
-    background: props => props.theme.colorPrimary
-  },
-  label: {
-    fontWeight: 'bold'
-  }
-}
-
 const Button = ({classes, children}) => (
   <button className={classes.button}>
     <span className={classes.label}>
@@ -127,8 +94,35 @@ const Button = ({classes, children}) => (
   </button>
 )
 
-const StyledButton = injectSheet(styles)(Button)
-const StyledButtonWithTheme = withTheme(StyledButton)
+const StyledButton = injectSheet((theme) => ({
+  button: {
+    background: theme.colorPrimary
+  },
+  label: {
+    fontWeight: 'bold'
+  }
+}))(Button)
+
+const theme = {
+  colorPrimary: 'green'
+}
+
+const App = () => (
+  <ThemeProvider theme={theme}>
+    <StyledButton>I am a button with green background</StyledButton>
+  </ThemeProvider>
+)
+```
+
+In case you need to access the theme but not render any CSS, you can also use `withTheme`. It is a Higher-order Component factory which takes a `React.Component` and maps the theme object from context to props. [Read more about `withTheme` in `theming`'s documentation.](https://github.com/iamstarkov/theming#withthemecomponent)
+
+```javascript
+import React from 'react'
+import injectSheet, {withTheme} from 'react-jss'
+
+const Button = withTheme(({theme}) => (
+  <button>I can access {theme.colorPrimary}</button>
+))
 ```
 
 ### Server-side rendering
