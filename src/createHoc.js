@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import {object, instanceOf} from 'prop-types'
 import {themeListener} from '@iamstarkov/theming-w-listener'
+// import {themeListener} from 'theming'
 import jss, {SheetsRegistry, getDynamicStyles, SheetsManager} from './jss'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
