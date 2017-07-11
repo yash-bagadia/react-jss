@@ -111,11 +111,9 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     manage({theme, dynamicSheet}) {
       const {jssSheetsRegistry: registry} = this.context
 
-      // staticSheet
       const staticSheet = this.getManager().manage(theme)
       if (registry) registry.add(staticSheet)
 
-      // dynamicSheet
       if (dynamicSheet) {
         dynamicSheet
           .update(this.props)
