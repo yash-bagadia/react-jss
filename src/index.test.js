@@ -200,7 +200,7 @@ describe('react-jss', () => {
     })
   })
 
-  describe.skip('.injectSheet() hot reloading', () => {
+  describe('.injectSheet() hot reloading', () => {
     function simulateHotReloading(container, TargetClass, SourceClass) {
       // Crude imitation of hot reloading that does the job
       Object.getOwnPropertyNames(SourceClass.prototype)
@@ -412,7 +412,7 @@ describe('react-jss', () => {
       `)
     })
 
-    it.skip('should be idempotent', () => {
+    it('should be idempotent', () => {
       const localJss = createJss({virtual: true})
 
       const Component = injectSheet({
@@ -442,7 +442,7 @@ describe('react-jss', () => {
       expect(result1).to.equal(result2)
     })
 
-    it.skip('should render deterministically on server and client', () => {
+    it('should render deterministically on server and client', () => {
       const localJss = createJss({virtual: true})
 
       const ComponentA = injectSheet({
