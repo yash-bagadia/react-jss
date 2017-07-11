@@ -100,6 +100,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
         dynamicSheet = this.getJss().createStyleSheet(dynamicStyles, {
           ...options,
           ...this.context.jssSheetOptions,
+          meta: `${options.meta}Dynamic`,
           link: true
         })
       }
