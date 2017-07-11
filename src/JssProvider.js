@@ -1,8 +1,7 @@
 import {Component, Children} from 'react'
 import {object, instanceOf, node} from 'prop-types'
-import {SheetsRegistry} from 'jss'
 import createGenerateClassNameDefault from 'jss/lib/utils/createGenerateClassName'
-import jss from './jss'
+import jss, {SheetsRegistry} from './jss'
 
 export default class JssProvider extends Component {
   static propTypes = {

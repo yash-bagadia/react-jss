@@ -1,9 +1,8 @@
 import React, {Component} from 'react'
 import {object, instanceOf} from 'prop-types'
-import {SheetsRegistry, getDynamicStyles} from 'jss'
 import { themeListener } from '@iamstarkov/theming-w-listener'
 import SheetManager from 'jss/lib/SheetsManager'
-import jss from './jss'
+import jss, {SheetsRegistry, getDynamicStyles} from './jss'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
 
