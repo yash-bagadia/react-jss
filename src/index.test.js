@@ -14,7 +14,6 @@ let createJss
 let injectSheet
 let reactJss
 let SheetsRegistry
-let SheetsRegistryProvider
 let ThemeProvider
 let JssProvider
 
@@ -35,7 +34,6 @@ function loadModules() {
   injectSheet = reactJssModule.default
   reactJss = reactJssModule.jss
   SheetsRegistry = reactJssModule.SheetsRegistry
-  SheetsRegistryProvider = reactJssModule.SheetsRegistryProvider
   ThemeProvider = reactJssModule.ThemeProvider
   JssProvider = reactJssModule.JssProvider
 }
@@ -333,8 +331,6 @@ describe('react-jss', () => {
     })
 
     it('should be idempotent', () => {
-      const localJss = createJss({virtual: true})
-
       const Component = injectSheet({
         button: {
           color: props => props.color
@@ -363,8 +359,6 @@ describe('react-jss', () => {
     })
 
     it('should render deterministically on server and client', () => {
-      const localJss = createJss({virtual: true})
-
       const ComponentA = injectSheet({
         button: {
           color: props => props.color
@@ -543,17 +537,16 @@ describe('react-jss', () => {
         color: 'red'
       }
     }
-    const themedStyles = theme => {
+    const themedStyles = theme => ({
       rule: {
-        color: 'red'
         color: theme.color
       }
-    }
-    const ThemeA = { color: '#aaa' }
-    const ThemeB = { color: '#bbb' }
+    })
+    const ThemeA = {color: '#aaa'}
+    const ThemeB = {color: '#bbb'}
 
     it('should attach one sheet for two instances of the same Component ', () => {
-      const Component = injectSheet(staticStyles)(Dumb);
+      const Component = injectSheet(staticStyles)(Dumb)
 
       render(<div>
         <Component />
@@ -561,7 +554,7 @@ describe('react-jss', () => {
       </div>, node)
 
       expect(document.querySelectorAll('style').length).to.equal(1)
-    });
+    })
 
     it('should attach one sheet for unthemed styles and one sheet for themed styles ', () => {
       const UnthemedComponent = injectSheet(staticStyles)()
@@ -576,7 +569,7 @@ describe('react-jss', () => {
         </ThemeProvider>
       </div>, node)
       expect(document.querySelectorAll('style').length).to.equal(2)
-    });
+    })
 
     it('should attach one sheet for each themed component', () => {
       const ThemedComponent = injectSheet(themedStyles)()
@@ -590,13 +583,11 @@ describe('react-jss', () => {
         </ThemeProvider>
       </div>, node)
       expect(document.querySelectorAll('style').length).to.equal(2)
-    });
+    })
 
     it('two components with different themes and one without theme => threee sheets', () => {
       const UnthemedComponent = injectSheet(staticStyles)()
       const ThemedComponent = injectSheet(themedStyles)()
-
-      console.log(ThemeProvider)
 
       render(<div>
         <UnthemedComponent />
@@ -613,5 +604,5 @@ describe('react-jss', () => {
     it('two components with one theme => one sheet, one is wrapped in extra themeprovider and we change theme in it into another one => two sheets', () => {
       // TODO
     })
-  });
+  })
 })

@@ -26,7 +26,7 @@ export default class JssProvider extends Component {
     if (localJss && localJss.options.createGenerateClassName) {
       createGenerateClassName = localJss.options.createGenerateClassName
     }
-    const context = {
+    return {
       jssSheetOptions: {
         generateClassName: createGenerateClassName()
       },
@@ -34,8 +34,6 @@ export default class JssProvider extends Component {
       jss: this.props.jss,
       jssSheetsRegistry: this.props.registry
     }
-    console.log('get child context', context)
-    return context
   }
 
   render() {
