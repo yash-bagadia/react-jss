@@ -78,7 +78,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       return this.context.jssSheetsManager || manager
     }
 
-    createState = ({ theme, dynamicSheet }) => {
+    createState ({ theme, dynamicSheet }) {
       const manager = this.getManager()
       let staticSheet = manager.get(theme)
       let dynamicStyles
@@ -105,7 +105,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       return { theme, dynamicSheet }
     }
 
-    manage = ({ theme, dynamicSheet }) => {
+    manage ({ theme, dynamicSheet }) {
       const { jssSheetsRegistry: registry } = this.context
 
       // staticSheet
@@ -132,9 +132,8 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     componentWillReceiveProps(nextProps) {
-      if (this.state.dynamicSheet) {
-        this.state.dynamicSheet.update(nextProps)
-      }
+      const {dynamicSheet} = this.state
+      if (dynamicSheet) dynamicSheet.update(nextProps)
     }
 
     componentWillUpdate(nextProps, nextState) {

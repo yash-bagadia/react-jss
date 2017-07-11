@@ -4,7 +4,6 @@ import expect from 'expect.js'
 import React, {PureComponent} from 'react'
 import {render, unmountComponentAtNode, findDOMNode} from 'react-dom'
 import {renderToString} from 'react-dom/server'
-import deepForceUpdate from 'react-deep-force-update'
 import {stripIndent} from 'common-tags'
 import preset from 'jss-preset-default'
 
@@ -197,85 +196,6 @@ describe('react-jss', () => {
       render(<Component><ChildComponent /></Component>, node)
       unmountComponentAtNode(node)
       expect(isRendered).to.be(true)
-    })
-  })
-
-  describe('.injectSheet() hot reloading', () => {
-    function simulateHotReloading(container, TargetClass, SourceClass) {
-      // Crude imitation of hot reloading that does the job
-      Object.getOwnPropertyNames(SourceClass.prototype)
-        .filter(key => typeof SourceClass.prototype[key] === 'function')
-        .forEach((key) => {
-          if (key !== 'render' && key !== 'constructor') {
-            TargetClass.prototype[key] = SourceClass.prototype[key]
-          }
-        })
-
-      deepForceUpdate(container)
-    }
-
-    let ComponentA
-    let ComponentB
-    let ComponentC
-
-    beforeEach(() => {
-      ComponentA = injectSheet({
-        button: {color: 'red'}
-      })(() => null)
-
-      ComponentB = injectSheet({
-        button: {color: 'green'}
-      })(() => null)
-
-      ComponentC = injectSheet({
-        button: {color: 'blue'}
-      })(() => null)
-    })
-
-    it('should hot reload component and attach new sheets', () => {
-      const container = render(<ComponentA />, node)
-
-      expect(document.querySelectorAll('style').length).to.be(1)
-      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: red')
-
-      simulateHotReloading(container, ComponentA, ComponentB)
-
-      expect(document.querySelectorAll('style').length).to.be(1)
-      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: green')
-
-      simulateHotReloading(container, ComponentA, ComponentC)
-
-      expect(document.querySelectorAll('style').length).to.be(1)
-      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: blue')
-    })
-
-    it('should properly detach sheets on hot reloaded component', () => {
-      // eslint-disable-next-line react/prefer-stateless-function
-      class AppContainer extends React.Component {
-        render() {
-          return (
-            <ComponentA
-              {...this.props}
-              key={Math.random()} // Require children to unmount on every render
-            />
-          )
-        }
-      }
-
-      const container = render(<AppContainer />, node)
-
-      expect(document.querySelectorAll('style').length).to.be(1)
-      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: red')
-
-      simulateHotReloading(container, ComponentA, ComponentB)
-
-      expect(document.querySelectorAll('style').length).to.be(1)
-      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: green')
-
-      simulateHotReloading(container, ComponentA, ComponentC)
-
-      expect(document.querySelectorAll('style').length).to.be(1)
-      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: blue')
     })
   })
 
