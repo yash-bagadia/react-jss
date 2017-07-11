@@ -72,32 +72,32 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       this.state = this.createState({theme})
     }
 
-    getJss() {
+    get jss() {
       return this.context.jss || jss
     }
 
-    getManager() {
+    get manager() {
       return this.context.jssSheetsManager || manager
     }
 
     createState({theme, dynamicSheet}) {
-      let staticSheet = this.getManager().get(theme)
+      let staticSheet = this.manager.get(theme)
       let dynamicStyles
 
       if (!staticSheet) {
         const styles = getStyles(stylesOrCreator, theme)
-        staticSheet = this.getJss().createStyleSheet(styles, {
+        staticSheet = this.jss.createStyleSheet(styles, {
           ...options,
           ...this.context.jssSheetOptions
         })
-        this.getManager().add(theme, staticSheet)
+        this.manager.add(theme, staticSheet)
         dynamicStyles = compose(staticSheet, getDynamicStyles(styles))
         staticSheet[dynamicStylesNs] = dynamicStyles
       }
       else dynamicStyles = staticSheet[dynamicStylesNs]
 
       if (dynamicStyles) {
-        dynamicSheet = this.getJss().createStyleSheet(dynamicStyles, {
+        dynamicSheet = this.jss.createStyleSheet(dynamicStyles, {
           ...options,
           ...this.context.jssSheetOptions,
           meta: `${options.meta}Dynamic`,
@@ -111,7 +111,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     manage({theme, dynamicSheet}) {
       const {jssSheetsRegistry: registry} = this.context
 
-      const staticSheet = this.getManager().manage(theme)
+      const staticSheet = this.manager.manage(theme)
       if (registry) registry.add(staticSheet)
 
       if (dynamicSheet) {
@@ -148,14 +148,14 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     componentDidUpdate(prevProps, prevState) {
       // We remove previous dynamicSheet only after new one was created to avoid FOUC.
       if (prevState.dynamicSheet !== this.state.dynamicSheet) {
-        this.getJss().removeStyleSheet(prevState.dynamicSheet)
+        this.jss.removeStyleSheet(prevState.dynamicSheet)
       }
     }
 
     componentWillUnmount() {
       if (isThemingEnabled && this.unsubscribe) this.unsubscribe()
 
-      this.getManager().unmanage(this.state.theme)
+      this.manager.unmanage(this.state.theme)
       if (this.state.dynamicSheet) {
         this.state.dynamicSheet.detach()
       }
@@ -163,7 +163,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
     render() {
       const {theme, dynamicSheet} = this.state
-      const sheet = dynamicSheet || this.getManager().get(theme)
+      const sheet = dynamicSheet || this.manager.get(theme)
 
       return (
         <InnerComponent
