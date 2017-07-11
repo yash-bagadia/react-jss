@@ -77,14 +77,21 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
       if (!staticSheet) {
         const styles = getStyles(stylesOrCreator, theme)
-        staticSheet = this.getJss().createStyleSheet(styles, { ...options, ...this.context.contextSheetOptions })
+        staticSheet = this.getJss().createStyleSheet(styles, {
+          ...options,
+          ...this.context.jssSheetOptions
+        })
         manager.add(theme, staticSheet)
         dynamicStyles = compose(staticSheet, getDynamicStyles(styles))
         staticSheet[dynamicStylesNs] = dynamicStyles
       } else dynamicStyles = staticSheet[dynamicStylesNs]
 
       if (dynamicStyles) {
-        dynamicSheet = this.getJss().createStyleSheet(dynamicStyles, { link: true })
+        dynamicSheet = this.getJss().createStyleSheet(dynamicStyles, {
+          ...options,
+          ...this.context.jssSheetOptions,
+          link: true
+        })
       }
 
       return { theme, dynamicSheet }
