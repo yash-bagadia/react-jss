@@ -531,78 +531,57 @@ describe('react-jss', () => {
   })
 
   describe('theming', () => {
-    const Dumb = props => <div {...props} />
-    const staticStyles = {
-      rule: {
-        color: 'red'
-      }
-    }
-    const themedStyles = theme => ({
+    const themedStaticStyles = theme => ({
       rule: {
         color: theme.color
+      }
+    })
+    const themedDynamicStyles = theme => ({
+      rule: {
+        color: theme.color,
+        backgroundColor: props => props.backgroundColor,
       }
     })
     const ThemeA = {color: '#aaa'}
     const ThemeB = {color: '#bbb'}
 
-    it('should attach one sheet for two instances of the same Component ', () => {
-      const Component = injectSheet(staticStyles)(Dumb)
+    const ThemedStaticComponent = injectSheet(themedStaticStyles)()
+    const ThemedDynamicComponent = injectSheet(themedDynamicStyles)()
 
+    it('one themed instance wo/ dynamic props = 1 style', () => {
       render(<div>
-        <Component />
-        <Component />
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
       </div>, node)
-
       expect(document.querySelectorAll('style').length).to.equal(1)
     })
 
-    it('should attach one sheet for unthemed styles and one sheet for themed styles ', () => {
-      const UnthemedComponent = injectSheet(staticStyles)()
-      const ThemedComponent = injectSheet(themedStyles)()
-
+    it('one themed instance w/ dynamic props = 2 styles', () => {
       render(<div>
         <ThemeProvider theme={ThemeA}>
-          <div>
-            <UnthemedComponent />
-            <ThemedComponent />
-          </div>
+          <ThemedDynamicComponent backgroundColor="#fff" />
         </ThemeProvider>
       </div>, node)
       expect(document.querySelectorAll('style').length).to.equal(2)
     })
 
-    it('should attach one sheet for each themed component', () => {
-      const ThemedComponent = injectSheet(themedStyles)()
-
+    it('one themed instance wo/ = 1 style, theme update = 1 style', () => {
       render(<div>
         <ThemeProvider theme={ThemeA}>
-          <ThemedComponent />
-        </ThemeProvider>
-        <ThemeProvider theme={ThemeB}>
-          <ThemedComponent />
+          <ThemedStaticComponent />
         </ThemeProvider>
       </div>, node)
-      expect(document.querySelectorAll('style').length).to.equal(2)
-    })
 
-    it('two components with different themes and one without theme => threee sheets', () => {
-      const UnthemedComponent = injectSheet(staticStyles)()
-      const ThemedComponent = injectSheet(themedStyles)()
+      expect(document.querySelectorAll('style').length).to.equal(1)
 
       render(<div>
-        <UnthemedComponent />
-        <ThemeProvider theme={ThemeA}>
-          <ThemedComponent />
-        </ThemeProvider>
         <ThemeProvider theme={ThemeB}>
-          <ThemedComponent />
+          <ThemedStaticComponent />
         </ThemeProvider>
       </div>, node)
-      expect(document.querySelectorAll('style').length).to.equal(3)
-    })
 
-    it('two components with one theme => one sheet, one is wrapped in extra themeprovider and we change theme in it into another one => two sheets', () => {
-      // TODO
+      expect(document.querySelectorAll('style').length).to.equal(1)
     })
   })
 })
