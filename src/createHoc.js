@@ -2,10 +2,13 @@ import React, {Component} from 'react'
 import {object, instanceOf} from 'prop-types'
 import {SheetsRegistry, getDynamicStyles} from 'jss'
 import { themeListener } from '@iamstarkov/theming-w-listener'
+import SheetManager from 'jss/lib/SheetsManager'
 import jss from './jss'
 import compose from './compose'
-import SheetManager from 'jss/lib/SheetsManager'
 import getDisplayName from './getDisplayName'
+
+// Like a Symbol
+const dynamicStylesNs = Math.random()
 
 /*
 # Use cases
@@ -30,12 +33,12 @@ const getStyles = (stylesOrCreator, theme) => {
   }
   return stylesOrCreator(theme)
 }
+
 /**
  * Wrap a Component into a JSS Container Component.
  *
- * @param {Jss} jss
- * @param {Component} InnerComponent
  * @param {Object|Function} stylesOrCreator
+ * @param {Component} InnerComponent
  * @param {Object} [options]
  * @return {Component}
  */
@@ -69,18 +72,23 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
        return this.context.jss || jss
     }
 
-    createState = ({ theme, dynamicSheet, dynamicStyles }) => {
+    createState = ({ theme, dynamicSheet }) => {
       let staticSheet = manager.get(theme)
+      let dynamicStyles
+
       if (!staticSheet) {
         const styles = getStyles(stylesOrCreator, theme)
         staticSheet = this.getJss().createStyleSheet(styles, { ...options, ...this.context.contextSheetOptions })
         manager.add(theme, staticSheet)
         dynamicStyles = compose(staticSheet, getDynamicStyles(styles))
-      }
+        staticSheet[dynamicStylesNs] = dynamicStyles
+      } else dynamicStyles = staticSheet[dynamicStylesNs]
+
       if (dynamicStyles) {
         dynamicSheet = this.getJss().createStyleSheet(dynamicStyles, { link: true })
       }
-      return { theme, dynamicSheet, dynamicStyles }
+
+      return { theme, dynamicSheet }
     }
 
     manage = ({ theme, dynamicSheet }) => {
@@ -104,6 +112,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     setTheme = theme => this.setState({ theme })
+
     componentDidMount() {
       this.unsubscribe = themeListener.subscribe(this.context, this.setTheme);
     }

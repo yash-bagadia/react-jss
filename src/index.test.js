@@ -523,8 +523,8 @@ describe('react-jss', () => {
     it('should reuse static sheet, but generate separate dynamic once', () => {
       render(
         <div>
-          <Component />
-          <Component />
+          <Component height={2} />
+          <Component height={3} />
         </div>,
         node
       )
