@@ -601,5 +601,79 @@ describe('react-jss', () => {
 
       expect(document.querySelectorAll('style').length).to.equal(2)
     })
+
+    it('two themed instances wo/ dynamic props w/ same theme = 1 style', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <div>
+            <ThemedStaticComponent />
+            <ThemedStaticComponent />
+          </div>
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(1)
+    })
+
+    it('two themed instances w/ dynamic props w/ same theme = 3 styles', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <div>
+            <ThemedDynamicComponent backgroundColor="#fff" />
+            <ThemedDynamicComponent backgroundColor="#fff" />
+          </div>
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(3)
+    })
+
+    it('two themed instances wo/ dynamic props w/ same theme = 1 style, theme update = 1 style', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <div>
+            <ThemedStaticComponent />
+            <ThemedStaticComponent />
+          </div>
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(1)
+
+      render(<div>
+        <ThemeProvider theme={ThemeB}>
+          <div>
+            <ThemedStaticComponent />
+            <ThemedStaticComponent />
+          </div>
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(1)
+    })
+
+    it('two themed instances w/ dynamic props w/ same theme = 3 styles, theme update = 3 styles', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <div>
+            <ThemedDynamicComponent backgroundColor="#fff" />
+            <ThemedDynamicComponent backgroundColor="#fff" />
+          </div>
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(3)
+
+      render(<div>
+        <ThemeProvider theme={ThemeB}>
+          <div>
+            <ThemedDynamicComponent backgroundColor="#fff" />
+            <ThemedDynamicComponent backgroundColor="#fff" />
+          </div>
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(3)
+    })
   })
 })
