@@ -1,7 +1,10 @@
 import {Component, Children} from 'react'
 import {object, instanceOf, node} from 'prop-types'
-import createGenerateClassNameDefault from 'jss/lib/utils/createGenerateClassName'
-import jss, {SheetsRegistry} from './jss'
+import jss, {
+  SheetsRegistry,
+  SheetsManager,
+  createGenerateClassNameDefault
+} from './jss'
 
 export default class JssProvider extends Component {
   static propTypes = {
@@ -13,7 +16,8 @@ export default class JssProvider extends Component {
   static childContextTypes = {
     jss: instanceOf(jss.constructor),
     jssSheetOptions: object,
-    jssSheetsRegistry: instanceOf(SheetsRegistry)
+    jssSheetsRegistry: instanceOf(SheetsRegistry),
+    jssSheetsManager: instanceOf(SheetsManager)
   }
 
   getChildContext() {
@@ -22,14 +26,16 @@ export default class JssProvider extends Component {
     if (localJss && localJss.options.createGenerateClassName) {
       createGenerateClassName = localJss.options.createGenerateClassName
     }
-
-    return {
+    const context = {
       jssSheetOptions: {
         generateClassName: createGenerateClassName()
       },
+      jssSheetsManager: new SheetsManager(),
       jss: this.props.jss,
       jssSheetsRegistry: this.props.registry
     }
+    console.log('get child context', context)
+    return context
   }
 
   render() {

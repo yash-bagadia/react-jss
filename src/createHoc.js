@@ -1,8 +1,7 @@
 import React, {Component} from 'react'
 import {object, instanceOf} from 'prop-types'
 import { themeListener } from '@iamstarkov/theming-w-listener'
-import SheetManager from 'jss/lib/SheetsManager'
-import jss, {SheetsRegistry, getDynamicStyles} from './jss'
+import jss, {SheetsRegistry, getDynamicStyles, SheetsManager} from './jss'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
 
@@ -19,16 +18,16 @@ const dynamicStylesNs = Math.random()
 * For unthemed components theme is an empty object
 * The very first instance will add static sheet to sheets manager
 * Every further instances will get that static sheet from sheet manager
-* Every mount of every instance will call method `sheetManager.manage`, thus incrementing reference counter.
-* Every unmount of every instance will call method `sheetManager.unmanage`, thus decrementing reference counter.
-* `sheetManager.unmanage` under the hood will detach static sheet once reference counter is zero.
+* Every mount of every instance will call method `sheetsManager.manage`, thus incrementing reference counter.
+* Every unmount of every instance will call method `sheetsManager.unmanage`, thus decrementing reference counter.
+* `sheetsManager.unmanage` under the hood will detach static sheet once reference counter is zero.
 * Dynamic styles are not shared between instances
 
 */
 
 const getStyles = (stylesOrCreator, theme) => {
   if (typeof stylesOrCreator !== 'function') {
-    return stylesOrCreator;
+    return stylesOrCreator
   }
   return stylesOrCreator(theme)
 }
@@ -45,8 +44,11 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
 
   const displayName = `Jss(${getDisplayName(InnerComponent)})`
-  const manager = new SheetManager();
-  const noTheme = {};
+  const manager = new SheetsManager()
+  const noTheme = {}
+  let lastSheetOptions
+
+  if (!options.meta) options.meta = displayName
 
   return class Jss extends Component {
     static displayName = displayName
@@ -55,6 +57,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       jss: instanceOf(jss.constructor),
       jssSheetOptions: object,
       jssSheetsRegistry: instanceOf(SheetsRegistry),
+      jssSheetsManager: instanceOf(SheetsManager),
       ...(isThemingEnabled && themeListener.contextTypes)
     }
     static defaultProps = InnerComponent.defaultProps
@@ -62,7 +65,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     constructor(props, context) {
       super(props, context)
 
-      const theme = isThemingEnabled ? themeListener.initial(context) : noTheme;
+      const theme = isThemingEnabled ? themeListener.initial(context) : noTheme
 
       this.state = this.createState({ theme })
     }
@@ -71,7 +74,12 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
        return this.context.jss || jss
     }
 
+    getManager() {
+      return this.context.jssSheetsManager || manager
+    }
+
     createState = ({ theme, dynamicSheet }) => {
+      const manager = this.getManager()
       let staticSheet = manager.get(theme)
       let dynamicStyles
 
@@ -98,10 +106,10 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     manage = ({ theme, dynamicSheet }) => {
-      const { jssSheetsRegistry: registry } = this.context;
+      const { jssSheetsRegistry: registry } = this.context
 
       // staticSheet
-      const staticSheet = manager.manage(theme)
+      const staticSheet = this.getManager().manage(theme)
       if (registry) registry.add(staticSheet)
 
       // dynamicSheet
@@ -120,7 +128,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     setTheme = theme => this.setState({ theme })
 
     componentDidMount() {
-      this.unsubscribe = themeListener.subscribe(this.context, this.setTheme);
+      this.unsubscribe = themeListener.subscribe(this.context, this.setTheme)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -147,7 +155,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     componentWillUnmount() {
       if (isThemingEnabled && this.unsubscribe) this.unsubscribe()
 
-      manager.unmanage(this.state.theme)
+      this.getManager().unmanage(this.state.theme)
       if (this.state.dynamicSheet) {
         this.state.dynamicSheet.detach()
       }
@@ -155,9 +163,16 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
     render() {
       const { theme, dynamicSheet } = this.state
-      const sheet = dynamicSheet || manager.get(theme)
+      const sheet = dynamicSheet || this.getManager().get(theme)
 
-      return <InnerComponent sheet={sheet} classes={sheet.classes} theme={theme} {...this.props} />
+      return (
+        <InnerComponent
+          sheet={sheet}
+          classes={sheet.classes}
+          theme={theme}
+          {...this.props}
+        />
+      )
     }
   }
 }

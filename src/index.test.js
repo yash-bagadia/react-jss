@@ -360,7 +360,7 @@ describe('react-jss', () => {
       })()
 
       renderToString(
-        <JssProvider registry={customSheets}>
+        <JssProvider registry={customSheets} jss={localJss}>
           <Component />
         </JssProvider>
       )
@@ -393,7 +393,7 @@ describe('react-jss', () => {
           border: green;
         }
       `)
-/*
+
       registry = new SheetsRegistry()
 
       renderToString(
@@ -410,7 +410,6 @@ describe('react-jss', () => {
           border: blue;
         }
       `)
-      */
     })
 
     it.skip('should be idempotent', () => {
