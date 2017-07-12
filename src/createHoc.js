@@ -1,6 +1,5 @@
 import React, {Component} from 'react'
-import {themeListener} from '@iamstarkov/theming-w-listener'
-// import {themeListener} from 'theming'
+import {themeListener} from 'theming'
 import jss, {getDynamicStyles, SheetsManager} from './jss'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
