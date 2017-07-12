@@ -167,15 +167,9 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     render() {
       const {theme, dynamicSheet} = this.state
       const sheet = dynamicSheet || this.manager.get(theme)
-
-      return (
-        <InnerComponent
-          sheet={sheet}
-          classes={sheet.classes}
-          theme={theme}
-          {...this.props}
-        />
-      )
+      const reactJssProps = {sheet, classes: sheet.classes}
+      if (isThemingEnabled) reactJssProps.theme = theme
+      return <InnerComponent {...reactJssProps} {...this.props} />
     }
   }
 }
