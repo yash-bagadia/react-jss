@@ -1,10 +1,11 @@
 import React, {Component} from 'react'
-import {object, instanceOf} from 'prop-types'
 import {themeListener} from '@iamstarkov/theming-w-listener'
 // import {themeListener} from 'theming'
-import jss, {SheetsRegistry, getDynamicStyles, SheetsManager} from './jss'
+import jss, {getDynamicStyles, SheetsManager} from './jss'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
+import * as ns from './ns'
+import contextTypes from './contextTypes'
 
 // Like a Symbol
 const dynamicStylesNs = Math.random()
@@ -57,10 +58,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     static displayName = displayName
     static InnerComponent = InnerComponent
     static contextTypes = {
-      jss: instanceOf(jss.constructor),
-      jssSheetOptions: object,
-      jssSheetsRegistry: instanceOf(SheetsRegistry),
-      jssSheetsManager: instanceOf(SheetsManager),
+      ...contextTypes,
       ...(isThemingEnabled && themeListener.contextTypes)
     }
     static defaultProps = InnerComponent.defaultProps
@@ -74,11 +72,11 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     get jss() {
-      return this.context.jss || jss
+      return this.context[ns.jss] || jss
     }
 
     get manager() {
-      return this.context.jssSheetsManager || manager
+      return this.context[ns.sheetsManager] || manager
     }
 
     createState({theme, dynamicSheet}) {
@@ -89,7 +87,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
         const styles = getStyles(stylesOrCreator, theme)
         staticSheet = this.jss.createStyleSheet(styles, {
           ...options,
-          ...this.context.jssSheetOptions
+          ...this.context[ns.sheetOptions]
         })
         this.manager.add(theme, staticSheet)
         dynamicStyles = compose(staticSheet, getDynamicStyles(styles))
@@ -100,7 +98,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       if (dynamicStyles) {
         dynamicSheet = this.jss.createStyleSheet(dynamicStyles, {
           ...options,
-          ...this.context.jssSheetOptions,
+          ...this.context[ns.sheetOptions],
           meta: `${options.meta}Dynamic`,
           link: true
         })
@@ -110,7 +108,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     manage({theme, dynamicSheet}) {
-      const {jssSheetsRegistry: registry} = this.context
+      const registry = this.context[ns.sheetsRegistry]
 
       const staticSheet = this.manager.manage(theme)
       if (registry) registry.add(staticSheet)
