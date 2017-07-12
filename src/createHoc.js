@@ -127,7 +127,9 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     setTheme = theme => this.setState({theme})
 
     componentDidMount() {
-      this.unsubscribe = themeListener.subscribe(this.context, this.setTheme)
+      if (isThemingEnabled) {
+        this.unsubscribe = themeListener.subscribe(this.context, this.setTheme)
+      }
     }
 
     componentWillReceiveProps(nextProps) {
