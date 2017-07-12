@@ -94,14 +94,16 @@ const Button = ({classes, children}) => (
   </button>
 )
 
-const StyledButton = injectSheet((theme) => ({
+const styles = theme => ({
   button: {
     background: theme.colorPrimary
   },
   label: {
     fontWeight: 'bold'
   }
-}))(Button)
+})
+
+const StyledButton = injectSheet(styles)(Button)
 
 const theme = {
   colorPrimary: 'green'
