@@ -57,6 +57,7 @@
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-react": "^6.5.0",
     "babel-preset-stage-0": "^6.5.0",
+    "common-tags": "^1.4.0",
     "cross-env": "^3.0.0",
     "es5-shim": "^4.5.9",
     "eslint": "^3.6.0",
@@ -82,14 +83,11 @@
     "webpack": "^1.13.1"
   },
   "dependencies": {
-    "@iamstarkov/theming-w-listener": "^1.0.3",
-    "common-tags": "^1.4.0",
     "hoist-non-react-statics": "^1.2.0",
     "jss": "^8.1.0",
     "jss-preset-default": "^3.0.0",
-    "precommit": "^1.2.2",
     "prop-types": "^15.5.8",
-    "theming": "^1.0.1"
+    "theming": "^1.1.0"
   },
   "lint-staged": {
     "src/*.js": [
