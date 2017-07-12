@@ -152,7 +152,9 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     componentWillUnmount() {
-      if (isThemingEnabled && this.unsubscribe) this.unsubscribe()
+      if (isThemingEnabled && typeof this.unsubscribe === 'function') {
+        this.unsubscribe()
+      }
 
       this.manager.unmanage(this.state.theme)
       if (this.state.dynamicSheet) {
