@@ -1,129 +1,175 @@
 import React, {Component} from 'react'
-import {object, instanceOf} from 'prop-types'
-import {SheetsRegistry, getDynamicStyles} from 'jss'
-import jss from './jss'
+import {themeListener} from 'theming'
+import jss, {getDynamicStyles, SheetsManager} from './jss'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
+import * as ns from './ns'
+import contextTypes from './contextTypes'
 
-const refNs = `ref-${String(Math.random()).substr(2)}`
-const refs = sheet => sheet[refNs] || 0
-const dec = sheet => --sheet[refNs]
-const inc = sheet => ++sheet[refNs]
+// Like a Symbol
+const dynamicStylesNs = Math.random()
+
+/*
+ * # Use cases
+ *
+ * - Unthemed component accepts styles object
+ * - Themed component accepts styles creator function which takes theme as a single argument
+ * - Multiple instances will re-use the same static sheet via sheets manager
+ * - Sheet manager identifies static sheets by theme as a key
+ * - For unthemed components theme is an empty object
+ * - The very first instance will add static sheet to sheets manager
+ * - Every further instances will get that static sheet from sheet manager
+ * - Every mount of every instance will call method `sheetsManager.manage`,
+ * thus incrementing reference counter.
+ * - Every unmount of every instance will call method `sheetsManager.unmanage`,
+ * thus decrementing reference counter.
+ * - `sheetsManager.unmanage` under the hood will detach static sheet once reference
+ * counter is zero.
+ * - Dynamic styles are not shared between instances
+ *
+ */
+
+const getStyles = (stylesOrCreator, theme) => {
+  if (typeof stylesOrCreator !== 'function') {
+    return stylesOrCreator
+  }
+  return stylesOrCreator(theme)
+}
 
 /**
  * Wrap a Component into a JSS Container Component.
  *
- * @param {Object|StyleSheet} stylesOrSheet
+ * @param {Object|Function} stylesOrCreator
  * @param {Component} InnerComponent
  * @param {Object} [options]
  * @return {Component}
  */
-export default (stylesOrSheet, InnerComponent, options = {}) => {
-  let styles = stylesOrSheet
-  let staticSheet = null
-  let dynamicStyles
+export default (stylesOrCreator, InnerComponent, options = {}) => {
+  const isThemingEnabled = typeof stylesOrCreator === 'function'
 
-  // Accept StyleSheet instance.
-  if (stylesOrSheet && typeof stylesOrSheet.attach === 'function') {
-    staticSheet = stylesOrSheet
-    styles = null
-  }
-
-  const displayName = getDisplayName(InnerComponent)
+  const displayName = `Jss(${getDisplayName(InnerComponent)})`
+  const manager = new SheetsManager()
+  const noTheme = {}
 
   if (!options.meta) options.meta = displayName
 
-  const dynamicSheetOptions = {
-    ...options,
-    meta: `${options.meta}Dynamic`,
-    link: true
-  }
-
-  function ref(localJss, contextSheetOptions) {
-    if (!staticSheet) {
-      staticSheet = localJss.createStyleSheet(styles, {...options, ...contextSheetOptions})
-      dynamicStyles = compose(staticSheet, getDynamicStyles(styles))
-    }
-    if (staticSheet[refNs] === undefined) staticSheet[refNs] = 0
-    if (refs(staticSheet) === 0) staticSheet.attach()
-    inc(staticSheet)
-    return staticSheet
-  }
-
-  function deref() {
-    if (dec(staticSheet) === 0) staticSheet.detach()
-  }
-
   return class Jss extends Component {
+    static displayName = displayName
     static InnerComponent = InnerComponent
-
-    static displayName = `Jss(${displayName})`
-
     static contextTypes = {
-      jss: instanceOf(jss.constructor),
-      jssSheetOptions: object,
-      jssSheetsRegistry: instanceOf(SheetsRegistry)
+      ...contextTypes,
+      ...(isThemingEnabled && themeListener.contextTypes)
     }
-
     static defaultProps = InnerComponent.defaultProps
 
-    componentWillMount() {
-      this.staticSheet = ref(this.getJss(), this.context.jssSheetOptions)
-      if (this.dynamicSheet) this.dynamicSheet.attach()
-      else if (dynamicStyles) {
-        this.dynamicSheet = this.getJss()
-          .createStyleSheet(dynamicStyles, {
-            ...dynamicSheetOptions,
-            ...this.context.jssSheetOptions
-          })
+    constructor(props, context) {
+      super(props, context)
+
+      const theme = isThemingEnabled ? themeListener.initial(context) : noTheme
+
+      this.state = this.createState({theme})
+    }
+
+    get jss() {
+      return this.context[ns.jss] || jss
+    }
+
+    get manager() {
+      return this.context[ns.sheetsManager] || manager
+    }
+
+    createState({theme, dynamicSheet}) {
+      let staticSheet = this.manager.get(theme)
+      let dynamicStyles
+
+      if (!staticSheet) {
+        const styles = getStyles(stylesOrCreator, theme)
+        staticSheet = this.jss.createStyleSheet(styles, {
+          ...options,
+          ...this.context[ns.sheetOptions]
+        })
+        this.manager.add(theme, staticSheet)
+        dynamicStyles = compose(staticSheet, getDynamicStyles(styles))
+        staticSheet[dynamicStylesNs] = dynamicStyles
+      }
+      else dynamicStyles = staticSheet[dynamicStylesNs]
+
+      if (dynamicStyles) {
+        dynamicSheet = this.jss.createStyleSheet(dynamicStyles, {
+          ...options,
+          ...this.context[ns.sheetOptions],
+          meta: `${options.meta}Dynamic`,
+          link: true
+        })
+      }
+
+      return {theme, dynamicSheet}
+    }
+
+    manage({theme, dynamicSheet}) {
+      const registry = this.context[ns.sheetsRegistry]
+
+      const staticSheet = this.manager.manage(theme)
+      if (registry) registry.add(staticSheet)
+
+      if (dynamicSheet) {
+        dynamicSheet
           .update(this.props)
           .attach()
-      }
-      this.addToRegistry(this.context.jssSheetsRegistry)
-    }
-
-    addToRegistry(registry) {
-      if (!registry) return
-      registry.add(this.staticSheet)
-      if (this.dynamicSheet) registry.add(this.dynamicSheet)
-    }
-
-    componentWillReceiveProps(nextProps, nextContext) {
-      if (nextContext.jssSheetsRegistry !== this.context.jssSheetsRegistry) {
-        this.addToRegistry(nextContext.jssSheetsRegistry)
-      }
-      if (this.dynamicSheet) {
-        this.dynamicSheet.update(nextProps)
+        if (registry) registry.add(dynamicSheet)
       }
     }
 
-    componentWillUpdate() {
-      if (process.env.NODE_ENV !== 'production') {
-        // Support React Hot Loader.
-        if (this.staticSheet !== staticSheet) {
-          this.staticSheet.detach()
-          this.staticSheet = ref(this.getJss(), this.context.jssSheetOptions)
-        }
+    componentWillMount() {
+      this.manage(this.state)
+    }
+
+    setTheme = theme => this.setState({theme})
+
+    componentDidMount() {
+      if (isThemingEnabled) {
+        this.unsubscribe = themeListener.subscribe(this.context, this.setTheme)
+      }
+    }
+
+    componentWillReceiveProps(nextProps) {
+      const {dynamicSheet} = this.state
+      if (dynamicSheet) dynamicSheet.update(nextProps)
+    }
+
+    componentWillUpdate(nextProps, nextState) {
+      if (isThemingEnabled && this.state.theme !== nextState.theme) {
+        const newState = this.createState(nextState)
+        this.manage(newState)
+        this.manager.unmanage(this.state.theme)
+        this.setState(newState)
+      }
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+      // We remove previous dynamicSheet only after new one was created to avoid FOUC.
+      if (prevState.dynamicSheet !== this.state.dynamicSheet) {
+        this.jss.removeStyleSheet(prevState.dynamicSheet)
       }
     }
 
     componentWillUnmount() {
-      if (this.staticSheet && !staticSheet) {
-        this.staticSheet.detach()
-        const {jssSheetsRegistry} = this.context
-        if (jssSheetsRegistry) jssSheetsRegistry.remove(this.staticSheet)
+      if (isThemingEnabled && typeof this.unsubscribe === 'function') {
+        this.unsubscribe()
       }
-      else deref()
-      if (this.dynamicSheet) this.dynamicSheet.detach()
-    }
 
-    getJss() {
-      return this.context.jss || jss
+      this.manager.unmanage(this.state.theme)
+      if (this.state.dynamicSheet) {
+        this.state.dynamicSheet.detach()
+      }
     }
 
     render() {
-      const sheet = this.dynamicSheet || this.staticSheet
-      return <InnerComponent sheet={sheet} classes={sheet.classes} {...this.props} />
+      const {theme, dynamicSheet} = this.state
+      const sheet = dynamicSheet || this.manager.get(theme)
+      const reactJssProps = {sheet, classes: sheet.classes}
+      if (isThemingEnabled) reactJssProps.theme = theme
+      return <InnerComponent {...reactJssProps} {...this.props} />
     }
   }
 }

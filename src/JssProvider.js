@@ -1,8 +1,12 @@
 import {Component, Children} from 'react'
-import {object, instanceOf, node} from 'prop-types'
-import {SheetsRegistry} from 'jss'
-import createGenerateClassNameDefault from 'jss/lib/utils/createGenerateClassName'
-import jss from './jss'
+import {instanceOf, node} from 'prop-types'
+import jss, {
+  SheetsRegistry,
+  SheetsManager,
+  createGenerateClassNameDefault
+} from './jss'
+import * as ns from './ns'
+import contextTypes from './contextTypes'
 
 export default class JssProvider extends Component {
   static propTypes = {
@@ -11,11 +15,7 @@ export default class JssProvider extends Component {
     children: node.isRequired
   }
 
-  static childContextTypes = {
-    jss: instanceOf(jss.constructor),
-    jssSheetOptions: object,
-    jssSheetsRegistry: instanceOf(SheetsRegistry)
-  }
+  static childContextTypes = contextTypes
 
   getChildContext() {
     let createGenerateClassName = createGenerateClassNameDefault
@@ -23,13 +23,13 @@ export default class JssProvider extends Component {
     if (localJss && localJss.options.createGenerateClassName) {
       createGenerateClassName = localJss.options.createGenerateClassName
     }
-
     return {
-      jssSheetOptions: {
+      [ns.sheetOptions]: {
         generateClassName: createGenerateClassName()
       },
-      jss: this.props.jss,
-      jssSheetsRegistry: this.props.registry
+      [ns.sheetsManager]: new SheetsManager(),
+      [ns.jss]: this.props.jss,
+      [ns.sheetsRegistry]: this.props.registry
     }
   }
 
