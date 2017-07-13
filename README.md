@@ -18,7 +18,7 @@ The benefits are:
   * [Basic](#basic)
   * [Theming](#theming)
   * [Server-side rendering](#server-side-rendering)
-  * [Reuse same StyleSheet in different Components](#reuse-same-stylesheet-in-different-components)
+  * [Reuse styles in different components](#reuse-styles-in-different-components)
   * [The classNames helper](#the-classnames-helper)
   * [The inner component](#the-inner-component)
   * [Custom setup](#custom-setup)
@@ -160,6 +160,35 @@ export default function render(req, res) {
   ))
 }
 ```
+
+### Reuse styles in different components
+
+In order to reuse the same styles __and__ the same generated style sheet between 2 entirely different and unrelated components, we suggest to extract a renderer component into a separate one and reuse it.
+
+```javascript
+const styles = {
+  button: {
+    color: 'red'
+  }
+}
+const RedButton = injectSheet(styles)(({classes, children}) => (
+  <button className={classes.button}>{children}</button>
+))
+
+const SomeComponent1 = () => (
+  <div>
+    <RedButton>My red button 1</RedButton>
+  </div>
+)
+
+const SomeComponent2 = () => (
+  <div>
+    <RedButton>My red button 2</RedButton>
+  </div>
+)
+```
+
+Alternatively you can create own Style Sheet and use the `composes` feature. Also you can mix in a common styles object, but take into account that it grow the overall CSS size.
 
 ### The classNames helper
 
