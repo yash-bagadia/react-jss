@@ -21,7 +21,8 @@
     "lint:staged": "lint-staged",
     "test": "cross-env NODE_ENV=test karma start --single-run ",
     "test:watch": "cross-env NODE_ENV=test karma start",
-    "prepublishOnly": "npm run all"
+    "prepublishOnly": "npm run all",
+    "size": "size-limit 22KB dist/react-jss.js"
   },
   "repository": {
     "type": "git",

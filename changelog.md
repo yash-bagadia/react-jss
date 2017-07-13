@@ -1,3 +1,21 @@
+## 7.0.0 / 2017-07-13
+
+- Added theming support, introduced `ThemeProvider` and  `withTheme`.
+- Function `injectSheet` now accepts a styles creator function which receives a theme.
+- Updated to JSS 8
+- Class generator counter will reset on every request for dynamic SSR.
+- Dynamic styles are now also added to the sheets registry for SSR.
+- Fixed classnames generators for dynamic SSR (generating sheets on each request).
+
+### Breaking changes
+
+- Removed `createInjectSheet`. Use JssProvider to pass a `jss` instead.
+- Renamed `SheetsRegistryProvider` to `JssProvider`.
+- Function `injectSheet` doesn't accept a StyleSheet instance any more. Potential solutions:
+  - Extract common sheet into separate component.
+  - Mix reusable styles into component styles.
+  - Reuse a sheet directly, by managing your own sheet and using a `composes` feature.
+
 ## 7.0.0-pre.1 / 2017-07-06
 
 - Add sheets to the registry when it is a new instance
@@ -10,8 +28,8 @@
 
 ### Breaking changes
 
-- Removed `createInjectSheet`. Use JssProvider to pass a `jss` instead instead.
-- Renamed `SheetsRegistryProvider` to `JssProvider`
+- Removed `createInjectSheet`. Use JssProvider to pass a `jss` instead.
+- Renamed `SheetsRegistryProvider` to `JssProvider`.
 
 ## 6.1.1 / 2017-04-14
 
