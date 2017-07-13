@@ -88,6 +88,12 @@ describe('react-jss', () => {
       unmountComponentAtNode(node)
       expect(document.querySelectorAll('style').length).to.be(0)
     })
+
+    it('should have correct meta attribute', () => {
+      render(<Component />, node)
+      const meta = document.querySelector('style').getAttribute('data-meta')
+      expect(meta).to.be('Jss(NoRenderer), Unthemed, Static')
+    })
   })
 
   describe('.injectSheet() classes prop', () => {
@@ -430,6 +436,15 @@ describe('react-jss', () => {
       expect(document.querySelectorAll('style').length).to.be(0)
     })
 
+    it('should have correct meta attribute', () => {
+      render(<Component />, node)
+      const styles = document.querySelectorAll('style')
+      const meta0 = styles[0].getAttribute('data-meta')
+      const meta1 = styles[1].getAttribute('data-meta')
+      expect(meta0).to.be('Jss(InnerComponent), Unthemed, Static')
+      expect(meta1).to.be('Jss(InnerComponent), Unthemed, Dynamic')
+    })
+
     it('should reuse static sheet, but generate separate dynamic once', () => {
       render(
         <div>
@@ -547,6 +562,20 @@ describe('react-jss', () => {
 
     const ThemedStaticComponent = injectSheet(themedStaticStyles)()
     const ThemedDynamicComponent = injectSheet(themedDynamicStyles)()
+
+    it('should have correct meta attribute for static styles', () => {
+      render(
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent />
+        </ThemeProvider>,
+        node
+      )
+      const styles = document.querySelectorAll('style')
+      const meta0 = styles[0].getAttribute('data-meta')
+      expect(meta0).to.be('Jss(NoRenderer), Themed, Static')
+      const meta1 = styles[1].getAttribute('data-meta')
+      expect(meta1).to.be('Jss(NoRenderer), Themed, Dynamic')
+    })
 
     it('one themed instance wo/ dynamic props = 1 style', () => {
       render(<div>
