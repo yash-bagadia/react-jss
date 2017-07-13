@@ -1,19 +1,4 @@
-import create from './createInjectSheet'
-
-export {SheetsRegistry} from 'jss'
-export {default as SheetsRegistryProvider} from './SheetsRegistryProvider'
-export {default as jss} from './jss'
-export {create}
-
-/**
- * Exports injectSheet function as default.
- * Returns a function which needs to be invoked with a Component.
- *
- * `injectSheet(styles, [options])(Component)`
- *
- * @param {Object} styles
- * @param {Object} [options]
- * @return {Function}
- * @api public
- */
-export default create()
+export {ThemeProvider, withTheme} from 'theming'
+export {default as JssProvider} from './JssProvider'
+export {default as jss, SheetsRegistry} from './jss'
+export {default} from './injectSheet'

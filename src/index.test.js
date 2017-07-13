@@ -3,17 +3,19 @@
 import expect from 'expect.js'
 import React, {PureComponent} from 'react'
 import {render, unmountComponentAtNode, findDOMNode} from 'react-dom'
-import deepForceUpdate from 'react-deep-force-update'
+import {renderToString} from 'react-dom/server'
+import {stripIndent} from 'common-tags'
+import preset from 'jss-preset-default'
 
 let node
 let jss
 let sheets
 let createJss
 let injectSheet
-let createInjectSheet
 let reactJss
 let SheetsRegistry
-let SheetsRegistryProvider
+let ThemeProvider
+let JssProvider
 
 loadModules()
 
@@ -30,10 +32,10 @@ function loadModules() {
 
   const reactJssModule = require('./')
   injectSheet = reactJssModule.default
-  createInjectSheet = reactJssModule.create
   reactJss = reactJssModule.jss
   SheetsRegistry = reactJssModule.SheetsRegistry
-  SheetsRegistryProvider = reactJssModule.SheetsRegistryProvider
+  ThemeProvider = reactJssModule.ThemeProvider
+  JssProvider = reactJssModule.JssProvider
 }
 
 function reset() {
@@ -47,31 +49,6 @@ describe('react-jss', () => {
     node = document.body.appendChild(document.createElement('div'))
   })
   afterEach(reset)
-
-  describe('.create()', () => {
-    let localInjectSheet
-    let localJss
-
-    beforeEach(() => {
-      localJss = createJss()
-      localInjectSheet = createInjectSheet(localJss)
-    })
-
-    it('should return a function', () => {
-      expect(injectSheet).to.be.a(Function)
-    })
-
-    it('should use passed jss', () => {
-      let passedJss
-      const InnerComponent = ({sheet}) => {
-        passedJss = sheet.options.jss
-        return null
-      }
-      const Component = localInjectSheet()(InnerComponent)
-      render(<Component />, node)
-      expect(passedJss).to.be(localJss)
-    })
-  })
 
   describe('global jss instance', () => {
     it('should return a function', () => {
@@ -220,125 +197,6 @@ describe('react-jss', () => {
     })
   })
 
-  describe('.injectSheet() hot reloading', () => {
-    function simulateHotReloading(container, TargetClass, SourceClass) {
-      // Crude imitation of hot reloading that does the job
-      Object.getOwnPropertyNames(SourceClass.prototype)
-        .filter(key => typeof SourceClass.prototype[key] === 'function')
-        .forEach((key) => {
-          if (key !== 'render' && key !== 'constructor') {
-            TargetClass.prototype[key] = SourceClass.prototype[key]
-          }
-        })
-
-      deepForceUpdate(container)
-    }
-
-    let ComponentA
-    let ComponentB
-    let ComponentC
-
-    beforeEach(() => {
-      ComponentA = injectSheet({
-        button: {color: 'red'}
-      })(() => null)
-
-      ComponentB = injectSheet({
-        button: {color: 'green'}
-      })(() => null)
-
-      ComponentC = injectSheet({
-        button: {color: 'blue'}
-      })(() => null)
-    })
-
-    it('should hot reload component and attach new sheets', () => {
-      const container = render(<ComponentA />, node)
-
-      expect(document.querySelectorAll('style').length).to.be(1)
-      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: red')
-
-      simulateHotReloading(container, ComponentA, ComponentB)
-
-      expect(document.querySelectorAll('style').length).to.be(1)
-      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: green')
-
-      simulateHotReloading(container, ComponentA, ComponentC)
-
-      expect(document.querySelectorAll('style').length).to.be(1)
-      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: blue')
-    })
-
-    it('should properly detach sheets on hot reloaded component', () => {
-      // eslint-disable-next-line react/prefer-stateless-function
-      class AppContainer extends React.Component {
-        render() {
-          return (
-            <ComponentA
-              {...this.props}
-              key={Math.random()} // Require children to unmount on every render
-            />
-          )
-        }
-      }
-
-      const container = render(<AppContainer />, node)
-
-      expect(document.querySelectorAll('style').length).to.be(1)
-      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: red')
-
-      simulateHotReloading(container, ComponentA, ComponentB)
-
-      expect(document.querySelectorAll('style').length).to.be(1)
-      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: green')
-
-      simulateHotReloading(container, ComponentA, ComponentC)
-
-      expect(document.querySelectorAll('style').length).to.be(1)
-      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: blue')
-    })
-  })
-
-  describe('.injectSheet() with StyleSheet arg', () => {
-    describe('accept StyleSheet', () => {
-      let Component
-
-      beforeEach(() => {
-        const sheet = reactJss.createStyleSheet({a: {color: 'red'}})
-        Component = injectSheet(sheet)()
-      })
-
-      it('should attach and detach a sheet', () => {
-        render(<Component />, node)
-        expect(document.querySelectorAll('style').length).to.be(1)
-        unmountComponentAtNode(node)
-        expect(document.querySelectorAll('style').length).to.be(0)
-      })
-    })
-
-    describe('share StyleSheet', () => {
-      let Component1
-      let Component2
-
-      beforeEach(() => {
-        const sheet = reactJss.createStyleSheet({a: {color: 'red'}})
-        Component1 = injectSheet(sheet)()
-        Component2 = injectSheet(sheet)()
-      })
-
-      it('should not detach sheet if it is used in another mounted component', () => {
-        const node2 = document.body.appendChild(document.createElement('div'))
-        render(<Component1 />, node)
-        render(<Component2 />, node2)
-        expect(document.querySelectorAll('style').length).to.be(1)
-        unmountComponentAtNode(node)
-        expect(document.querySelectorAll('style').length).to.be(1)
-        unmountComponentAtNode(node2)
-        expect(document.querySelectorAll('style').length).to.be(0)
-      })
-    })
-  })
-
   describe('override sheet prop', () => {
     let Component
     let receivedSheet
@@ -359,7 +217,20 @@ describe('react-jss', () => {
     })
   })
 
-  describe('with SheetsRegistryProvider', () => {
+  describe('with JssProvider for SSR', () => {
+    let localJss
+
+    beforeEach(() => {
+      localJss = createJss({
+        ...preset(),
+        virtual: true,
+        createGenerateClassName: () => {
+          let counter = 0
+          return rule => `${rule.key}-${counter++}`
+        }
+      })
+    })
+
     it('should add style sheets to the registry from context', () => {
       const customSheets = new SheetsRegistry()
       const ComponentA = injectSheet({
@@ -369,15 +240,157 @@ describe('react-jss', () => {
         button: {color: 'blue'}
       })()
 
-      render(
-        <SheetsRegistryProvider registry={customSheets}>
-          <ComponentA />
-          <ComponentB />
-        </SheetsRegistryProvider>,
-        node
+      renderToString(
+        <JssProvider registry={customSheets} jss={localJss}>
+          <div>
+            <ComponentA />
+            <ComponentB />
+          </div>
+        </JssProvider>
       )
 
       expect(customSheets.registry.length).to.equal(2)
+    })
+
+    it('should use Jss istance from the context', () => {
+      let receivedSheet
+
+      const Component = injectSheet()(({sheet}) => {
+        receivedSheet = sheet
+        return null
+      })
+
+      renderToString(
+        <JssProvider jss={localJss}>
+          <Component />
+        </JssProvider>
+      )
+
+      expect(receivedSheet.options.jss).to.be(localJss)
+    })
+
+    it('should add dynamic sheets', () => {
+      const customSheets = new SheetsRegistry()
+      const Component = injectSheet({
+        button: {
+          width: () => 10
+        }
+      })()
+
+      renderToString(
+        <JssProvider registry={customSheets} jss={localJss}>
+          <Component />
+        </JssProvider>
+      )
+
+      expect(customSheets.registry.length).to.be(2)
+    })
+
+    it('should reset the class generator counter', () => {
+      const styles = {
+        button: {
+          color: 'red',
+          border: ({border}) => border
+        }
+      }
+      const Component = injectSheet(styles)()
+
+      let registry = new SheetsRegistry()
+
+      renderToString(
+        <JssProvider registry={registry} jss={localJss}>
+          <Component border="green" />
+        </JssProvider>
+      )
+
+      expect(registry.toString()).to.equal(stripIndent`
+        .button-0 {
+          color: red;
+        }
+        .button-1 {
+          border: green;
+        }
+      `)
+
+      registry = new SheetsRegistry()
+
+      renderToString(
+        <JssProvider registry={registry} jss={localJss}>
+          <Component border="blue" />
+        </JssProvider>
+      )
+
+      expect(registry.toString()).to.equal(stripIndent`
+        .button-0 {
+          color: red;
+        }
+        .button-1 {
+          border: blue;
+        }
+      `)
+    })
+
+    it('should be idempotent', () => {
+      const Component = injectSheet({
+        button: {
+          color: props => props.color
+        }
+      })()
+
+      const customSheets1 = new SheetsRegistry()
+      const customSheets2 = new SheetsRegistry()
+
+      renderToString(
+        <JssProvider jss={localJss} registry={customSheets1}>
+          <Component color="#000" />
+        </JssProvider>
+      )
+
+      renderToString(
+        <JssProvider jss={localJss} registry={customSheets2}>
+          <Component color="#000" />
+        </JssProvider>
+      )
+
+      const result1 = customSheets1.toString()
+      const result2 = customSheets2.toString()
+
+      expect(result1).to.equal(result2)
+    })
+
+    it('should render deterministically on server and client', () => {
+      const ComponentA = injectSheet({
+        button: {
+          color: props => props.color
+        }
+      })()
+
+      const ComponentB = injectSheet({
+        button: {
+          color: props => props.color
+        }
+      })()
+
+      const customSheets1 = new SheetsRegistry()
+      const customSheets2 = new SheetsRegistry()
+
+      renderToString(
+        <JssProvider jss={localJss} registry={customSheets1}>
+          <ComponentA color="#000" />
+        </JssProvider>
+      )
+
+      render(
+        <JssProvider jss={localJss} registry={customSheets2}>
+          <ComponentB color="#000" />
+        </JssProvider>,
+        node
+      )
+
+      const result1 = customSheets1.toString()
+      const result2 = customSheets2.toString()
+
+      expect(result1).to.equal(result2)
     })
   })
 
@@ -405,7 +418,7 @@ describe('react-jss', () => {
         },
         button: {
           color,
-          height: ({height = 1}) => `${height}px`
+          height: ({height = 1}) => height
         }
       })(InnerComponent)
     })
@@ -420,8 +433,8 @@ describe('react-jss', () => {
     it('should reuse static sheet, but generate separate dynamic once', () => {
       render(
         <div>
-          <Component />
-          <Component />
+          <Component height={2} />
+          <Component height={3} />
         </div>,
         node
       )
@@ -514,6 +527,249 @@ describe('react-jss', () => {
       const node0 = render(<StyledComponent />, node)
       const style0 = getComputedStyle(findDOMNode(node0))
       expect(style0.color).to.be('rgb(255, 0, 0)')
+    })
+  })
+
+  describe('theming', () => {
+    const themedStaticStyles = theme => ({
+      rule: {
+        color: theme.color
+      }
+    })
+    const themedDynamicStyles = theme => ({
+      rule: {
+        color: theme.color,
+        backgroundColor: props => props.backgroundColor,
+      }
+    })
+    const ThemeA = {color: '#aaa'}
+    const ThemeB = {color: '#bbb'}
+
+    const ThemedStaticComponent = injectSheet(themedStaticStyles)()
+    const ThemedDynamicComponent = injectSheet(themedDynamicStyles)()
+
+    it('one themed instance wo/ dynamic props = 1 style', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+      </div>, node)
+      expect(document.querySelectorAll('style').length).to.equal(1)
+    })
+
+    it('one themed instance w/ dynamic props = 2 styles', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+      </div>, node)
+      expect(document.querySelectorAll('style').length).to.equal(2)
+    })
+
+    it('one themed instance wo/ = 1 style, theme update = 1 style', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(1)
+
+      render(<div>
+        <ThemeProvider theme={ThemeB}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(1)
+    })
+
+    it('one themed instance w/ dynamic props = 2 styles, theme update = 2 styles', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(2)
+
+      render(<div>
+        <ThemeProvider theme={ThemeB}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(2)
+    })
+
+    it('two themed instances wo/ dynamic props w/ same theme = 1 style', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <div>
+            <ThemedStaticComponent />
+            <ThemedStaticComponent />
+          </div>
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(1)
+    })
+
+    it('two themed instances w/ dynamic props w/ same theme = 3 styles', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <div>
+            <ThemedDynamicComponent backgroundColor="#fff" />
+            <ThemedDynamicComponent backgroundColor="#fff" />
+          </div>
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(3)
+    })
+
+    it('two themed instances wo/ dynamic props w/ same theme = 1 style, theme update = 1 style', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <div>
+            <ThemedStaticComponent />
+            <ThemedStaticComponent />
+          </div>
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(1)
+
+      render(<div>
+        <ThemeProvider theme={ThemeB}>
+          <div>
+            <ThemedStaticComponent />
+            <ThemedStaticComponent />
+          </div>
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(1)
+    })
+
+    it('two themed instances w/ dynamic props w/ same theme = 3 styles, theme update = 3 styles', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <div>
+            <ThemedDynamicComponent backgroundColor="#fff" />
+            <ThemedDynamicComponent backgroundColor="#fff" />
+          </div>
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(3)
+
+      render(<div>
+        <ThemeProvider theme={ThemeB}>
+          <div>
+            <ThemedDynamicComponent backgroundColor="#fff" />
+            <ThemedDynamicComponent backgroundColor="#fff" />
+          </div>
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(3)
+    })
+
+    it('two themed instances wo/ dynamic props w/ same theme = 1 styles, different theme update = 2 styles', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(1)
+
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+        <ThemeProvider theme={ThemeB}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(2)
+    })
+
+    it('two themed instances w/ dynamic props w/ same theme = 3 styles, different theme update = 4 styles', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(3)
+
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+        <ThemeProvider theme={ThemeB}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(4)
+    })
+
+    it('two themed instances wo/ dynamic props w/ different themes = 2 styles, same theme update = 1 style', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+        <ThemeProvider theme={ThemeB}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(2)
+
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(1)
+    })
+
+    it('two themed instances w/ dynamic props w/ different themes = 4 styles, same theme update = 3 styles', () => {
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+        <ThemeProvider theme={ThemeB}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(4)
+
+      render(<div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+      </div>, node)
+
+      expect(document.querySelectorAll('style').length).to.equal(3)
     })
   })
 })
