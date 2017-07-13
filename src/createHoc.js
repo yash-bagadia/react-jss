@@ -51,8 +51,6 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
   const manager = new SheetsManager()
   const noTheme = {}
 
-  if (!options.meta) options.meta = displayName
-
   return class Jss extends Component {
     static displayName = displayName
     static InnerComponent = InnerComponent
@@ -86,7 +84,8 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
         const styles = getStyles(stylesOrCreator, theme)
         staticSheet = this.jss.createStyleSheet(styles, {
           ...options,
-          ...this.context[ns.sheetOptions]
+          ...this.context[ns.sheetOptions],
+          meta: `${displayName}, ${isThemingEnabled ? 'Themed' : 'Unthemed'}, Static`
         })
         this.manager.add(theme, staticSheet)
         dynamicStyles = compose(staticSheet, getDynamicStyles(styles))
@@ -98,7 +97,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
         dynamicSheet = this.jss.createStyleSheet(dynamicStyles, {
           ...options,
           ...this.context[ns.sheetOptions],
-          meta: `${options.meta}Dynamic`,
+          meta: `${displayName}, ${isThemingEnabled ? 'Themed' : 'Unthemed'}, Dynamic`,
           link: true
         })
       }
