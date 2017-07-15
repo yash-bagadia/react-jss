@@ -129,6 +129,8 @@ const Button = withTheme(({theme}) => (
 
 ### Server-side rendering
 
+After the application is mounted, you should remove the style tag used critical CSS rendered server-side.
+
 ```javascript
 import {renderToString} from 'react-dom/server'
 import {JssProvider, SheetsRegistry} from 'react-jss'
