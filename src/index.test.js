@@ -400,6 +400,105 @@ describe('react-jss', () => {
     })
   })
 
+  describe('JssProvider in general', () => {
+    it.skip('should render two different stylesheets', () => {
+      const stylesA = {a: {color: 'red'}}
+      const stylesB = {b: {color: 'green'}}
+
+      const NoRendererA = ({children}) => (children || null)
+      const NoRendererB = ({children}) => (children || null)
+      const CompA = injectSheet(stylesA)(NoRendererA)
+      const CompB = injectSheet(stylesB)(NoRendererB)
+
+      render((
+        <JssProvider>
+          <div>
+            <CompA />
+            <CompB />
+          </div>
+        </JssProvider>
+      ), node)
+
+      const styleTags = Array.from(document.querySelectorAll('style'))
+      const innerText = x => x.innerText
+      const actual = styleTags.map(innerText).join('').trim()
+      const expected = stripIndent`
+        .a-0-0 {
+          color: red;
+        }
+
+        .b-0-1 {
+          color: green;
+        }
+      `
+      // console.log({ actual, expected })
+      expect(actual).to.equal(expected)
+    })
+
+    it.skip('should render two different stylesheets, when components are nested', () => {
+      const stylesA = {a: {color: 'red'}}
+      const stylesB = {b: {color: 'green'}}
+
+      const NoRendererA = ({children}) => (children || null)
+      const NoRendererB = ({children}) => (children || null)
+      const CompA = injectSheet(stylesA)(NoRendererA)
+      const CompB = injectSheet(stylesB)(NoRendererB)
+
+      render((
+        <JssProvider>
+          <div>
+            <CompA>
+              <CompB />
+            </CompA>
+          </div>
+        </JssProvider>
+      ), node)
+
+      const styleTags = Array.from(document.querySelectorAll('style'))
+      const innerText = x => x.innerText
+      const actual = styleTags.map(innerText).join('').trim()
+      const expected = stripIndent`
+        .a-0-0 {
+          color: red;
+        }
+
+        .b-0-1 {
+          color: green;
+        }
+      `
+      // console.log({ actual, expected })
+      expect(actual).to.equal(expected)
+    })
+
+    it('should render two different stylesheets, when components are themed', () => {
+      const theme = {}
+      const stylesCreatorA = () => ({a: {color: 'red'}})
+      const stylesCreatorB = () => ({b: {color: 'green'}})
+
+      const NoRendererA = ({children}) => (children || null)
+      const NoRendererB = ({children}) => (children || null)
+      const CompA = injectSheet(stylesCreatorA)(NoRendererA)
+      const CompB = injectSheet(stylesCreatorB)(NoRendererB)
+
+      render((
+        <JssProvider>
+          <ThemeProvider theme={theme}>
+            <div>
+              <CompA />
+              <CompB />
+            </div>
+          </ThemeProvider>
+        </JssProvider>
+      ), node)
+
+      const styleTags = Array.from(document.querySelectorAll('style'))
+      const actual = styleTags.length
+      const expected = 2
+      // console.log({actual, expected})
+      expect(actual).to.equal(expected)
+    })
+  })
+
   describe('access inner component', () => {
     it('should be exposed using "InnerComponent" property', () => {
       const ComponentOuter = injectSheet({
