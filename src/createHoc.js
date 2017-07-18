@@ -48,8 +48,9 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
 
   const displayName = `Jss(${getDisplayName(InnerComponent)})`
-  const manager = new SheetsManager()
   const noTheme = {}
+  let manager = new SheetsManager()
+  let providerId
 
   return class Jss extends Component {
     static displayName = displayName
@@ -62,7 +63,6 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
     constructor(props, context) {
       super(props, context)
-
       const theme = isThemingEnabled ? themeListener.initial(context) : noTheme
 
       this.state = this.createState({theme})
@@ -73,7 +73,12 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     get manager() {
-      return this.context[ns.sheetsManager] || manager
+      if (providerId && this.context[ns.providerId] !== providerId) {
+        manager = new SheetsManager()
+      }
+      providerId = this.context[ns.providerId]
+
+      return manager
     }
 
     createState({theme, dynamicSheet}) {

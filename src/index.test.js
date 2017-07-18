@@ -393,10 +393,33 @@ describe('react-jss', () => {
         node
       )
 
-      const result1 = customSheets1.toString()
-      const result2 = customSheets2.toString()
+      expect(customSheets1.toString()).to.equal(customSheets2.toString())
+    })
 
-      expect(result1).to.equal(result2)
+    it.skip('should render two different sheets with theming', () => {
+      const ComponentA = injectSheet(() => ({a: {color: 'red'}}))()
+      const ComponentB = injectSheet(() => ({b: {color: 'green'}}))()
+      const registry = new SheetsRegistry()
+
+      renderToString((
+        <JssProvider registry={registry} jss={localJss}>
+          <ThemeProvider theme={{}}>
+            <div>
+              <ComponentA />
+              <ComponentB />
+            </div>
+          </ThemeProvider>
+        </JssProvider>
+      ))
+
+      expect(registry.toString()).to.be(stripIndent`
+        .a-0 {
+          color: red;
+        }
+        .b-1 {
+          color: green;
+        }
+      `)
     })
   })
 
@@ -467,34 +490,6 @@ describe('react-jss', () => {
         }
       `
       // console.log({ actual, expected })
-      expect(actual).to.equal(expected)
-    })
-
-    it('should render two different stylesheets, when components are themed', () => {
-      const theme = {}
-      const stylesCreatorA = () => ({a: {color: 'red'}})
-      const stylesCreatorB = () => ({b: {color: 'green'}})
-
-      const NoRendererA = ({children}) => (children || null)
-      const NoRendererB = ({children}) => (children || null)
-      const CompA = injectSheet(stylesCreatorA)(NoRendererA)
-      const CompB = injectSheet(stylesCreatorB)(NoRendererB)
-
-      render((
-        <JssProvider>
-          <ThemeProvider theme={theme}>
-            <div>
-              <CompA />
-              <CompB />
-            </div>
-          </ThemeProvider>
-        </JssProvider>
-      ), node)
-
-      const styleTags = Array.from(document.querySelectorAll('style'))
-      const actual = styleTags.length
-      const expected = 2
-      // console.log({actual, expected})
       expect(actual).to.equal(expected)
     })
   })
