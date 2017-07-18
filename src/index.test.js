@@ -396,7 +396,7 @@ describe('react-jss', () => {
       expect(customSheets1.toString()).to.equal(customSheets2.toString())
     })
 
-    it.skip('should render two different sheets with theming', () => {
+    it('should render two different sheets with theming', () => {
       const ComponentA = injectSheet(() => ({a: {color: 'red'}}))()
       const ComponentB = injectSheet(() => ({b: {color: 'green'}}))()
       const registry = new SheetsRegistry()
@@ -420,77 +420,6 @@ describe('react-jss', () => {
           color: green;
         }
       `)
-    })
-  })
-
-  describe('JssProvider in general', () => {
-    it.skip('should render two different stylesheets', () => {
-      const stylesA = {a: {color: 'red'}}
-      const stylesB = {b: {color: 'green'}}
-
-      const NoRendererA = ({children}) => (children || null)
-      const NoRendererB = ({children}) => (children || null)
-      const CompA = injectSheet(stylesA)(NoRendererA)
-      const CompB = injectSheet(stylesB)(NoRendererB)
-
-      render((
-        <JssProvider>
-          <div>
-            <CompA />
-            <CompB />
-          </div>
-        </JssProvider>
-      ), node)
-
-      const styleTags = Array.from(document.querySelectorAll('style'))
-      const innerText = x => x.innerText
-      const actual = styleTags.map(innerText).join('').trim()
-      const expected = stripIndent`
-        .a-0-0 {
-          color: red;
-        }
-
-        .b-0-1 {
-          color: green;
-        }
-      `
-      // console.log({ actual, expected })
-      expect(actual).to.equal(expected)
-    })
-
-    it.skip('should render two different stylesheets, when components are nested', () => {
-      const stylesA = {a: {color: 'red'}}
-      const stylesB = {b: {color: 'green'}}
-
-      const NoRendererA = ({children}) => (children || null)
-      const NoRendererB = ({children}) => (children || null)
-      const CompA = injectSheet(stylesA)(NoRendererA)
-      const CompB = injectSheet(stylesB)(NoRendererB)
-
-      render((
-        <JssProvider>
-          <div>
-            <CompA>
-              <CompB />
-            </CompA>
-          </div>
-        </JssProvider>
-      ), node)
-
-      const styleTags = Array.from(document.querySelectorAll('style'))
-      const innerText = x => x.innerText
-      const actual = styleTags.map(innerText).join('').trim()
-      const expected = stripIndent`
-        .a-0-0 {
-          color: red;
-        }
-
-        .b-0-1 {
-          color: green;
-        }
-      `
-      // console.log({ actual, expected })
-      expect(actual).to.equal(expected)
     })
   })
 
