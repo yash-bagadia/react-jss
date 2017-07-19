@@ -1,4 +1,4 @@
-## upcoming
+## 7.0.2 / 2017-07-19
 
 - Fix theming with `JssProvider`
 
