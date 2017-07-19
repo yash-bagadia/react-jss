@@ -1,3 +1,7 @@
+## upcoming
+
+- Fix theming with `JssProvider`
+
 ## 7.0.0 / 2017-07-13
 
 - Added theming support, introduced `ThemeProvider` and  `withTheme`.

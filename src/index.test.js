@@ -393,10 +393,33 @@ describe('react-jss', () => {
         node
       )
 
-      const result1 = customSheets1.toString()
-      const result2 = customSheets2.toString()
+      expect(customSheets1.toString()).to.equal(customSheets2.toString())
+    })
 
-      expect(result1).to.equal(result2)
+    it('should render two different sheets with theming', () => {
+      const ComponentA = injectSheet(() => ({a: {color: 'red'}}))()
+      const ComponentB = injectSheet(() => ({b: {color: 'green'}}))()
+      const registry = new SheetsRegistry()
+
+      renderToString((
+        <JssProvider registry={registry} jss={localJss}>
+          <ThemeProvider theme={{}}>
+            <div>
+              <ComponentA />
+              <ComponentB />
+            </div>
+          </ThemeProvider>
+        </JssProvider>
+      ))
+
+      expect(registry.toString()).to.be(stripIndent`
+        .a-0 {
+          color: red;
+        }
+        .b-1 {
+          color: green;
+        }
+      `)
     })
   })
 
@@ -799,6 +822,42 @@ describe('react-jss', () => {
       </div>, node)
 
       expect(document.querySelectorAll('style').length).to.equal(3)
+    })
+
+    it('with JssProvider should render two different sheets', () => {
+      const ComponentA = injectSheet(() => ({a: {color: 'red'}}))()
+      const ComponentB = injectSheet(() => ({b: {color: 'green'}}))()
+      const localJss = createJss({
+        ...preset(),
+        createGenerateClassName: () => {
+          let counter = 0
+          return rule => `${rule.key}-${counter++}`
+        }
+      })
+      render((
+        <JssProvider jss={localJss}>
+          <ThemeProvider theme={{}}>
+            <div>
+              <ComponentA />
+              <ComponentB />
+            </div>
+          </ThemeProvider>
+        </JssProvider>
+      ), node)
+
+      const styleTags = Array.from(document.querySelectorAll('style'))
+      const innerText = x => x.innerText
+      const trim = x => x.trim()
+      const actual = styleTags.map(innerText).map(trim).join('\n')
+
+      expect(actual).to.be(stripIndent`
+        .a-0 {
+          color: red;
+        }
+        .b-1 {
+          color: green;
+        }
+      `)
     })
   })
 })

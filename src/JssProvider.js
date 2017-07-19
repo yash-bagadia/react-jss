@@ -2,7 +2,6 @@ import {Component, Children} from 'react'
 import {instanceOf, node} from 'prop-types'
 import jss, {
   SheetsRegistry,
-  SheetsManager,
   createGenerateClassNameDefault
 } from './jss'
 import * as ns from './ns'
@@ -27,7 +26,7 @@ export default class JssProvider extends Component {
       [ns.sheetOptions]: {
         generateClassName: createGenerateClassName()
       },
-      [ns.sheetsManager]: new SheetsManager(),
+      [ns.providerId]: Math.random(),
       [ns.jss]: this.props.jss,
       [ns.sheetsRegistry]: this.props.registry
     }
