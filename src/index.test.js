@@ -823,5 +823,41 @@ describe('react-jss', () => {
 
       expect(document.querySelectorAll('style').length).to.equal(3)
     })
+
+    it('with JssProvider should render two different sheets', () => {
+      const ComponentA = injectSheet(() => ({a: {color: 'red'}}))()
+      const ComponentB = injectSheet(() => ({b: {color: 'green'}}))()
+      const localJss = createJss({
+        ...preset(),
+        createGenerateClassName: () => {
+          let counter = 0
+          return rule => `${rule.key}-${counter++}`
+        }
+      })
+      render((
+        <JssProvider jss={localJss}>
+          <ThemeProvider theme={{}}>
+            <div>
+              <ComponentA />
+              <ComponentB />
+            </div>
+          </ThemeProvider>
+        </JssProvider>
+      ), node)
+
+      const styleTags = Array.from(document.querySelectorAll('style'))
+      const innerText = x => x.innerText
+      const trim = x => x.trim()
+      const actual = styleTags.map(innerText).map(trim).join('\n')
+
+      expect(actual).to.be(stripIndent`
+        .a-0 {
+          color: red;
+        }
+        .b-1 {
+          color: green;
+        }
+      `)
+    })
   })
 })
