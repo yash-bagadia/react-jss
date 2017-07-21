@@ -142,10 +142,12 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     componentWillUpdate(nextProps, nextState) {
-      if (isThemingEnabled && this.state.theme !== nextState.theme) {
+      const isThemeUpdate = isThemingEnabled && this.state.theme !== nextState.theme
+      const isHMRupdate = process.env.NODE_ENV !== 'production' && this.manager.keys.length === 0
+      if (isThemeUpdate || isHMRupdate) {
         const newState = this.createState(nextState)
         this.manage(newState)
-        this.manager.unmanage(this.state.theme)
+        if (!isHMRupdate) this.manager.unmanage(this.state.theme)
         this.setState(newState)
       }
     }
