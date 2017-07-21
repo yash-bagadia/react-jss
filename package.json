@@ -10,6 +10,7 @@
     "all": "npm run lint && npm run test && npm run build && npm run size",
     "build": "npm run clean && npm run build:lib && npm run build:tests && npm run build:dist",
     "build:lib": "babel src --out-dir lib",
+    "build:lib:watch": "npm run build:lib -- --watch",
     "build:tests": "npm run build:tests:lib && npm run build:tests:local",
     "build:tests:lib": "cross-env NODE_ENV=test babel src --out-dir tests",
     "build:tests:local": "cross-env NODE_ENV=test webpack src/index.test.js tmp/tests.js",
