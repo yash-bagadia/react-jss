@@ -99,10 +99,12 @@ describe('react-jss', () => {
 
   describe('.injectSheet() classes prop', () => {
     let passedClasses
+    let InnerComponent
     let Component
+    let classNameRegex
 
     beforeEach(() => {
-      const InnerComponent = ({classes}) => {
+      InnerComponent = ({classes}) => {
         passedClasses = classes
         return null
       }
@@ -120,6 +122,14 @@ describe('react-jss', () => {
       const classes = 'classes prop'
       render(<Component classes={classes} />, node)
       expect(passedClasses).to.equal(classes)
+    })
+
+    it('should be prefixed by the parent injected component\'s name', () => {
+      render(<Component />, node)
+      Object.keys(passedClasses).forEach((className) => {
+        classNameRegex = new RegExp(`^${InnerComponent.name}-${className}((-)?[\\d]*)*$`)
+        expect(passedClasses[className]).to.match(classNameRegex)
+      })
     })
   })
 
