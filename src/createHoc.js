@@ -77,18 +77,14 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     get jss() {
-      return this.context[ns.jss] || jss
-    }
-
-    set manager(nextManager) { // eslint-disable-line class-methods-use-this
-      manager = nextManager
+      return (this.context && this.context[ns.jss]) || jss
     }
 
     get manager() {
-      if (providerId && this.context[ns.providerId] !== providerId) {
+      if (providerId && (this.context && this.context[ns.providerId] !== providerId)) {
         manager = new SheetsManager()
       }
-      providerId = this.context[ns.providerId]
+      providerId = this.context && this.context[ns.providerId]
 
       return manager
     }

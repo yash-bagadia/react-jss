@@ -4,6 +4,7 @@ import expect from 'expect.js'
 import React, {PureComponent} from 'react'
 import {render, unmountComponentAtNode, findDOMNode} from 'react-dom'
 import {renderToString} from 'react-dom/server'
+import deepForceUpdate from 'react-deep-force-update'
 import {stripIndent} from 'common-tags'
 import preset from 'jss-preset-default'
 
@@ -12,7 +13,6 @@ let node
 let jss
 let sheets
 let createJss
-let SheetsManager
 let injectSheet
 let reactJss
 let SheetsRegistry
@@ -31,7 +31,6 @@ function loadModules() {
   jss = jssModule.default
   sheets = jssModule.sheets
   createJss = jssModule.create
-  SheetsManager = jssModule.SheetsManager
 
   const reactJssModule = require('./')
   injectSheet = reactJssModule.default
@@ -864,17 +863,74 @@ describe('react-jss', () => {
     })
   })
 
-  describe('React-hot-loader/HMR support', () => {
-    it('doesnt throw if SheetsManager is resetted', () => {
-      const Component = injectSheet({button: {color: 'red'}})()
+  describe.only('hot reloading', () => {
+    function simulateHotReloading(container, TargetClass, SourceClass) {
+      // Crude imitation of hot reloading that does the job
+      Object.getOwnPropertyNames(SourceClass.prototype)
+        .filter(key => typeof SourceClass.prototype[key] === 'function')
+        .forEach((key) => {
+          if (key !== 'render' && key !== 'constructor') {
+            TargetClass.prototype[key] = SourceClass.prototype[key]
+          }
+        })
 
-      const rComp = render(<Component />, node)
+      deepForceUpdate(container)
+    }
 
-      rComp.manager = new SheetsManager()
+    let ComponentA
+    let ComponentB
+    let ComponentC
 
-      expect(() => {
-        render(<Component />, node)
-      }).to.not.throwException()
+    beforeEach(() => {
+      ComponentA = injectSheet({button: {color: 'red'}})()
+      ComponentB = injectSheet({button: {color: 'green'}})()
+      ComponentC = injectSheet({button: {color: 'blue'}})()
+    })
+
+    it.only('should hot reload component and attach new sheets', () => {
+      const container = render(<ComponentA />, node)
+
+      expect(document.querySelectorAll('style').length).to.be(1)
+      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: red')
+
+      simulateHotReloading(container, ComponentA, ComponentB)
+
+      expect(document.querySelectorAll('style').length).to.be(1)
+      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: green')
+
+      simulateHotReloading(container, ComponentA, ComponentC)
+
+      expect(document.querySelectorAll('style').length).to.be(1)
+      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: blue')
+    })
+
+    it('should properly detach sheets on hot reloaded component', () => {
+      // eslint-disable-next-line react/prefer-stateless-function,react/no-multi-comp
+      class AppContainer extends React.Component {
+        render() {
+          return (
+            <ComponentA
+              {...this.props}
+              key={Math.random()} // Require children to unmount on every render
+            />
+          )
+        }
+      }
+
+      const container = render(<AppContainer />, node)
+
+      expect(document.querySelectorAll('style').length).to.be(1)
+      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: red')
+
+      simulateHotReloading(container, ComponentA, ComponentB)
+
+      expect(document.querySelectorAll('style').length).to.be(1)
+      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: green')
+
+      simulateHotReloading(container, ComponentA, ComponentC)
+
+      expect(document.querySelectorAll('style').length).to.be(1)
+      expect(document.querySelectorAll('style')[0].innerHTML).to.contain('color: blue')
     })
   })
 })
