@@ -49,6 +49,14 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
   const displayName = `Jss(${getDisplayName(InnerComponent)})`
   const noTheme = {}
+
+  /**
+   * manager will be resetted after HMR is triggered,
+   * because component will be remounted so `createHoc` function will be executed,
+   * related:
+   *  * https://github.com/gaearon/react-hot-loader/issues/378
+   *  * https://github.com/gaearon/react-hot-loader/issues/279
+   */
   let manager = new SheetsManager()
   let providerId
 
@@ -70,6 +78,10 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
     get jss() {
       return this.context[ns.jss] || jss
+    }
+
+    set manager(nextManager) { // eslint-disable-line class-methods-use-this
+      manager = nextManager
     }
 
     get manager() {
@@ -140,7 +152,12 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       const {dynamicSheet} = this.state
       if (dynamicSheet) dynamicSheet.update(nextProps)
     }
-
+    /**
+     * After HMR is triggered `SheetsManager` is resetted,
+     * so we have to be carefull here.
+     * HMR executes `createHoc`, `componentWillReceiveProps`, `componentWillUpdate` and `render`
+     * So here you can't unmanage sheet by theme, because manager is empty.
+     */
     componentWillUpdate(nextProps, nextState) {
       const isThemeUpdate = isThemingEnabled && this.state.theme !== nextState.theme
       const isHMRupdate = process.env.NODE_ENV !== 'production' && this.manager.keys.length === 0
