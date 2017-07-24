@@ -7,10 +7,12 @@ import {renderToString} from 'react-dom/server'
 import {stripIndent} from 'common-tags'
 import preset from 'jss-preset-default'
 
+
 let node
 let jss
 let sheets
 let createJss
+let SheetsManager
 let injectSheet
 let reactJss
 let SheetsRegistry
@@ -29,6 +31,7 @@ function loadModules() {
   jss = jssModule.default
   sheets = jssModule.sheets
   createJss = jssModule.create
+  SheetsManager = jssModule.SheetsManager
 
   const reactJssModule = require('./')
   injectSheet = reactJssModule.default
@@ -858,6 +861,20 @@ describe('react-jss', () => {
           color: green;
         }
       `)
+    })
+  })
+
+  describe('React-hot-loader/HMR support', () => {
+    it('doesnt throw if SheetsManager is resetted', () => {
+      const Component = injectSheet({button: {color: 'red'}})()
+
+      const rComp = render(<Component />, node)
+
+      rComp.manager = new SheetsManager()
+
+      expect(() => {
+        render(<Component />, node)
+      }).to.not.throwException()
     })
   })
 })
