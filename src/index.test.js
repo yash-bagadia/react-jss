@@ -125,9 +125,9 @@ describe('react-jss', () => {
 
     it('should be prefixed by the parent injected component\'s name', () => {
       render(<Component />, node)
-      Object.keys(passedClasses).forEach((className) => {
-        classNameRegex = new RegExp(`^${InnerComponent.name}-${className}((-)?[\\d]*)*$`)
-        expect(passedClasses[className]).to.match(classNameRegex)
+      Object.keys(passedClasses).forEach((ruleName) => {
+        classNameRegex = new RegExp(`^${InnerComponent.displayName || InnerComponent.name}-${ruleName}[\\s\\S]*$`)
+        expect(passedClasses[ruleName]).to.match(classNameRegex)
       })
     })
   })
