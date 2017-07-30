@@ -83,8 +83,7 @@ Using `ThemeProvider`:
 
 ```javascript
 import React from 'react'
-import {ThemeProvider} from 'react-jss'
-import {Button} from './components'
+import injectSheet, {ThemeProvider} from 'react-jss'
 
 const Button = ({classes, children}) => (
   <button className={classes.button}>
