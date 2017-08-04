@@ -6,6 +6,7 @@ import {render, unmountComponentAtNode, findDOMNode} from 'react-dom'
 import {renderToString} from 'react-dom/server'
 import {stripIndent} from 'common-tags'
 import preset from 'jss-preset-default'
+import {createTheming} from 'theming'
 
 let node
 let jss
@@ -858,6 +859,55 @@ describe('react-jss', () => {
           color: green;
         }
       `)
+    })
+
+    it('allows nested ThemeProviders with custom channel if custom themeLister is provided to injectSheet', () => {
+      const {
+        ThemeProvider: ThemeProviderA,
+        themeListener: themeListenerA
+      } = createTheming('__THEME_A__')
+
+      const {
+        ThemeProvider: ThemeProviderB,
+        themeListener: themeListenerB
+      } = createTheming('__THEME_B__')
+
+      let colorReceivedInStyleA
+      let colorReceivedInStyleB
+      let themeReceivedInComponentA
+      let themeReceivedInComponentB
+
+      const styleA = theme => (colorReceivedInStyleA = theme.color)
+      const styleB = theme => (colorReceivedInStyleB = theme.color)
+
+      const InnerComponentA = ({theme}) => {
+        themeReceivedInComponentA = theme
+        return null
+      }
+
+      const InnerComponentB = ({theme}) => {
+        themeReceivedInComponentB = theme
+        return null
+      }
+
+      const ComponentA = injectSheet(styleA, {}, themeListenerA)(InnerComponentA)
+      const ComponentB = injectSheet(styleB, {}, themeListenerB)(InnerComponentB)
+
+      render(<div>
+        <ThemeProviderA theme={ThemeA}>
+          <ThemeProviderB theme={ThemeB}>
+            <div>
+              <ComponentA />
+              <ComponentB />
+            </div>
+          </ThemeProviderB>
+        </ThemeProviderA>
+      </div>, node)
+
+      expect(themeReceivedInComponentA).to.be(ThemeA)
+      expect(themeReceivedInComponentB).to.be(ThemeB)
+      expect(colorReceivedInStyleA).to.be(ThemeA.color)
+      expect(colorReceivedInStyleB).to.be(ThemeB.color)
     })
   })
 })

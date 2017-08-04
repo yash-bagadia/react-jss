@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {themeListener} from 'theming'
+import {themeListener as _themeListener} from 'theming'
 import jss, {getDynamicStyles, SheetsManager} from './jss'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
@@ -42,9 +42,15 @@ const getStyles = (stylesOrCreator, theme) => {
  * @param {Object|Function} stylesOrCreator
  * @param {Component} InnerComponent
  * @param {Object} [options]
+ * @param {Object} [themeListener]
  * @return {Component}
  */
-export default (stylesOrCreator, InnerComponent, options = {}) => {
+export default (
+    stylesOrCreator,
+    InnerComponent,
+    options = {},
+    themeListener = _themeListener
+) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
 
   const displayName = `Jss(${getDisplayName(InnerComponent)})`
