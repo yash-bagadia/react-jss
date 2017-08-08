@@ -47,9 +47,10 @@ const getStyles = (stylesOrCreator, theme) => {
 export default (stylesOrCreator, InnerComponent, options = {}) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
   const {
-    themeListener = defaultThemeListener,
+    theming = {},
     ...sheetOptions
   } = options
+  const {themeListener = defaultThemeListener} = theming
   const displayName = `Jss(${getDisplayName(InnerComponent)})`
   const noTheme = {}
   let manager = new SheetsManager()

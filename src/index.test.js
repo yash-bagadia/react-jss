@@ -861,17 +861,17 @@ describe('react-jss', () => {
       `)
     })
 
-    describe('when custom themeLister is provided to injectSheet options', () => {
+    describe('when theming object returned from createTheming is provided to injectSheet options', () => {
       it('allows nested ThemeProviders with custom namespace', () => {
+        const themingA = createTheming('__THEME_A__')
+        const themingB = createTheming('__THEME_B__')
         const {
-          ThemeProvider: ThemeProviderA,
-          themeListener: themeListenerA
-        } = createTheming('__THEME_A__')
+          ThemeProvider: ThemeProviderA
+        } = themingA
 
         const {
-          ThemeProvider: ThemeProviderB,
-          themeListener: themeListenerB
-        } = createTheming('__THEME_B__')
+          ThemeProvider: ThemeProviderB
+        } = themingB
 
         let colorReceivedInStyleA
         let colorReceivedInStyleB
@@ -891,8 +891,8 @@ describe('react-jss', () => {
           return null
         }
 
-        const ComponentA = injectSheet(styleA, {themeListener: themeListenerA})(InnerComponentA)
-        const ComponentB = injectSheet(styleB, {themeListener: themeListenerB})(InnerComponentB)
+        const ComponentA = injectSheet(styleA, {theming: themingA})(InnerComponentA)
+        const ComponentB = injectSheet(styleB, {theming: themingB})(InnerComponentB)
 
         render(<div>
           <ThemeProviderA theme={ThemeA}>
