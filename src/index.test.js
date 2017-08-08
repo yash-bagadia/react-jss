@@ -861,53 +861,55 @@ describe('react-jss', () => {
       `)
     })
 
-    it('allows nested ThemeProviders with custom channel if custom themeLister is provided to injectSheet', () => {
-      const {
-        ThemeProvider: ThemeProviderA,
-        themeListener: themeListenerA
-      } = createTheming('__THEME_A__')
+    describe('when custom themeLister is provided to injectSheet options', () => {
+      it('allows nested ThemeProviders with custom namespace', () => {
+        const {
+          ThemeProvider: ThemeProviderA,
+          themeListener: themeListenerA
+        } = createTheming('__THEME_A__')
 
-      const {
-        ThemeProvider: ThemeProviderB,
-        themeListener: themeListenerB
-      } = createTheming('__THEME_B__')
+        const {
+          ThemeProvider: ThemeProviderB,
+          themeListener: themeListenerB
+        } = createTheming('__THEME_B__')
 
-      let colorReceivedInStyleA
-      let colorReceivedInStyleB
-      let themeReceivedInComponentA
-      let themeReceivedInComponentB
+        let colorReceivedInStyleA
+        let colorReceivedInStyleB
+        let themeReceivedInComponentA
+        let themeReceivedInComponentB
 
-      const styleA = theme => (colorReceivedInStyleA = theme.color)
-      const styleB = theme => (colorReceivedInStyleB = theme.color)
+        const styleA = theme => (colorReceivedInStyleA = theme.color)
+        const styleB = theme => (colorReceivedInStyleB = theme.color)
 
-      const InnerComponentA = ({theme}) => {
-        themeReceivedInComponentA = theme
-        return null
-      }
+        const InnerComponentA = ({theme}) => {
+          themeReceivedInComponentA = theme
+          return null
+        }
 
-      const InnerComponentB = ({theme}) => {
-        themeReceivedInComponentB = theme
-        return null
-      }
+        const InnerComponentB = ({theme}) => {
+          themeReceivedInComponentB = theme
+          return null
+        }
 
-      const ComponentA = injectSheet(styleA, {}, themeListenerA)(InnerComponentA)
-      const ComponentB = injectSheet(styleB, {}, themeListenerB)(InnerComponentB)
+        const ComponentA = injectSheet(styleA, {themeListener: themeListenerA})(InnerComponentA)
+        const ComponentB = injectSheet(styleB, {themeListener: themeListenerB})(InnerComponentB)
 
-      render(<div>
-        <ThemeProviderA theme={ThemeA}>
-          <ThemeProviderB theme={ThemeB}>
-            <div>
-              <ComponentA />
-              <ComponentB />
-            </div>
-          </ThemeProviderB>
-        </ThemeProviderA>
-      </div>, node)
+        render(<div>
+          <ThemeProviderA theme={ThemeA}>
+            <ThemeProviderB theme={ThemeB}>
+              <div>
+                <ComponentA />
+                <ComponentB />
+              </div>
+            </ThemeProviderB>
+          </ThemeProviderA>
+        </div>, node)
 
-      expect(themeReceivedInComponentA).to.be(ThemeA)
-      expect(themeReceivedInComponentB).to.be(ThemeB)
-      expect(colorReceivedInStyleA).to.be(ThemeA.color)
-      expect(colorReceivedInStyleB).to.be(ThemeB.color)
+        expect(themeReceivedInComponentA).to.be(ThemeA)
+        expect(themeReceivedInComponentB).to.be(ThemeB)
+        expect(colorReceivedInStyleA).to.be(ThemeA.color)
+        expect(colorReceivedInStyleB).to.be(ThemeB.color)
+      })
     })
   })
 })

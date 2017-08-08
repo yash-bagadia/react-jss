@@ -1,5 +1,4 @@
 import hoistNonReactStatics from 'hoist-non-react-statics'
-import {themeListener as _themeListener} from 'theming'
 import createHoc from './createHoc'
 
 /**
@@ -21,25 +20,16 @@ const NoRenderer = ({children}) => (children || null)
 /**
  * HOC creator function that wrapps the user component.
  *
- * `injectSheet(styles, [options], [customThemeListener])(Component)`
+ * `injectSheet(styles, [options])(Component)`
  *
  * @api public
  */
-export default function injectSheet(
-    stylesOrSheet,
-    options = {},
-    customThemeListener = _themeListener
-) {
+export default function injectSheet(stylesOrSheet, options = {}) {
   if (options.index === undefined) {
     options.index = indexCounter++
   }
   return (InnerComponent = NoRenderer) => {
-    const Jss = createHoc(
-        stylesOrSheet,
-        InnerComponent,
-        options,
-        customThemeListener
-    )
+    const Jss = createHoc(stylesOrSheet, InnerComponent, options)
     return hoistNonReactStatics(Jss, InnerComponent, {inner: true})
   }
 }
