@@ -126,6 +126,45 @@ const Button = withTheme(({theme}) => (
 ))
 ```
 
+_Namespaced_ themes can be used so that a set of UI components should not conflict with another set of UI components from a different library using also ```react-jss```.
+
+```javascript
+import {createTheming} from 'react-jss'
+// creating a namespaced theming object
+const theming = createTheming('__MY_NAMESPACED_THEME__')
+// extracting out the namespaced ThemeProvider from namespaced theming object
+const {ThemeProvider: MyThemeProvider} = theming
+
+const styles = theme => ({
+  button: {
+    background: theme.colorPrimary
+  }
+})
+
+const theme = {
+  colorPrimary: 'green'
+}
+
+const Button = ({classes, children}) => (
+  <button className={classes.button}>
+      {children}
+  </button>
+)
+
+// passing namespaced theming object inside injectSheet options
+const StyledButton = injectSheet(styles, { theming })(Button)
+
+// using namespaced ThemeProviders - they can be nested in any order
+const App = () => (
+    <OtherLibraryThemeProvider theme={otherLibraryTheme}>
+        <OtherLibraryComponent />
+        <MyThemeProvider theme={theme}>
+            <StyledButton>Green Button</StyledButton>
+        </MyThemeProvider>
+    <OtherLibraryThemeProvider>
+)
+```
+
 ### Server-side rendering
 
 After the application is mounted, you should remove the style tag used critical CSS rendered server-side.
