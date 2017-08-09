@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {themeListener} from 'theming'
+import {themeListener as defaultThemeListener} from 'theming'
 import jss, {getDynamicStyles, SheetsManager} from './jss'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
@@ -46,7 +46,11 @@ const getStyles = (stylesOrCreator, theme) => {
  */
 export default (stylesOrCreator, InnerComponent, options = {}) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
-
+  const {
+    theming = {},
+    ...sheetOptions
+  } = options
+  const {themeListener = defaultThemeListener} = theming
   const displayName = `Jss(${getDisplayName(InnerComponent)})`
   const noTheme = {}
   let manager = new SheetsManager()
@@ -88,7 +92,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       if (!staticSheet) {
         const styles = getStyles(stylesOrCreator, theme)
         staticSheet = this.jss.createStyleSheet(styles, {
-          ...options,
+          ...sheetOptions,
           ...this.context[ns.sheetOptions],
           meta: `${displayName}, ${isThemingEnabled ? 'Themed' : 'Unthemed'}, Static`
         })
@@ -100,7 +104,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
       if (dynamicStyles) {
         dynamicSheet = this.jss.createStyleSheet(dynamicStyles, {
-          ...options,
+          ...sheetOptions,
           ...this.context[ns.sheetOptions],
           meta: `${displayName}, ${isThemingEnabled ? 'Themed' : 'Unthemed'}, Dynamic`,
           link: true
