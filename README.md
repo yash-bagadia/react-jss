@@ -132,7 +132,9 @@ _Namespaced_ themes can be used so that a set of UI components should not confli
 import {createTheming} from 'react-jss'
 
 // Creating a namespaced theming object.
-const {ThemeProvider: MyThemeProvider} = createTheming('__MY_NAMESPACED_THEME__')
+const theming = createTheming('__MY_NAMESPACED_THEME__')
+
+const {ThemeProvider: MyThemeProvider} = theming
 
 const styles = theme => ({
   button: {
