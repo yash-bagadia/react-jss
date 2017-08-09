@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {themeListener as defaultThemeListener} from 'theming'
+import defaultTheming from 'theming'
 import jss, {getDynamicStyles, SheetsManager} from './jss'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
@@ -46,11 +46,8 @@ const getStyles = (stylesOrCreator, theme) => {
  */
 export default (stylesOrCreator, InnerComponent, options = {}) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
-  const {
-    theming = {},
-    ...sheetOptions
-  } = options
-  const {themeListener = defaultThemeListener} = theming
+  const {theming = defaultTheming, ...sheetOptions} = options
+  const {themeListener} = theming
   const displayName = `Jss(${getDisplayName(InnerComponent)})`
   const noTheme = {}
   let manager = new SheetsManager()

@@ -130,10 +130,9 @@ _Namespaced_ themes can be used so that a set of UI components should not confli
 
 ```javascript
 import {createTheming} from 'react-jss'
-// creating a namespaced theming object
-const theming = createTheming('__MY_NAMESPACED_THEME__')
-// extracting out the namespaced ThemeProvider from namespaced theming object
-const {ThemeProvider: MyThemeProvider} = theming
+
+// Creating a namespaced theming object.
+const {ThemeProvider: MyThemeProvider} = createTheming('__MY_NAMESPACED_THEME__')
 
 const styles = theme => ({
   button: {
@@ -147,21 +146,21 @@ const theme = {
 
 const Button = ({classes, children}) => (
   <button className={classes.button}>
-      {children}
+    {children}
   </button>
 )
 
-// passing namespaced theming object inside injectSheet options
+// Passing namespaced theming object inside injectSheet options.
 const StyledButton = injectSheet(styles, { theming })(Button)
 
-// using namespaced ThemeProviders - they can be nested in any order
+// Using namespaced ThemeProviders - they can be nested in any order
 const App = () => (
-    <OtherLibraryThemeProvider theme={otherLibraryTheme}>
-        <OtherLibraryComponent />
-        <MyThemeProvider theme={theme}>
-            <StyledButton>Green Button</StyledButton>
-        </MyThemeProvider>
-    <OtherLibraryThemeProvider>
+  <OtherLibraryThemeProvider theme={otherLibraryTheme}>
+    <OtherLibraryComponent />
+    <MyThemeProvider theme={theme}>
+      <StyledButton>Green Button</StyledButton>
+    </MyThemeProvider>
+  <OtherLibraryThemeProvider>
 )
 ```
 
