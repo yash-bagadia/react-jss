@@ -316,6 +316,19 @@ export default class Button extends Component {
 }
 ```
 
+## Injection order
+
+Style tags are injected in the exact same order as the `injectSheet()` invocation. 
+Source order specificity is higher the lower style tag is in the tree, therefore you should call `injectSheet` of components you want to override first.
+
+Example
+
+```js
+// Will render labelStyles first.
+const Label = injectSheet(labelStyles)(({children}) => <label>{children}</label>)
+const Button = injectSheet(buttonStyles)(() => <button<Label>my button</Label></button>)
+```
+
 ## Contributing
 
 See our [contribution guidelines](./contributing.md).
