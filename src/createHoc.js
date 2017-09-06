@@ -50,8 +50,8 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
   const {themeListener} = theming
   const displayName = `Jss(${getDisplayName(InnerComponent)})`
   const noTheme = {}
-  let manager = new SheetsManager()
-  let providerId
+  const managerId = Math.random()
+  const manager = new SheetsManager()
 
   return class Jss extends Component {
     static displayName = displayName
@@ -74,10 +74,12 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     get manager() {
-      if (providerId && this.context[ns.providerId] !== providerId) {
-        manager = new SheetsManager()
+      if (this.context[ns.managers]) {
+        if (!this.context[ns.managers][managerId]) {
+          this.context[ns.managers][managerId] = new SheetsManager()
+        }
+        return this.context[ns.managers][managerId]
       }
-      providerId = this.context[ns.providerId]
 
       return manager
     }
