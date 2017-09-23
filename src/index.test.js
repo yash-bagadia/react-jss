@@ -17,6 +17,7 @@ let reactJss
 let SheetsRegistry
 let ThemeProvider
 let JssProvider
+let createGenerateClassName
 
 loadModules()
 
@@ -37,6 +38,7 @@ function loadModules() {
   SheetsRegistry = reactJssModule.SheetsRegistry
   ThemeProvider = reactJssModule.ThemeProvider
   JssProvider = reactJssModule.JssProvider
+  createGenerateClassName = reactJssModule.createGenerateClassName
 }
 
 function reset() {
@@ -51,13 +53,17 @@ describe('react-jss', () => {
   })
   afterEach(reset)
 
-  describe('global jss instance', () => {
-    it('should return a function', () => {
+  describe('exports', () => {
+    it('should export injectSheet', () => {
       expect(injectSheet).to.be.a(Function)
     })
 
-    it('should be available', () => {
+    it('should export jss', () => {
       expect(reactJss).to.be.an(jss.constructor)
+    })
+
+    it('should export createGenerateClassName', () => {
+      expect(createGenerateClassName).to.be.a(Function)
     })
   })
 
@@ -412,7 +418,7 @@ describe('react-jss', () => {
       const ComponentB = injectSheet(() => ({b: {color: 'green'}}))()
       const registry = new SheetsRegistry()
 
-      renderToString((
+      renderToString(
         <JssProvider registry={registry} jss={localJss}>
           <ThemeProvider theme={{}}>
             <div>
@@ -421,7 +427,7 @@ describe('react-jss', () => {
             </div>
           </ThemeProvider>
         </JssProvider>
-      ))
+      )
 
       expect(registry.toString()).to.be(stripIndent`
         .a-0 {
@@ -429,6 +435,33 @@ describe('react-jss', () => {
         }
         .b-1 {
           color: green;
+        }
+      `)
+    })
+
+    it('should use generateClassName', () => {
+      const Component1 = injectSheet({a: {color: 'red'}})()
+      const Component2 = injectSheet({a: {color: 'red'}})()
+      const registry = new SheetsRegistry()
+      const generateClassName = localJss.options.createGenerateClassName()
+
+      renderToString(
+        <div>
+          <JssProvider registry={registry} generateClassName={generateClassName} jss={localJss}>
+            <Component1 />
+          </JssProvider>
+          <JssProvider registry={registry} generateClassName={generateClassName} jss={localJss}>
+            <Component2 />
+          </JssProvider>
+        </div>
+      )
+
+      expect(registry.toString()).to.be(stripIndent`
+        .a-0 {
+          color: red;
+        }
+        .a-1 {
+          color: red;
         }
       `)
     })
