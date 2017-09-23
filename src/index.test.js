@@ -6,6 +6,7 @@ import {render, unmountComponentAtNode, findDOMNode} from 'react-dom'
 import {renderToString} from 'react-dom/server'
 import {stripIndent} from 'common-tags'
 import preset from 'jss-preset-default'
+import {createTheming} from 'theming'
 
 let node
 let jss
@@ -16,6 +17,7 @@ let reactJss
 let SheetsRegistry
 let ThemeProvider
 let JssProvider
+let createGenerateClassName
 
 loadModules()
 
@@ -36,6 +38,7 @@ function loadModules() {
   SheetsRegistry = reactJssModule.SheetsRegistry
   ThemeProvider = reactJssModule.ThemeProvider
   JssProvider = reactJssModule.JssProvider
+  createGenerateClassName = reactJssModule.createGenerateClassName
 }
 
 function reset() {
@@ -50,13 +53,17 @@ describe('react-jss', () => {
   })
   afterEach(reset)
 
-  describe('global jss instance', () => {
-    it('should return a function', () => {
+  describe('exports', () => {
+    it('should export injectSheet', () => {
       expect(injectSheet).to.be.a(Function)
     })
 
-    it('should be available', () => {
+    it('should export jss', () => {
       expect(reactJss).to.be.an(jss.constructor)
+    })
+
+    it('should export createGenerateClassName', () => {
+      expect(createGenerateClassName).to.be.a(Function)
     })
   })
 
@@ -411,7 +418,7 @@ describe('react-jss', () => {
       const ComponentB = injectSheet(() => ({b: {color: 'green'}}))()
       const registry = new SheetsRegistry()
 
-      renderToString((
+      renderToString(
         <JssProvider registry={registry} jss={localJss}>
           <ThemeProvider theme={{}}>
             <div>
@@ -420,7 +427,7 @@ describe('react-jss', () => {
             </div>
           </ThemeProvider>
         </JssProvider>
-      ))
+      )
 
       expect(registry.toString()).to.be(stripIndent`
         .a-0 {
@@ -428,6 +435,33 @@ describe('react-jss', () => {
         }
         .b-1 {
           color: green;
+        }
+      `)
+    })
+
+    it('should use generateClassName', () => {
+      const Component1 = injectSheet({a: {color: 'red'}})()
+      const Component2 = injectSheet({a: {color: 'red'}})()
+      const registry = new SheetsRegistry()
+      const generateClassName = localJss.options.createGenerateClassName()
+
+      renderToString(
+        <div>
+          <JssProvider registry={registry} generateClassName={generateClassName} jss={localJss}>
+            <Component1 />
+          </JssProvider>
+          <JssProvider registry={registry} generateClassName={generateClassName} jss={localJss}>
+            <Component2 />
+          </JssProvider>
+        </div>
+      )
+
+      expect(registry.toString()).to.be(stripIndent`
+        .a-0 {
+          color: red;
+        }
+        .a-1 {
+          color: red;
         }
       `)
     })
@@ -868,6 +902,57 @@ describe('react-jss', () => {
           color: green;
         }
       `)
+    })
+
+    describe('when theming object returned from createTheming is provided to injectSheet options', () => {
+      it('allows nested ThemeProviders with custom namespace', () => {
+        const themingA = createTheming('__THEME_A__')
+        const themingB = createTheming('__THEME_B__')
+        const {
+          ThemeProvider: ThemeProviderA
+        } = themingA
+
+        const {
+          ThemeProvider: ThemeProviderB
+        } = themingB
+
+        let colorReceivedInStyleA
+        let colorReceivedInStyleB
+        let themeReceivedInComponentA
+        let themeReceivedInComponentB
+
+        const styleA = theme => (colorReceivedInStyleA = theme.color)
+        const styleB = theme => (colorReceivedInStyleB = theme.color)
+
+        const InnerComponentA = ({theme}) => {
+          themeReceivedInComponentA = theme
+          return null
+        }
+
+        const InnerComponentB = ({theme}) => {
+          themeReceivedInComponentB = theme
+          return null
+        }
+
+        const ComponentA = injectSheet(styleA, {theming: themingA})(InnerComponentA)
+        const ComponentB = injectSheet(styleB, {theming: themingB})(InnerComponentB)
+
+        render(<div>
+          <ThemeProviderA theme={ThemeA}>
+            <ThemeProviderB theme={ThemeB}>
+              <div>
+                <ComponentA />
+                <ComponentB />
+              </div>
+            </ThemeProviderB>
+          </ThemeProviderA>
+        </div>, node)
+
+        expect(themeReceivedInComponentA).to.be(ThemeA)
+        expect(themeReceivedInComponentB).to.be(ThemeB)
+        expect(colorReceivedInStyleA).to.be(ThemeA.color)
+        expect(colorReceivedInStyleB).to.be(ThemeB.color)
+      })
     })
   })
 })

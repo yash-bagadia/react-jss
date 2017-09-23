@@ -1,3 +1,7 @@
+## 7.1.0 / 2017-08-16
+
+- Added custom `theming` option
+
 ## 7.0.2 / 2017-07-19
 
 - Fix theming with `JssProvider`

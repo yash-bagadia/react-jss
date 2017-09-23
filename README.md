@@ -83,8 +83,7 @@ Using `ThemeProvider`:
 
 ```javascript
 import React from 'react'
-import {ThemeProvider} from 'react-jss'
-import {Button} from './components'
+import injectSheet, {ThemeProvider} from 'react-jss'
 
 const Button = ({classes, children}) => (
   <button className={classes.button}>
@@ -125,6 +124,46 @@ import injectSheet, {withTheme} from 'react-jss'
 const Button = withTheme(({theme}) => (
   <button>I can access {theme.colorPrimary}</button>
 ))
+```
+
+_Namespaced_ themes can be used so that a set of UI components should not conflict with another set of UI components from a different library using also ```react-jss```.
+
+```javascript
+import {createTheming} from 'react-jss'
+
+// Creating a namespaced theming object.
+const theming = createTheming('__MY_NAMESPACED_THEME__')
+
+const {ThemeProvider: MyThemeProvider} = theming
+
+const styles = theme => ({
+  button: {
+    background: theme.colorPrimary
+  }
+})
+
+const theme = {
+  colorPrimary: 'green'
+}
+
+const Button = ({classes, children}) => (
+  <button className={classes.button}>
+    {children}
+  </button>
+)
+
+// Passing namespaced theming object inside injectSheet options.
+const StyledButton = injectSheet(styles, { theming })(Button)
+
+// Using namespaced ThemeProviders - they can be nested in any order
+const App = () => (
+  <OtherLibraryThemeProvider theme={otherLibraryTheme}>
+    <OtherLibraryComponent />
+    <MyThemeProvider theme={theme}>
+      <StyledButton>Green Button</StyledButton>
+    </MyThemeProvider>
+  <OtherLibraryThemeProvider>
+)
 ```
 
 ### Server-side rendering
@@ -243,6 +282,29 @@ You can also access the Jss instance being used by default.
 import {jss} from 'react-jss'
 ```
 
+### Multi-tree setup
+
+In case you render multiple react rendering trees in one application, you will get class name collisions, because every JssProvider rerender will reset the class names generator. If you want to avoid this, you can share the class names generator between multiple JssProvider instances.
+
+__Note__: in case of SSR, make sure to create a new generator for __each__ request. Otherwise class names will become indeterministic and at some point you may run out of max safe integer numbers.
+
+```javascript
+import {createGenerateClassName, JssProvider} from 'react-jss'
+
+const generateClassName = createGenerateClassName()
+
+const Component = () => (
+  <div>
+    <JssProvider generateClassName={generateClassName}>
+      <App1 />
+    </JssProvider>
+    <JssProvider generateClassName={generateClassName}>
+      <App2 />
+    </JssProvider>
+  </div>
+)
+```
+
 ### Decorators
 
 _Beware that [decorators are stage-2 proposal](https://tc39.github.io/proposal-decorators/), so there are [no guarantees that decorators will make its way into language specification](https://tc39.github.io/process-document/). Do not use it in production. Use it at your own risk and only if you know what you are doing._
@@ -275,6 +337,19 @@ export default class Button extends Component {
     )
   }
 }
+```
+
+## Injection order
+
+Style tags are injected in the exact same order as the `injectSheet()` invocation. 
+Source order specificity is higher the lower style tag is in the tree, therefore you should call `injectSheet` of components you want to override first.
+
+Example
+
+```js
+// Will render labelStyles first.
+const Label = injectSheet(labelStyles)(({children}) => <label>{children}</label>)
+const Button = injectSheet(buttonStyles)(() => <button<Label>my button</Label></button>)
 ```
 
 ## Contributing
