@@ -1,5 +1,5 @@
 import {Component, Children} from 'react'
-import {instanceOf, node} from 'prop-types'
+import {instanceOf, node, func} from 'prop-types'
 import jss, {
   SheetsRegistry,
   createGenerateClassNameDefault
@@ -11,20 +11,27 @@ export default class JssProvider extends Component {
   static propTypes = {
     jss: instanceOf(jss.constructor),
     registry: instanceOf(SheetsRegistry),
+    generateClassName: func,
     children: node.isRequired
   }
 
   static childContextTypes = contextTypes
 
   getChildContext() {
-    let createGenerateClassName = createGenerateClassNameDefault
-    const {jss: localJss} = this.props
-    if (localJss && localJss.options.createGenerateClassName) {
-      createGenerateClassName = localJss.options.createGenerateClassName
+    let {generateClassName} = this.props
+
+    if (!generateClassName) {
+      let createGenerateClassName = createGenerateClassNameDefault
+      const {jss: localJss} = this.props
+      if (localJss && localJss.options.createGenerateClassName) {
+        createGenerateClassName = localJss.options.createGenerateClassName
+      }
+      generateClassName = createGenerateClassName()
     }
+
     return {
       [ns.sheetOptions]: {
-        generateClassName: createGenerateClassName()
+        generateClassName
       },
       [ns.providerId]: Math.random(),
       [ns.jss]: this.props.jss,
