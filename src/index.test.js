@@ -7,6 +7,7 @@ import {renderToString} from 'react-dom/server'
 import {stripIndent} from 'common-tags'
 import preset from 'jss-preset-default'
 import {createTheming} from 'theming'
+import getDisplayName from './getDisplayName'
 
 let node
 let jss
@@ -107,7 +108,6 @@ describe('react-jss', () => {
     let passedClasses
     let InnerComponent
     let Component
-    let classNameRegex
 
     beforeEach(() => {
       InnerComponent = ({classes}) => {
@@ -133,8 +133,9 @@ describe('react-jss', () => {
     it('should be prefixed by the parent injected component\'s name', () => {
       render(<Component />, node)
       Object.keys(passedClasses).forEach((ruleName) => {
-        classNameRegex = new RegExp(`^${InnerComponent.displayName || InnerComponent.name}-${ruleName}[\\s\\S]*$`)
-        expect(passedClasses[ruleName]).to.match(classNameRegex)
+        expect(passedClasses[ruleName]).to.match(
+          new RegExp(`^${getDisplayName(InnerComponent)}-${ruleName}[\\s\\S]*$`)
+        )
       })
     })
   })
