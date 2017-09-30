@@ -1,3 +1,9 @@
+## 8.0.0 / 2017-09-30
+
+- Upgrade to JSS 9.
+- Pass component name as a classNamePrefix.
+- Added classNamePrefix prop to JssProvider.
+
 ## 7.2.0 / 2017-09-23
 
 - Add `generateClassName` prop to `JssProvider` in order to support multi-tree apps.
