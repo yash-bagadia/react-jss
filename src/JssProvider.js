@@ -1,5 +1,5 @@
 import {Component, Children} from 'react'
-import {instanceOf, node, func} from 'prop-types'
+import {instanceOf, node, func, string} from 'prop-types'
 import jss, {
   SheetsRegistry,
   createGenerateClassNameDefault
@@ -12,12 +12,14 @@ export default class JssProvider extends Component {
     jss: instanceOf(jss.constructor),
     registry: instanceOf(SheetsRegistry),
     generateClassName: func,
+    classNamePrefix: string,
     children: node.isRequired
   }
 
   static childContextTypes = contextTypes
 
   getChildContext() {
+    const {classNamePrefix} = this.props
     let {generateClassName} = this.props
 
     if (!generateClassName) {
@@ -31,7 +33,8 @@ export default class JssProvider extends Component {
 
     return {
       [ns.sheetOptions]: {
-        generateClassName
+        generateClassName,
+        classNamePrefix
       },
       [ns.providerId]: Math.random(),
       [ns.jss]: this.props.jss,

@@ -466,6 +466,32 @@ describe('react-jss', () => {
         }
       `)
     })
+
+    it('should use classNamePrefix', () => {
+      const MyComponent = () => null
+      const Component = injectSheet({a: {color: 'red'}})(MyComponent)
+      const registry = new SheetsRegistry()
+      const localJss2 = createJss({
+        ...preset(),
+        virtual: true,
+        createGenerateClassName: () => {
+          let counter = 0
+          return (rule, sheet) => `${sheet.options.classNamePrefix}${rule.key}-${counter++}`
+        }
+      })
+
+      renderToString(
+        <JssProvider registry={registry} jss={localJss2} classNamePrefix="MyApp-">
+          <Component />
+        </JssProvider>
+      )
+
+      expect(registry.toString()).to.be(stripIndent`
+        .MyApp-MyComponent-a-0 {
+          color: red;
+        }
+      `)
+    })
   })
 
   describe('access inner component', () => {
