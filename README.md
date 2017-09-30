@@ -305,6 +305,24 @@ const Component = () => (
 )
 ```
 
+You can also additionally use `classNamePrefix` prop in order to add the app/subtree name to each class name.
+This way you can see which app generated a class name in the DOM view.
+
+```javascript
+import {JssProvider} from 'react-jss'
+
+const Component = () => (
+  <div>
+    <JssProvider classNamePrefix="App1-">
+      <App1 />
+    </JssProvider>
+    <JssProvider classNamePrefix="App2-">
+      <App2 />
+    </JssProvider>
+  </div>
+)
+```
+
 ### Decorators
 
 _Beware that [decorators are stage-2 proposal](https://tc39.github.io/proposal-decorators/), so there are [no guarantees that decorators will make its way into language specification](https://tc39.github.io/process-document/). Do not use it in production. Use it at your own risk and only if you know what you are doing._
@@ -341,7 +359,7 @@ export default class Button extends Component {
 
 ## Injection order
 
-Style tags are injected in the exact same order as the `injectSheet()` invocation. 
+Style tags are injected in the exact same order as the `injectSheet()` invocation.
 Source order specificity is higher the lower style tag is in the tree, therefore you should call `injectSheet` of components you want to override first.
 
 Example

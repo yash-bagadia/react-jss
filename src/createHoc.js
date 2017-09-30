@@ -49,7 +49,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
   const {theming = defaultTheming, ...sheetOptions} = options
   const {themeListener} = theming
   const displayName = getDisplayName(InnerComponent)
-  const classNamePrefix = `${displayName}-`
+  const defaultClassNamePrefix = `${displayName}-`
   const noTheme = {}
   const managerId = Math.random()
   const manager = new SheetsManager()
@@ -86,14 +86,20 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     createState({theme, dynamicSheet}) {
+      const contextSheetOptions = this.context[ns.sheetOptions]
+      let classNamePrefix = defaultClassNamePrefix
       let staticSheet = this.manager.get(theme)
       let dynamicStyles
+
+      if (contextSheetOptions && contextSheetOptions.classNamePrefix) {
+        classNamePrefix = `${contextSheetOptions.classNamePrefix}${classNamePrefix}`
+      }
 
       if (!staticSheet) {
         const styles = getStyles(stylesOrCreator, theme)
         staticSheet = this.jss.createStyleSheet(styles, {
           ...sheetOptions,
-          ...this.context[ns.sheetOptions],
+          ...contextSheetOptions,
           meta: `${displayName}, ${isThemingEnabled ? 'Themed' : 'Unthemed'}, Static`,
           classNamePrefix
         })
@@ -106,7 +112,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       if (dynamicStyles) {
         dynamicSheet = this.jss.createStyleSheet(dynamicStyles, {
           ...sheetOptions,
-          ...this.context[ns.sheetOptions],
+          ...contextSheetOptions,
           meta: `${displayName}, ${isThemingEnabled ? 'Themed' : 'Unthemed'}, Dynamic`,
           classNamePrefix,
           link: true
