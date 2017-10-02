@@ -84,11 +84,29 @@ describe('react-jss', () => {
       expect(document.querySelectorAll('style').length).to.be(0)
     })
 
-    it('should reuse one sheet for 2 elements and detach sheet', () => {
+    it('should reuse one sheet for many elements and detach sheet', () => {
       render(
         <div>
           <Component />
           <Component />
+          <Component />
+        </div>,
+        node
+      )
+      expect(document.querySelectorAll('style').length).to.be(1)
+      unmountComponentAtNode(node)
+      expect(document.querySelectorAll('style').length).to.be(0)
+    })
+
+    it('should reuse one sheet for many elements wrapped into a JssProvider', () => {
+      render(
+        <div>
+          <JssProvider>
+            <Component />
+          </JssProvider>
+          <JssProvider>
+            <Component />
+          </JssProvider>
         </div>,
         node
       )

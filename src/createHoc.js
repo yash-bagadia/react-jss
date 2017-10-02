@@ -78,8 +78,9 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
     get manager() {
       const managers = this.context[ns.managers]
+
       // If `managers` map is present in the context, we use it in order to
-      // let JssProvider reset them when new request needs to render server-side.
+      // let JssProvider reset them when new response has to render server-side.
       if (managers) {
         if (!managers[managerId]) {
           managers[managerId] = new SheetsManager()

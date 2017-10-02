@@ -19,27 +19,34 @@ export default class JssProvider extends Component {
   static childContextTypes = contextTypes
 
   getChildContext() {
-    const {classNamePrefix} = this.props
+    const {classNamePrefix, registry, jss: localJss} = this.props
     let {generateClassName} = this.props
 
     if (!generateClassName) {
       let createGenerateClassName = createGenerateClassNameDefault
-      const {jss: localJss} = this.props
       if (localJss && localJss.options.createGenerateClassName) {
         createGenerateClassName = localJss.options.createGenerateClassName
       }
       generateClassName = createGenerateClassName()
     }
 
-    return {
+    const context = {
       [ns.sheetOptions]: {
         generateClassName,
         classNamePrefix
       },
-      [ns.managers]: {},
-      [ns.jss]: this.props.jss,
-      [ns.sheetsRegistry]: this.props.registry
+      [ns.jss]: localJss,
+      [ns.sheetsRegistry]: registry
     }
+
+    // This way we identify a new request on the server, because user will create
+    // a new Registry instance for each.
+    if (registry !== this.context.registry) {
+      // We reset managers because we have to regenerate all sheets for the new request.
+      context[ns.managers] = {}
+    }
+
+    return context
   }
 
   render() {
