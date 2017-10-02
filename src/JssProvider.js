@@ -18,33 +18,36 @@ export default class JssProvider extends Component {
 
   static childContextTypes = contextTypes
 
-  getChildContext() {
-    const {classNamePrefix, registry, jss: localJss} = this.props
-    let {generateClassName} = this.props
+  static contextTypes = contextTypes
 
-    if (!generateClassName) {
+  getChildContext() {
+    const {registry, classNamePrefix, jss: localJss, generateClassName} = this.props
+    const sheetOptions = this.context[ns.sheetOptions] || {}
+    const context = {[ns.sheetOptions]: sheetOptions}
+
+    if (registry) {
+      context[ns.sheetsRegistry] = registry
+      // This way we identify a new request on the server, because user will create
+      // a new Registry instance for each.
+      if (registry !== this.context[ns.sheetsRegistry]) {
+        // We reset managers because we have to regenerate all sheets for the new request.
+        context[ns.managers] = {}
+      }
+    }
+
+    if (generateClassName) {
+      sheetOptions.generateClassName = generateClassName
+    }
+    else if (!sheetOptions.generateClassName) {
       let createGenerateClassName = createGenerateClassNameDefault
       if (localJss && localJss.options.createGenerateClassName) {
         createGenerateClassName = localJss.options.createGenerateClassName
       }
-      generateClassName = createGenerateClassName()
+      sheetOptions.generateClassName = createGenerateClassName()
     }
 
-    const context = {
-      [ns.sheetOptions]: {
-        generateClassName,
-        classNamePrefix
-      },
-      [ns.jss]: localJss,
-      [ns.sheetsRegistry]: registry
-    }
-
-    // This way we identify a new request on the server, because user will create
-    // a new Registry instance for each.
-    if (registry !== this.context.registry) {
-      // We reset managers because we have to regenerate all sheets for the new request.
-      context[ns.managers] = {}
-    }
+    if (classNamePrefix) sheetOptions.classNamePrefix = classNamePrefix
+    if (localJss) context[ns.jss] = localJss
 
     return context
   }

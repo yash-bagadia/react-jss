@@ -122,6 +122,196 @@ describe('react-jss', () => {
     })
   })
 
+  describe('nested child JssProvider', () => {
+    describe('generateClassName prop', () => {
+      it('should forward from context', () => {
+        const generateClassName = () => 'a'
+        const registry = new SheetsRegistry()
+        const Component = injectSheet({a: {color: 'red'}})()
+
+        render(
+          <JssProvider generateClassName={generateClassName}>
+            <JssProvider registry={registry}>
+              <Component />
+            </JssProvider>
+          </JssProvider>,
+          node
+        )
+
+        expect(registry.toString()).to.be(stripIndent`
+          .a {
+            color: red;
+          }
+        `)
+      })
+
+      it('should overwrite over child props', () => {
+        const generateClassNameParent = () => 'a'
+        const generateClassNameChild = () => 'b'
+        const registry = new SheetsRegistry()
+        const Component = injectSheet({a: {color: 'red'}})()
+
+        render(
+          <JssProvider generateClassName={generateClassNameParent}>
+            <JssProvider generateClassName={generateClassNameChild} registry={registry}>
+              <Component />
+            </JssProvider>
+          </JssProvider>,
+          node
+        )
+
+        expect(registry.toString()).to.be(stripIndent`
+          .b {
+            color: red;
+          }
+        `)
+      })
+    })
+
+    describe('classNamePrefix prop', () => {
+      it('should forward from context', () => {
+        const generateClassName = (rule, sheet) => sheet.options.classNamePrefix + rule.key
+        const registry = new SheetsRegistry()
+        const Component = injectSheet({a: {color: 'red'}})()
+
+        render(
+          <JssProvider classNamePrefix="A-">
+            <JssProvider registry={registry} generateClassName={generateClassName}>
+              <Component />
+            </JssProvider>
+          </JssProvider>,
+          node
+        )
+
+        expect(registry.toString()).to.be(stripIndent`
+          .A-NoRenderer-a {
+            color: red;
+          }
+        `)
+      })
+
+      it('should overwrite over child props', () => {
+        const generateClassName = (rule, sheet) => sheet.options.classNamePrefix + rule.key
+        const registry = new SheetsRegistry()
+        const Component = injectSheet({a: {color: 'red'}})()
+
+        render(
+          <JssProvider classNamePrefix="A-">
+            <JssProvider classNamePrefix="B-" registry={registry} generateClassName={generateClassName}>
+              <Component />
+            </JssProvider>
+          </JssProvider>,
+          node
+        )
+
+        expect(registry.toString()).to.be(stripIndent`
+          .B-NoRenderer-a {
+            color: red;
+          }
+        `)
+      })
+    })
+
+    describe('jss prop', () => {
+      it('should forward from context', () => {
+        let processed = true
+        const localJss = createJss().use({
+          onProcessRule: () => {
+            processed = true
+          }
+        })
+        const Component = injectSheet({a: {color: 'red'}})()
+
+        render(
+          <JssProvider jss={localJss}>
+            <JssProvider>
+              <Component />
+            </JssProvider>
+          </JssProvider>,
+          node
+        )
+
+        expect(processed).to.be(true)
+      })
+
+      it('should overwrite over child props', () => {
+        let processed
+
+        const localJss1 = createJss().use({
+          onProcessRule: () => {
+            processed = localJss1
+          }
+        })
+
+        const localJss2 = createJss().use({
+          onProcessRule: () => {
+            processed = localJss2
+          }
+        })
+
+        const Component = injectSheet({a: {color: 'red'}})()
+
+        render(
+          <JssProvider jss={localJss1}>
+            <JssProvider jss={localJss2}>
+              <Component />
+            </JssProvider>
+          </JssProvider>,
+          node
+        )
+
+        expect(processed).to.be(localJss2)
+      })
+    })
+
+    describe('registry prop', () => {
+      it('should forward from context', () => {
+        const generateClassName = () => 'a'
+        const registry = new SheetsRegistry()
+        const Component = injectSheet({a: {color: 'red'}})()
+
+        render(
+          <JssProvider registry={registry}>
+            <JssProvider generateClassName={generateClassName}>
+              <Component />
+            </JssProvider>
+          </JssProvider>,
+          node
+        )
+
+        expect(registry.toString()).to.be(stripIndent`
+          .a {
+            color: red;
+          }
+        `)
+      })
+
+      it('should overwrite over child props', () => {
+        const generateClassName = () => 'a'
+        const registryA = new SheetsRegistry()
+        const registryB = new SheetsRegistry()
+        const Component = injectSheet({a: {color: 'red'}})()
+
+        render(
+          <JssProvider registry={registryA}>
+            <JssProvider registry={registryB} generateClassName={generateClassName}>
+              <Component />
+            </JssProvider>
+          </JssProvider>,
+          node
+        )
+
+        expect(registryA.toString()).to.be('')
+
+        expect(registryB.toString()).to.be(stripIndent`
+          .a {
+            color: red;
+          }
+        `)
+      })
+    })
+  })
+
   describe('.injectSheet() classes prop', () => {
     let passedClasses
     let InnerComponent
