@@ -36,6 +36,8 @@ const getStyles = (stylesOrCreator, theme) => {
   return stylesOrCreator(theme)
 }
 
+let managersCounter = 0
+
 /**
  * Wrap a Component into a JSS Container Component.
  *
@@ -51,7 +53,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
   const displayName = getDisplayName(InnerComponent)
   const defaultClassNamePrefix = `${displayName}-`
   const noTheme = {}
-  const managerId = Math.random()
+  const managerId = managersCounter++
   const manager = new SheetsManager()
 
   return class Jss extends Component {
@@ -75,11 +77,14 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     get manager() {
-      if (this.context[ns.managers]) {
-        if (!this.context[ns.managers][managerId]) {
-          this.context[ns.managers][managerId] = new SheetsManager()
+      const managers = this.context[ns.managers]
+      // If `managers` map is present in the context, we use it in order to
+      // let JssProvider reset them when new request needs to render server-side.
+      if (managers) {
+        if (!managers[managerId]) {
+          managers[managerId] = new SheetsManager()
         }
-        return this.context[ns.managers][managerId]
+        return managers[managerId]
       }
 
       return manager

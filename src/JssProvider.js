@@ -36,8 +36,7 @@ export default class JssProvider extends Component {
         generateClassName,
         classNamePrefix
       },
-      [ns.providerId]: Math.random(),
-      [ns.managers]: [],
+      [ns.managers]: {},
       [ns.jss]: this.props.jss,
       [ns.sheetsRegistry]: this.props.registry
     }
