@@ -100,7 +100,7 @@ describe('react-jss', () => {
     it('should have correct meta attribute', () => {
       render(<Component />, node)
       const meta = document.querySelector('style').getAttribute('data-meta')
-      expect(meta).to.be('Jss(NoRenderer), Unthemed, Static')
+      expect(meta).to.be('NoRenderer, Unthemed, Static')
     })
   })
 
@@ -466,6 +466,32 @@ describe('react-jss', () => {
         }
       `)
     })
+
+    it('should use classNamePrefix', () => {
+      const MyComponent = () => null
+      const Component = injectSheet({a: {color: 'red'}})(MyComponent)
+      const registry = new SheetsRegistry()
+      const localJss2 = createJss({
+        ...preset(),
+        virtual: true,
+        createGenerateClassName: () => {
+          let counter = 0
+          return (rule, sheet) => `${sheet.options.classNamePrefix}${rule.key}-${counter++}`
+        }
+      })
+
+      renderToString(
+        <JssProvider registry={registry} jss={localJss2} classNamePrefix="MyApp-">
+          <Component />
+        </JssProvider>
+      )
+
+      expect(registry.toString()).to.be(stripIndent`
+        .MyApp-MyComponent-a-0 {
+          color: red;
+        }
+      `)
+    })
   })
 
   describe('access inner component', () => {
@@ -509,8 +535,8 @@ describe('react-jss', () => {
       const styles = document.querySelectorAll('style')
       const meta0 = styles[0].getAttribute('data-meta')
       const meta1 = styles[1].getAttribute('data-meta')
-      expect(meta0).to.be('Jss(InnerComponent), Unthemed, Static')
-      expect(meta1).to.be('Jss(InnerComponent), Unthemed, Dynamic')
+      expect(meta0).to.be('InnerComponent, Unthemed, Static')
+      expect(meta1).to.be('InnerComponent, Unthemed, Dynamic')
     })
 
     it('should reuse static sheet, but generate separate dynamic once', () => {
@@ -640,9 +666,9 @@ describe('react-jss', () => {
       )
       const styles = document.querySelectorAll('style')
       const meta0 = styles[0].getAttribute('data-meta')
-      expect(meta0).to.be('Jss(NoRenderer), Themed, Static')
+      expect(meta0).to.be('NoRenderer, Themed, Static')
       const meta1 = styles[1].getAttribute('data-meta')
-      expect(meta1).to.be('Jss(NoRenderer), Themed, Dynamic')
+      expect(meta1).to.be('NoRenderer, Themed, Dynamic')
     })
 
     it('one themed instance wo/ dynamic props = 1 style', () => {

@@ -48,13 +48,14 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
   const {theming = defaultTheming, ...sheetOptions} = options
   const {themeListener} = theming
-  const displayName = `Jss(${getDisplayName(InnerComponent)})`
+  const displayName = getDisplayName(InnerComponent)
+  const defaultClassNamePrefix = `${displayName}-`
   const noTheme = {}
   let manager = new SheetsManager()
   let providerId
 
   return class Jss extends Component {
-    static displayName = displayName
+    static displayName = `Jss(${displayName})`
     static InnerComponent = InnerComponent
     static contextTypes = {
       ...contextTypes,
@@ -83,15 +84,22 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     createState({theme, dynamicSheet}) {
+      const contextSheetOptions = this.context[ns.sheetOptions]
+      let classNamePrefix = defaultClassNamePrefix
       let staticSheet = this.manager.get(theme)
       let dynamicStyles
+
+      if (contextSheetOptions && contextSheetOptions.classNamePrefix) {
+        classNamePrefix = `${contextSheetOptions.classNamePrefix}${classNamePrefix}`
+      }
 
       if (!staticSheet) {
         const styles = getStyles(stylesOrCreator, theme)
         staticSheet = this.jss.createStyleSheet(styles, {
           ...sheetOptions,
-          ...this.context[ns.sheetOptions],
-          meta: `${displayName}, ${isThemingEnabled ? 'Themed' : 'Unthemed'}, Static`
+          ...contextSheetOptions,
+          meta: `${displayName}, ${isThemingEnabled ? 'Themed' : 'Unthemed'}, Static`,
+          classNamePrefix
         })
         this.manager.add(theme, staticSheet)
         dynamicStyles = compose(staticSheet, getDynamicStyles(styles))
@@ -102,8 +110,9 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       if (dynamicStyles) {
         dynamicSheet = this.jss.createStyleSheet(dynamicStyles, {
           ...sheetOptions,
-          ...this.context[ns.sheetOptions],
+          ...contextSheetOptions,
           meta: `${displayName}, ${isThemingEnabled ? 'Themed' : 'Unthemed'}, Dynamic`,
+          classNamePrefix,
           link: true
         })
       }
