@@ -5,6 +5,7 @@
 - Pass component name as a classNamePrefix (#133).
 - Added classNamePrefix prop to JssProvider for better multi-tree support (#133).
 - Allowed nesting of JssProvider (#157).
+- Allow JssProvider rerender when used deep in the tree (#128).
 
 ## 7.2.0 / 2017-09-23
 
