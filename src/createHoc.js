@@ -98,7 +98,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       let dynamicStyles
 
       if (contextSheetOptions && contextSheetOptions.classNamePrefix) {
-        classNamePrefix = `${contextSheetOptions.classNamePrefix}${classNamePrefix}`
+        classNamePrefix = contextSheetOptions.classNamePrefix + classNamePrefix
       }
 
       if (!staticSheet) {

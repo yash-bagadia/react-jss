@@ -1,7 +1,7 @@
 /* eslint-disable global-require, react/prop-types */
 
 import expect from 'expect.js'
-import React, {PureComponent} from 'react'
+import React, {Component, PureComponent} from 'react'
 import {render, unmountComponentAtNode, findDOMNode} from 'react-dom'
 import {renderToString} from 'react-dom/server'
 import {stripIndent} from 'common-tags'
@@ -69,16 +69,16 @@ describe('react-jss', () => {
   })
 
   describe('.injectSheet()', () => {
-    let Component
+    let MyComponent
 
     beforeEach(() => {
-      Component = injectSheet({
+      MyComponent = injectSheet({
         button: {color: 'red'}
       })()
     })
 
     it('should attach and detach a sheet', () => {
-      render(<Component />, node)
+      render(<MyComponent />, node)
       expect(document.querySelectorAll('style').length).to.be(1)
       unmountComponentAtNode(node)
       expect(document.querySelectorAll('style').length).to.be(0)
@@ -87,9 +87,9 @@ describe('react-jss', () => {
     it('should reuse one sheet for many elements and detach sheet', () => {
       render(
         <div>
-          <Component />
-          <Component />
-          <Component />
+          <MyComponent />
+          <MyComponent />
+          <MyComponent />
         </div>,
         node
       )
@@ -102,10 +102,10 @@ describe('react-jss', () => {
       render(
         <div>
           <JssProvider>
-            <Component />
+            <MyComponent />
           </JssProvider>
           <JssProvider>
-            <Component />
+            <MyComponent />
           </JssProvider>
         </div>,
         node
@@ -116,7 +116,7 @@ describe('react-jss', () => {
     })
 
     it('should have correct meta attribute', () => {
-      render(<Component />, node)
+      render(<MyComponent />, node)
       const meta = document.querySelector('style').getAttribute('data-meta')
       expect(meta).to.be('NoRenderer, Unthemed, Static')
     })
@@ -127,12 +127,12 @@ describe('react-jss', () => {
       it('should forward from context', () => {
         const generateClassName = () => 'a'
         const registry = new SheetsRegistry()
-        const Component = injectSheet({a: {color: 'red'}})()
+        const MyComponent = injectSheet({a: {color: 'red'}})()
 
         render(
           <JssProvider generateClassName={generateClassName}>
             <JssProvider registry={registry}>
-              <Component />
+              <MyComponent />
             </JssProvider>
           </JssProvider>,
           node
@@ -149,12 +149,12 @@ describe('react-jss', () => {
         const generateClassNameParent = () => 'a'
         const generateClassNameChild = () => 'b'
         const registry = new SheetsRegistry()
-        const Component = injectSheet({a: {color: 'red'}})()
+        const MyComponent = injectSheet({a: {color: 'red'}})()
 
         render(
           <JssProvider generateClassName={generateClassNameParent}>
             <JssProvider generateClassName={generateClassNameChild} registry={registry}>
-              <Component />
+              <MyComponent />
             </JssProvider>
           </JssProvider>,
           node
@@ -172,12 +172,12 @@ describe('react-jss', () => {
       it('should forward from context', () => {
         const generateClassName = (rule, sheet) => sheet.options.classNamePrefix + rule.key
         const registry = new SheetsRegistry()
-        const Component = injectSheet({a: {color: 'red'}})()
+        const MyComponent = injectSheet({a: {color: 'red'}})()
 
         render(
           <JssProvider classNamePrefix="A-">
             <JssProvider registry={registry} generateClassName={generateClassName}>
-              <Component />
+              <MyComponent />
             </JssProvider>
           </JssProvider>,
           node
@@ -193,12 +193,12 @@ describe('react-jss', () => {
       it('should overwrite over child props', () => {
         const generateClassName = (rule, sheet) => sheet.options.classNamePrefix + rule.key
         const registry = new SheetsRegistry()
-        const Component = injectSheet({a: {color: 'red'}})()
+        const MyComponent = injectSheet({a: {color: 'red'}})()
 
         render(
           <JssProvider classNamePrefix="A-">
             <JssProvider classNamePrefix="B-" registry={registry} generateClassName={generateClassName}>
-              <Component />
+              <MyComponent />
             </JssProvider>
           </JssProvider>,
           node
@@ -220,12 +220,12 @@ describe('react-jss', () => {
             processed = true
           }
         })
-        const Component = injectSheet({a: {color: 'red'}})()
+        const MyComponent = injectSheet({a: {color: 'red'}})()
 
         render(
           <JssProvider jss={localJss}>
             <JssProvider>
-              <Component />
+              <MyComponent />
             </JssProvider>
           </JssProvider>,
           node
@@ -249,12 +249,12 @@ describe('react-jss', () => {
           }
         })
 
-        const Component = injectSheet({a: {color: 'red'}})()
+        const MyComponent = injectSheet({a: {color: 'red'}})()
 
         render(
           <JssProvider jss={localJss1}>
             <JssProvider jss={localJss2}>
-              <Component />
+              <MyComponent />
             </JssProvider>
           </JssProvider>,
           node
@@ -268,12 +268,12 @@ describe('react-jss', () => {
       it('should forward from context', () => {
         const generateClassName = () => 'a'
         const registry = new SheetsRegistry()
-        const Component = injectSheet({a: {color: 'red'}})()
+        const MyComponent = injectSheet({a: {color: 'red'}})()
 
         render(
           <JssProvider registry={registry}>
             <JssProvider generateClassName={generateClassName}>
-              <Component />
+              <MyComponent />
             </JssProvider>
           </JssProvider>,
           node
@@ -290,12 +290,12 @@ describe('react-jss', () => {
         const generateClassName = () => 'a'
         const registryA = new SheetsRegistry()
         const registryB = new SheetsRegistry()
-        const Component = injectSheet({a: {color: 'red'}})()
+        const MyComponent = injectSheet({a: {color: 'red'}})()
 
         render(
           <JssProvider registry={registryA}>
             <JssProvider registry={registryB} generateClassName={generateClassName}>
-              <Component />
+              <MyComponent />
             </JssProvider>
           </JssProvider>,
           node
@@ -312,34 +312,90 @@ describe('react-jss', () => {
     })
   })
 
+  describe('JssProvider in a stateful component', () => {
+    it('should not reset the class name generator', () => {
+      const registry = new SheetsRegistry()
+      const A = injectSheet({a: {color: 'red'}})()
+      const B = injectSheet({a: {color: 'green'}})()
+      const localJss = createJss({
+        createGenerateClassName: () => {
+          let counter = 0
+          return rule => `${rule.key}-${counter++}`
+        }
+      })
+
+      class MyComponent extends Component {
+        componentWillMount() {
+          this.value = true
+        }
+
+        render() {
+          this.value = !this.value
+          const Inner = this.value ? A : B
+
+          return (
+            <JssProvider registry={registry} jss={localJss}>
+              <Inner />
+            </JssProvider>
+          )
+        }
+      }
+
+      render(<MyComponent />, node)
+      expect(registry.toString()).to.be(stripIndent`
+        .a-0 {
+          color: green;
+        }
+      `)
+      render(<MyComponent />, node)
+      expect(registry.toString()).to.be(stripIndent`
+        .a-1 {
+          color: red;
+        }
+      `)
+      render(<MyComponent />, node)
+      expect(registry.toString()).to.be(stripIndent`
+        .a-0 {
+          color: green;
+        }
+      `)
+      render(<MyComponent />, node)
+      expect(registry.toString()).to.be(stripIndent`
+        .a-1 {
+          color: red;
+        }
+      `)
+    })
+  })
+
   describe('.injectSheet() classes prop', () => {
     let passedClasses
     let InnerComponent
-    let Component
+    let MyComponent
 
     beforeEach(() => {
       InnerComponent = ({classes}) => {
         passedClasses = classes
         return null
       }
-      Component = injectSheet({
+      MyComponent = injectSheet({
         button: {color: 'red'}
       })(InnerComponent)
     })
 
     it('should inject classes map as a prop', () => {
-      render(<Component />, node)
+      render(<MyComponent />, node)
       expect(passedClasses).to.only.have.keys(['button'])
     })
 
     it('should not overwrite existing classes property', () => {
       const classes = 'classes prop'
-      render(<Component classes={classes} />, node)
+      render(<MyComponent classes={classes} />, node)
       expect(passedClasses).to.equal(classes)
     })
 
     it('should be prefixed by the parent injected component\'s name', () => {
-      render(<Component />, node)
+      render(<MyComponent />, node)
       Object.keys(passedClasses).forEach((ruleName) => {
         expect(passedClasses[ruleName]).to.match(
           new RegExp(`^${getDisplayName(InnerComponent)}-${ruleName}[\\s\\S]*$`)
@@ -402,16 +458,16 @@ describe('react-jss', () => {
   })
 
   describe('.injectSheet() without a component for global styles', () => {
-    let Component
+    let MyComponent
 
     beforeEach(() => {
-      Component = injectSheet({
+      MyComponent = injectSheet({
         button: {color: 'red'}
       })()
     })
 
     it('should attach and detach a sheet', () => {
-      render(<Component />, node)
+      render(<MyComponent />, node)
       expect(document.querySelectorAll('style').length).to.be(1)
       unmountComponentAtNode(node)
       expect(document.querySelectorAll('style').length).to.be(0)
@@ -423,14 +479,14 @@ describe('react-jss', () => {
         isRendered = true
         return null
       }
-      render(<Component><ChildComponent /></Component>, node)
+      render(<MyComponent><ChildComponent /></MyComponent>, node)
       unmountComponentAtNode(node)
       expect(isRendered).to.be(true)
     })
   })
 
   describe('override sheet prop', () => {
-    let Component
+    let MyComponent
     let receivedSheet
     const mock = {}
 
@@ -439,11 +495,11 @@ describe('react-jss', () => {
         receivedSheet = props.sheet
         return null
       }
-      Component = injectSheet()(InnerComponent)
+      MyComponent = injectSheet()(InnerComponent)
     })
 
     it('should be able to override the sheet prop', () => {
-      const Parent = () => <Component sheet={mock} />
+      const Parent = () => <MyComponent sheet={mock} />
       render(<Parent />, node)
       expect(receivedSheet).to.be(mock)
     })
@@ -487,14 +543,14 @@ describe('react-jss', () => {
     it('should use Jss istance from the context', () => {
       let receivedSheet
 
-      const Component = injectSheet()(({sheet}) => {
+      const MyComponent = injectSheet()(({sheet}) => {
         receivedSheet = sheet
         return null
       })
 
       renderToString(
         <JssProvider jss={localJss}>
-          <Component />
+          <MyComponent />
         </JssProvider>
       )
 
@@ -503,7 +559,7 @@ describe('react-jss', () => {
 
     it('should add dynamic sheets', () => {
       const customSheets = new SheetsRegistry()
-      const Component = injectSheet({
+      const MyComponent = injectSheet({
         button: {
           width: () => 10
         }
@@ -511,7 +567,7 @@ describe('react-jss', () => {
 
       renderToString(
         <JssProvider registry={customSheets} jss={localJss}>
-          <Component />
+          <MyComponent />
         </JssProvider>
       )
 
@@ -525,13 +581,13 @@ describe('react-jss', () => {
           border: ({border}) => border
         }
       }
-      const Component = injectSheet(styles)()
+      const MyComponent = injectSheet(styles)()
 
       let registry = new SheetsRegistry()
 
       renderToString(
         <JssProvider registry={registry} jss={localJss}>
-          <Component border="green" />
+          <MyComponent border="green" />
         </JssProvider>
       )
 
@@ -548,7 +604,7 @@ describe('react-jss', () => {
 
       renderToString(
         <JssProvider registry={registry} jss={localJss}>
-          <Component border="blue" />
+          <MyComponent border="blue" />
         </JssProvider>
       )
 
@@ -563,7 +619,7 @@ describe('react-jss', () => {
     })
 
     it('should be idempotent', () => {
-      const Component = injectSheet({
+      const MyComponent = injectSheet({
         button: {
           color: props => props.color
         }
@@ -574,13 +630,13 @@ describe('react-jss', () => {
 
       renderToString(
         <JssProvider jss={localJss} registry={customSheets1}>
-          <Component color="#000" />
+          <MyComponent color="#000" />
         </JssProvider>
       )
 
       renderToString(
         <JssProvider jss={localJss} registry={customSheets2}>
-          <Component color="#000" />
+          <MyComponent color="#000" />
         </JssProvider>
       )
 
@@ -676,8 +732,8 @@ describe('react-jss', () => {
     })
 
     it('should use classNamePrefix', () => {
-      const MyComponent = () => null
-      const Component = injectSheet({a: {color: 'red'}})(MyComponent)
+      const MyRenderComponent = () => null
+      const MyComponent = injectSheet({a: {color: 'red'}})(MyRenderComponent)
       const registry = new SheetsRegistry()
       const localJss2 = createJss({
         ...preset(),
@@ -690,12 +746,12 @@ describe('react-jss', () => {
 
       renderToString(
         <JssProvider registry={registry} jss={localJss2} classNamePrefix="MyApp-">
-          <Component />
+          <MyComponent />
         </JssProvider>
       )
 
       expect(registry.toString()).to.be(stripIndent`
-        .MyApp-MyComponent-a-0 {
+        .MyApp-MyRenderComponent-a-0 {
           color: red;
         }
       `)
@@ -713,14 +769,14 @@ describe('react-jss', () => {
 
   describe('function values', () => {
     const color = 'rgb(0, 0, 0)'
-    let Component
+    let MyComponent
 
     beforeEach(() => {
       const InnerComponent = ({classes}) => (
         <div className={`${classes.button} ${classes.left}`} />
       )
 
-      Component = injectSheet({
+      MyComponent = injectSheet({
         left: {
           float: 'left'
         },
@@ -732,14 +788,14 @@ describe('react-jss', () => {
     })
 
     it('should attach and detach a sheet', () => {
-      render(<Component />, node)
+      render(<MyComponent />, node)
       expect(document.querySelectorAll('style').length).to.be(2)
       unmountComponentAtNode(node)
       expect(document.querySelectorAll('style').length).to.be(0)
     })
 
     it('should have correct meta attribute', () => {
-      render(<Component />, node)
+      render(<MyComponent />, node)
       const styles = document.querySelectorAll('style')
       const meta0 = styles[0].getAttribute('data-meta')
       const meta1 = styles[1].getAttribute('data-meta')
@@ -750,8 +806,8 @@ describe('react-jss', () => {
     it('should reuse static sheet, but generate separate dynamic once', () => {
       render(
         <div>
-          <Component height={2} />
-          <Component height={3} />
+          <MyComponent height={2} />
+          <MyComponent height={3} />
         </div>,
         node
       )
@@ -761,14 +817,14 @@ describe('react-jss', () => {
     })
 
     it('should use the default value', () => {
-      const node0 = render(<Component />, node)
+      const node0 = render(<MyComponent />, node)
       const style0 = getComputedStyle(findDOMNode(node0))
       expect(style0.color).to.be(color)
       expect(style0.height).to.be('1px')
     })
 
     it('should have dynamic and static styles', () => {
-      const node0 = render(<Component />, node)
+      const node0 = render(<MyComponent />, node)
       const style0 = getComputedStyle(findDOMNode(node0))
       expect(style0.color).to.be(color)
       expect(style0.float).to.be('left')
@@ -778,8 +834,8 @@ describe('react-jss', () => {
     it('should generate different dynamic values', () => {
       const componentNode = render(
         <div>
-          <Component height={10} />
-          <Component height={20} />
+          <MyComponent height={10} />
+          <MyComponent height={20} />
         </div>,
         node
       )
@@ -800,8 +856,8 @@ describe('react-jss', () => {
           const {height} = this.props
           return (
             <div>
-              <Component height={height} />
-              <Component height={height * 2} />
+              <MyComponent height={height} />
+              <MyComponent height={height * 2} />
             </div>
           )
         }
