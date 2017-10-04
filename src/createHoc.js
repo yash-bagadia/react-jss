@@ -36,6 +36,18 @@ const getStyles = (stylesOrCreator, theme) => {
   return stylesOrCreator(theme)
 }
 
+// Returns an object with array property as a key and true as a value.
+const toMap = arr => arr.reduce((map, prop) => {
+  map[prop] = true
+  return map
+}, {})
+
+const defaultInjectMap = {
+  sheet: true,
+  classes: true,
+  theme: true
+}
+
 let managersCounter = 0
 
 /**
@@ -48,7 +60,8 @@ let managersCounter = 0
  */
 export default (stylesOrCreator, InnerComponent, options = {}) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
-  const {theming = defaultTheming, ...sheetOptions} = options
+  const {theming = defaultTheming, inject, ...sheetOptions} = options
+  const injectMap = inject ? toMap(inject) : defaultInjectMap
   const {themeListener} = theming
   const displayName = getDisplayName(InnerComponent)
   const defaultClassNamePrefix = `${displayName}-`
@@ -189,9 +202,12 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     render() {
       const {theme, dynamicSheet} = this.state
       const sheet = dynamicSheet || this.manager.get(theme)
-      const reactJssProps = {sheet, classes: sheet.classes}
-      if (isThemingEnabled) reactJssProps.theme = theme
-      return <InnerComponent {...reactJssProps} {...this.props} />
+      const jssProps = {}
+      if (injectMap.sheet) jssProps.sheet = sheet
+      if (injectMap.classes) jssProps.classes = sheet.classes
+      if (isThemingEnabled && injectMap.theme) jssProps.theme = theme
+
+      return <InnerComponent {...jssProps} {...this.props} />
     }
   }
 }

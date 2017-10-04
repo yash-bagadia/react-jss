@@ -370,6 +370,20 @@ const Label = injectSheet(labelStyles)(({children}) => <label>{children}</label>
 const Button = injectSheet(buttonStyles)(() => <button<Label>my button</Label></button>)
 ```
 
+## Whitelist injected props
+
+By default "sheet", "classes" and "theme" are going to be injected to the child component over props. If you want to whitelist some of them, you can now use option `inject`.
+
+All user props passed to the HOC will be still forwarded as usual.
+
+```js
+
+// Only `classes` prop will be passed by the ReactJSS HOC now. No `sheet` or `theme`.
+const Button = injectSheet(styles, {inject: ['classes']})(
+  ({classes}) => <button>My button</button>
+)
+```
+
 ## Contributing
 
 See our [contribution guidelines](./contributing.md).

@@ -6,6 +6,7 @@
 - Added classNamePrefix prop to JssProvider for better multi-tree support (#133).
 - Allowed nesting of JssProvider (#157).
 - Allow JssProvider rerender when used deep in the tree (#128).
+- Added `inject` option to `injectSheet` which allows you to filter props which are going to be passed to the child props (#130).
 
 ## 7.2.0 / 2017-09-23
 
