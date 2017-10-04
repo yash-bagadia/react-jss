@@ -36,6 +36,8 @@ const getStyles = (stylesOrCreator, theme) => {
   return stylesOrCreator(theme)
 }
 
+let managersCounter = 0
+
 /**
  * Wrap a Component into a JSS Container Component.
  *
@@ -51,8 +53,8 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
   const displayName = getDisplayName(InnerComponent)
   const defaultClassNamePrefix = `${displayName}-`
   const noTheme = {}
-  let manager = new SheetsManager()
-  let providerId
+  const managerId = managersCounter++
+  const manager = new SheetsManager()
 
   return class Jss extends Component {
     static displayName = `Jss(${displayName})`
@@ -75,10 +77,16 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     get manager() {
-      if (providerId && this.context[ns.providerId] !== providerId) {
-        manager = new SheetsManager()
+      const managers = this.context[ns.managers]
+
+      // If `managers` map is present in the context, we use it in order to
+      // let JssProvider reset them when new response has to render server-side.
+      if (managers) {
+        if (!managers[managerId]) {
+          managers[managerId] = new SheetsManager()
+        }
+        return managers[managerId]
       }
-      providerId = this.context[ns.providerId]
 
       return manager
     }
@@ -90,7 +98,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       let dynamicStyles
 
       if (contextSheetOptions && contextSheetOptions.classNamePrefix) {
-        classNamePrefix = `${contextSheetOptions.classNamePrefix}${classNamePrefix}`
+        classNamePrefix = contextSheetOptions.classNamePrefix + classNamePrefix
       }
 
       if (!staticSheet) {
