@@ -42,8 +42,8 @@ const toMap = arr => arr.reduce((map, prop) => {
   return map
 }, {})
 
-const defaultInjectMap = {
-  sheet: true,
+const defaultInjectProps = {
+  sheet: false,
   classes: true,
   theme: true
 }
@@ -61,7 +61,7 @@ let managersCounter = 0
 export default (stylesOrCreator, InnerComponent, options = {}) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
   const {theming = defaultTheming, inject, ...sheetOptions} = options
-  const injectMap = inject ? toMap(inject) : defaultInjectMap
+  const injectMap = inject ? toMap(inject) : defaultInjectProps
   const {themeListener} = theming
   const displayName = getDisplayName(InnerComponent)
   const defaultClassNamePrefix = `${displayName}-`

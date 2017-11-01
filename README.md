@@ -7,6 +7,7 @@ React-JSS provides components for [JSS](https://github.com/cssinjs/jss) as a lay
 The benefits are:
 
 - Theming support out of the box.
+- Critical CSS extraction.
 - Lazy evaluation - sheet is created only when component will mount.
 - Auto attach/detach - sheet will be rendered to the DOM when component is about to mount and will be removed when no element needs it.
 - A Style Sheet gets shared between all elements.
@@ -34,9 +35,8 @@ npm install --save react-jss
 
 ## Usage
 
-React-JSS wraps your component with an [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750). It injects `classes` and `sheet` into props, where `sheet` is a [JSS StyleSheet](https://github.com/cssinjs/jss) instance. It can act both as a simple wrapping function and as a [ES7 decorator](https://github.com/wycats/javascript-decorators)
-
-JSS class names are scoped by default, you will need to reach into `props.classes` to get the generated class names.
+React-JSS wraps your component with an [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750).
+It injects `classes` prop, which is a simple map of rule names and generated class names. It can act both as a simple wrapping function and as a [ES7 decorator](https://github.com/wycats/javascript-decorators)
 
 ### Example
 
@@ -372,14 +372,15 @@ const Button = injectSheet(buttonStyles)(() => <button<Label>my button</Label></
 
 ## Whitelist injected props
 
-By default "sheet", "classes" and "theme" are going to be injected to the child component over props. If you want to whitelist some of them, you can now use option `inject`.
+By default "classes" and "theme" are going to be injected to the child component over props. Property `theme` is only passed when you use a function instead of styles object.
+If you want to whitelist some of them, you can now use option `inject`. For e.g. if you want to access the StyleSheet instance, you need to pass `{inject: ['sheet']}` and it will be available as `props.sheet`.
 
 All user props passed to the HOC will be still forwarded as usual.
 
 ```js
 
 // Only `classes` prop will be passed by the ReactJSS HOC now. No `sheet` or `theme`.
-const Button = injectSheet(styles, {inject: ['classes']})(
+const Button = injectSheet(styles, {inject: ['classes', 'sheet']})(
   ({classes}) => <button>My button</button>
 )
 ```
