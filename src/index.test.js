@@ -137,7 +137,7 @@ describe('react-jss', () => {
     }
 
     it('should inject all by default', () => {
-      expect(getInjected()).to.eql(['sheet', 'classes', 'theme'])
+      expect(getInjected()).to.eql(['classes', 'theme'])
     })
 
     it('should inject sheet only', () => {
@@ -578,7 +578,7 @@ describe('react-jss', () => {
     it('should use Jss istance from the context', () => {
       let receivedSheet
 
-      const MyComponent = injectSheet()(({sheet}) => {
+      const MyComponent = injectSheet({}, {inject: ['sheet']})(({sheet}) => {
         receivedSheet = sheet
         return null
       })
