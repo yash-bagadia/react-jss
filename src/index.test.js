@@ -122,6 +122,41 @@ describe('react-jss', () => {
     })
   })
 
+  describe('injectSheet() option "inject"', () => {
+    const getInjected = (options) => {
+      let injectedProps
+      const Renderer = (props) => {
+        injectedProps = props
+        return null
+      }
+      const MyComponent = injectSheet(() => ({
+        button: {color: 'red'}
+      }), options)(Renderer)
+      render(<ThemeProvider theme={{}}><MyComponent /></ThemeProvider>, node)
+      return Object.keys(injectedProps)
+    }
+
+    it('should inject all by default', () => {
+      expect(getInjected()).to.eql(['sheet', 'classes', 'theme'])
+    })
+
+    it('should inject sheet only', () => {
+      expect(getInjected({inject: ['sheet']})).to.eql(['sheet'])
+    })
+
+    it('should inject classes only', () => {
+      expect(getInjected({inject: ['classes']})).to.eql(['classes'])
+    })
+
+    it('should inject theme only', () => {
+      expect(getInjected({inject: ['theme']})).to.eql(['theme'])
+    })
+
+    it('should inject classes and theme', () => {
+      expect(getInjected({inject: ['classes', 'theme']})).to.eql(['classes', 'theme'])
+    })
+  })
+
   describe('nested child JssProvider', () => {
     describe('generateClassName prop', () => {
       it('should forward from context', () => {
