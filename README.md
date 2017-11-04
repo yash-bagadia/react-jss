@@ -367,7 +367,7 @@ Example
 ```js
 // Will render labelStyles first.
 const Label = injectSheet(labelStyles)(({children}) => <label>{children}</label>)
-const Button = injectSheet(buttonStyles)(() => <button<Label>my button</Label></button>)
+const Button = injectSheet(buttonStyles)(() => <button><Label>my button</Label></button>)
 ```
 
 ## Whitelist injected props
