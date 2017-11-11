@@ -22,7 +22,8 @@
     "test": "cross-env NODE_ENV=test karma start --single-run ",
     "test:watch": "cross-env NODE_ENV=test karma start",
     "prepublishOnly": "npm run all",
-    "size": "size-limit 22KB dist/react-jss.js"
+    "size": "size-limit 22KB dist/react-jss.js",
+    "preversion": "npm run size"
   },
   "repository": {
     "type": "git",
@@ -77,8 +78,8 @@
     "lint-staged": "^4.0.1",
     "mocha": "^3.0.2",
     "pre-commit": "^1.1.3",
-    "react": "^15.4.1",
-    "react-dom": "^15.4.1",
+    "react": "^16.1.0",
+    "react-dom": "^16.1.0",
     "rimraf": "^2.5.4",
     "size-limit": "^0.2.0",
     "webpack": "^1.13.1"
