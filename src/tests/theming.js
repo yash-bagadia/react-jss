@@ -1,13 +1,12 @@
 /* eslint-disable global-require, react/prop-types */
 
 import expect from 'expect.js'
-import React, {Component, PureComponent} from 'react'
-import {render, unmountComponentAtNode, findDOMNode} from 'react-dom'
+import React from 'react'
+import {render} from 'react-dom'
 import {renderToString} from 'react-dom/server'
 import {stripIndent} from 'common-tags'
 import preset from 'jss-preset-default'
 import {createTheming} from 'theming'
-import getDisplayName from '../getDisplayName'
 import '../../tests-helper'
 
 describe('Integration: theming', () => {

@@ -6,25 +6,10 @@ import {render, unmountComponentAtNode, findDOMNode} from 'react-dom'
 import {renderToString} from 'react-dom/server'
 import {stripIndent} from 'common-tags'
 import preset from 'jss-preset-default'
-import {createTheming} from 'theming'
 import getDisplayName from '../getDisplayName'
 import '../../tests-helper'
 
 describe('Integration: main', () => {
-  describe('exports', () => {
-    it('should export injectSheet', () => {
-      expect(injectSheet).to.be.a(Function)
-    })
-
-    it('should export jss', () => {
-      expect(reactJss).to.be.an(jss.constructor)
-    })
-
-    it('should export createGenerateClassName', () => {
-      expect(createGenerateClassName).to.be.a(Function)
-    })
-  })
-
   describe('.injectSheet()', () => {
     let MyComponent
 

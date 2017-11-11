@@ -89,7 +89,7 @@
     "theming": "^1.2.1"
   },
   "lint-staged": {
-    "src/*.js": [
+    "src/**/*.js": [
       "eslint --fix",
       "git add"
     ]
