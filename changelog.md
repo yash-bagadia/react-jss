@@ -1,6 +1,7 @@
 ## 8.0.0 / 2017-09-30
 
 - Upgrade to JSS 9.
+- Support React 16
 - Fixed manager leaking to next request on SSR (#133).
 - Pass component name as a classNamePrefix (#133).
 - Added classNamePrefix prop to JssProvider for better multi-tree support (#133).
