@@ -1234,21 +1234,16 @@ describe('react-jss', () => {
       it('allows nested ThemeProviders with custom namespace', () => {
         const themingA = createTheming('__THEME_A__')
         const themingB = createTheming('__THEME_B__')
-        const {
-          ThemeProvider: ThemeProviderA
-        } = themingA
-
-        const {
-          ThemeProvider: ThemeProviderB
-        } = themingB
+        const {ThemeProvider: ThemeProviderA} = themingA
+        const {ThemeProvider: ThemeProviderB} = themingB
 
         let colorReceivedInStyleA
         let colorReceivedInStyleB
         let themeReceivedInComponentA
         let themeReceivedInComponentB
 
-        const styleA = theme => (colorReceivedInStyleA = theme.color)
-        const styleB = theme => (colorReceivedInStyleB = theme.color)
+        const styleA = theme => (colorReceivedInStyleA = {a: {color: theme.color}})
+        const styleB = theme => (colorReceivedInStyleB = {a: {color: theme.color}})
 
         const InnerComponentA = ({theme}) => {
           themeReceivedInComponentA = theme
@@ -1276,8 +1271,8 @@ describe('react-jss', () => {
 
         expect(themeReceivedInComponentA).to.be(ThemeA)
         expect(themeReceivedInComponentB).to.be(ThemeB)
-        expect(colorReceivedInStyleA).to.be(ThemeA.color)
-        expect(colorReceivedInStyleB).to.be(ThemeB.color)
+        expect(colorReceivedInStyleA).to.eql({a: {color: ThemeA.color}})
+        expect(colorReceivedInStyleB).to.eql({a: {color: ThemeB.color}})
       })
     })
   })
