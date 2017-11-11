@@ -1,5 +1,3 @@
-import {unmountComponentAtNode} from 'react-dom'
-
 function reloadModules() {
   Object.keys(require.cache).forEach(key => delete require.cache[key])
   loadModules()
@@ -18,6 +16,9 @@ function loadModules() {
   window.ThemeProvider = reactJssModule.ThemeProvider
   window.JssProvider = reactJssModule.JssProvider
   window.createGenerateClassName = reactJssModule.createGenerateClassName
+  const ReactDom = require('react-dom')
+  window.render = ReactDom.render
+  window.unmountComponentAtNode = ReactDom.unmountComponentAtNode
 }
 
 function reset() {

@@ -2,13 +2,12 @@
 
 import expect from 'expect.js'
 import React from 'react'
-import {render} from 'react-dom'
-import {renderToString} from 'react-dom/server'
 import {stripIndent} from 'common-tags'
 import preset from 'jss-preset-default'
 import {createTheming} from 'theming'
+import {renderToString} from 'react-dom/server'
 
-describe('Integration: theming', () => {
+describe('theming', () => {
   const themedStaticStyles = theme => ({
     rule: {
       color: theme.color

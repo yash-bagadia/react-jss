@@ -11,6 +11,8 @@
     "ThemeProvider": true,
     "JssProvider": true,
     "createGenerateClassName": true,
-    "node": true
+    "node": true,
+    "render": true,
+    "unmountComponentAtNode": true
   }
 }

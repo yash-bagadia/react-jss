@@ -5,6 +5,6 @@ import propTypes from './propTypes'
 export default {
   [ns.jss]: propTypes.jss,
   [ns.sheetOptions]: object,
-  [ns.sheetsRegistry]: propTypes.jss,
+  [ns.sheetsRegistry]: propTypes.registry,
   [ns.managers]: object
 }

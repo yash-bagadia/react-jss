@@ -2,12 +2,11 @@
 
 import expect from 'expect.js'
 import React, {Component} from 'react'
-import {render} from 'react-dom'
-import {renderToString} from 'react-dom/server'
 import {stripIndent} from 'common-tags'
 import preset from 'jss-preset-default'
+import {renderToString} from 'react-dom/server'
 
-describe('Unit: JssProvider', () => {
+describe('JssProvider', () => {
   describe('nested child JssProvider', () => {
     describe('generateClassName prop', () => {
       it('should forward from context', () => {
