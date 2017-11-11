@@ -8,52 +8,9 @@ import {stripIndent} from 'common-tags'
 import preset from 'jss-preset-default'
 import {createTheming} from 'theming'
 import getDisplayName from '../getDisplayName'
-
-let node
-let jss
-let sheets
-let createJss
-let injectSheet
-let reactJss
-let SheetsRegistry
-let ThemeProvider
-let JssProvider
-let createGenerateClassName
-
-loadModules()
-
-function reloadModules() {
-  Object.keys(require.cache).forEach(key => delete require.cache[key])
-  loadModules()
-}
-
-function loadModules() {
-  const jssModule = require('jss')
-  jss = jssModule.default
-  sheets = jssModule.sheets
-  createJss = jssModule.create
-
-  const reactJssModule = require('../')
-  injectSheet = reactJssModule.default
-  reactJss = reactJssModule.jss
-  SheetsRegistry = reactJssModule.SheetsRegistry
-  ThemeProvider = reactJssModule.ThemeProvider
-  JssProvider = reactJssModule.JssProvider
-  createGenerateClassName = reactJssModule.createGenerateClassName
-}
-
-function reset() {
-  unmountComponentAtNode(node)
-  reloadModules()
-  node.parentNode.removeChild(node)
-}
+import '../../tests-helper'
 
 describe('react-jss', () => {
-  beforeEach(() => {
-    node = document.body.appendChild(document.createElement('div'))
-  })
-  afterEach(reset)
-
   describe('exports', () => {
     it('should export injectSheet', () => {
       expect(injectSheet).to.be.a(Function)
