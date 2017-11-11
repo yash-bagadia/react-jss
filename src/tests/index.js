@@ -4,7 +4,6 @@ import expect from 'expect.js'
 import React, {PureComponent} from 'react'
 import {render, unmountComponentAtNode, findDOMNode} from 'react-dom'
 import getDisplayName from '../getDisplayName'
-import '../../tests-helper'
 
 describe('Integration: main', () => {
   describe('.injectSheet()', () => {

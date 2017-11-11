@@ -4,8 +4,9 @@ module.exports = (config) => {
   config.set({
     browsers: ['Chrome'],
     frameworks: ['mocha'],
-    files: ['tests.webpack.js'],
+    files: ['tests-helper.js', 'tests.webpack.js'],
     preprocessors: {
+      'tests-helper.js': ['webpack', 'sourcemap'],
       'tests.webpack.js': ['webpack', 'sourcemap']
     },
     webpack: Object.assign(webpackConfig, {

@@ -6,7 +6,6 @@ import {render} from 'react-dom'
 import {renderToString} from 'react-dom/server'
 import {stripIndent} from 'common-tags'
 import preset from 'jss-preset-default'
-import '../tests-helper'
 
 describe('Unit: JssProvider', () => {
   describe('nested child JssProvider', () => {

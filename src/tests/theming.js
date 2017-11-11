@@ -7,7 +7,6 @@ import {renderToString} from 'react-dom/server'
 import {stripIndent} from 'common-tags'
 import preset from 'jss-preset-default'
 import {createTheming} from 'theming'
-import '../../tests-helper'
 
 describe('Integration: theming', () => {
   const themedStaticStyles = theme => ({
