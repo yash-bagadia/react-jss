@@ -8,11 +8,8 @@
   },
   "scripts": {
     "all": "npm run lint && npm run test && npm run build && npm run size",
-    "build": "npm run clean && npm run build:lib && npm run build:tests && npm run build:dist",
-    "build:lib": "babel src --out-dir lib",
-    "build:tests": "npm run build:tests:lib && npm run build:tests:local",
-    "build:tests:lib": "cross-env NODE_ENV=test babel src --out-dir tests",
-    "build:tests:local": "cross-env NODE_ENV=test webpack src/index.test.js tmp/tests.js",
+    "build": "npm run clean && npm run build:lib && npm run build:dist",
+    "build:lib": "babel src --out-dir lib --ignore src/tests",
     "build:dist": "npm run build:dist:max && npm run build:dist:min",
     "build:dist:max": "cross-env NODE_ENV=development webpack src/index.js dist/react-jss.js",
     "build:dist:min": "cross-env NODE_ENV=production webpack src/index.js dist/react-jss.min.js",
