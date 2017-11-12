@@ -25,7 +25,6 @@ The benefits are:
   * [Theming](#theming)
   * [Server-side rendering](#server-side-rendering)
   * [Reuse styles in different components](#reuse-styles-in-different-components)
-  * [The classNames helper](#the-classnames-helper)
   * [The inner component](#the-inner-component)
   * [Custom setup](#custom-setup)
   * [Decorators](#decorators)
@@ -235,24 +234,6 @@ const SomeComponent2 = () => (
 ```
 
 Alternatively you can create own Style Sheet and use the `composes` feature. Also you can mix in a common styles object, but take into account that it grow the overall CSS size.
-
-### The classNames helper
-
-You can use [classNames](https://github.com/JedWatson/classnames) together with JSS same way you do it with global CSS.
-
-```javascript
-import classNames from 'classnames'
-
-const Component = ({classes, children, isActive}) => (
-  <div
-    className={classNames({
-      [classes.normal]: true,
-      [classes.active]: isActive
-    })}>
-    {children}
-  </div>
-)
-```
 
 ### The inner component
 
