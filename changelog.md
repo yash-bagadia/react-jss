@@ -1,7 +1,7 @@
 ## 8.0.0 / 2017-09-30
 
 - Upgrade to JSS 9.
-- Support React 16
+- Support React 16 (#162)
 - Fixed manager leaking to next request on SSR (#133).
 - Pass component name as a classNamePrefix (#133).
 - Added classNamePrefix prop to JssProvider for better multi-tree support (#133).
@@ -10,6 +10,7 @@
 - Added `inject` option to `injectSheet` which allows you to filter props which are going to be passed to the child props (#130).
 - Removed the `sheet` prop. Now in order to get it back you need to specify the options `{inject: ['sheet']}`. Most of the time you should just use `props.classes`, which is provided by default.
 - Refactored tests
+- Object classes passed by the user via props is now merged with sheet classes and `InnerComponent.defaultProps.classes` (#132)
 
 ## 7.2.0 / 2017-09-23
 
