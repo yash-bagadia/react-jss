@@ -1,6 +1,11 @@
 # React integration of JSS
 
 [![Gitter](https://badges.gitter.im/JoinChat.svg)](https://gitter.im/cssinjs/lobby)
+[![Build Status](https://travis-ci.org/cssinjs/react-kss.svg?branch=master)](https://travis-ci.org/cssinjs/react-jss)
+
+<a target='_blank' rel='nofollow' href='https://app.codesponsor.io/link/yHSURRBaaXYK5KyrNZXn4iHe/cssinjs/react-jss'>
+  <img alt='Sponsor' width='888' height='68' src='https://app.codesponsor.io/embed/yHSURRBaaXYK5KyrNZXn4iHe/cssinjs/react-jss.svg' />
+</a>
 
 React-JSS provides components for [JSS](https://github.com/cssinjs/jss) as a layer of abstraction. JSS and [presets](https://github.com/cssinjs/jss-preset-default) are already built in! Try it out on [webpackbin](https://www.webpackbin.com/bins/-Kn90iijPuAJO48ItgF-).
 

@@ -1,11 +1,13 @@
 const webpackConfig = require('./webpack.config')
+process.env.CHROME_BIN = require('puppeteer').executablePath()
 
 module.exports = (config) => {
   config.set({
-    browsers: ['Chrome'],
+    browsers: ['ChromeHeadless'],
     frameworks: ['mocha'],
-    files: ['tests.webpack.js'],
+    files: ['tests/env.js', 'tests.webpack.js'],
     preprocessors: {
+      'tests/env.js': ['webpack', 'sourcemap'],
       'tests.webpack.js': ['webpack', 'sourcemap']
     },
     webpack: Object.assign(webpackConfig, {

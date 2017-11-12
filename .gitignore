@@ -1,10 +1,8 @@
 node_modules
 .DS_Store
 *.log
-*.lock
 *~
 lib
 dist
 coverage
-tests
 tmp

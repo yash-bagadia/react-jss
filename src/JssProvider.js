@@ -1,16 +1,13 @@
 import {Component, Children} from 'react'
-import {instanceOf, node, func, string} from 'prop-types'
-import jss, {
-  SheetsRegistry,
-  createGenerateClassNameDefault
-} from './jss'
+import {node, func, string} from 'prop-types'
+import {createGenerateClassNameDefault} from './jss'
 import * as ns from './ns'
 import contextTypes from './contextTypes'
+import propTypes from './propTypes'
 
 export default class JssProvider extends Component {
   static propTypes = {
-    jss: instanceOf(jss.constructor),
-    registry: instanceOf(SheetsRegistry),
+    ...propTypes,
     generateClassName: func,
     classNamePrefix: string,
     children: node.isRequired
