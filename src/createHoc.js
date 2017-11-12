@@ -60,7 +60,7 @@ let managersCounter = 0
  */
 export default (stylesOrCreator, InnerComponent, options = {}) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
-  const {theming = defaultTheming, inject, ...sheetOptions} = options
+  const {theming = defaultTheming, inject, jss: optionsJss, ...sheetOptions} = options
   const injectMap = inject ? toMap(inject) : defaultInjectProps
   const {themeListener} = theming
   const displayName = getDisplayName(InnerComponent)
@@ -68,6 +68,8 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
   const noTheme = {}
   const managerId = managersCounter++
   const manager = new SheetsManager()
+  const defaultProps = {...InnerComponent.defaultProps}
+  delete defaultProps.classes
 
   return class Jss extends Component {
     static displayName = `Jss(${displayName})`
@@ -76,17 +78,17 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       ...contextTypes,
       ...(isThemingEnabled && themeListener.contextTypes)
     }
-    static defaultProps = InnerComponent.defaultProps
+    static defaultProps = defaultProps
 
     constructor(props, context) {
       super(props, context)
       const theme = isThemingEnabled ? themeListener.initial(context) : noTheme
 
-      this.state = this.createState({theme})
+      this.state = this.createState({theme}, props)
     }
 
     get jss() {
-      return this.context[ns.jss] || jss
+      return this.context[ns.jss] || optionsJss || jss
     }
 
     get manager() {
@@ -104,7 +106,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       return manager
     }
 
-    createState({theme, dynamicSheet}) {
+    createState({theme, dynamicSheet}, {classes: userClasses}) {
       const contextSheetOptions = this.context[ns.sheetOptions]
       let classNamePrefix = defaultClassNamePrefix
       let staticSheet = this.manager.get(theme)
@@ -138,7 +140,11 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
         })
       }
 
-      return {theme, dynamicSheet}
+      const sheet = dynamicSheet || staticSheet
+      const defaultClasses = InnerComponent.defaultProps ? InnerComponent.defaultProps.classes : {}
+      const classes = {...defaultClasses, ...sheet.classes, ...userClasses}
+
+      return {theme, dynamicSheet, classes}
     }
 
     manage({theme, dynamicSheet}) {
@@ -174,7 +180,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
     componentWillUpdate(nextProps, nextState) {
       if (isThemingEnabled && this.state.theme !== nextState.theme) {
-        const newState = this.createState(nextState)
+        const newState = this.createState(nextState, nextProps)
         this.manage(newState)
         this.manager.unmanage(this.state.theme)
         this.setState(newState)
@@ -200,14 +206,15 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     render() {
-      const {theme, dynamicSheet} = this.state
+      const {theme, dynamicSheet, classes} = this.state
       const sheet = dynamicSheet || this.manager.get(theme)
-      const jssProps = {}
-      if (injectMap.sheet) jssProps.sheet = sheet
-      if (injectMap.classes) jssProps.classes = sheet.classes
-      if (isThemingEnabled && injectMap.theme) jssProps.theme = theme
-
-      return <InnerComponent {...jssProps} {...this.props} />
+      const props = {}
+      if (injectMap.sheet) props.sheet = sheet
+      if (isThemingEnabled && injectMap.theme) props.theme = theme
+      Object.assign(props, this.props)
+      // We have merged classes already.
+      if (injectMap.classes) props.classes = classes
+      return <InnerComponent {...props} />
     }
   }
 }

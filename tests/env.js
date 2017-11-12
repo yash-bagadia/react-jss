@@ -9,7 +9,7 @@ function loadModules() {
   window.sheets = jssModule.sheets
   window.createJss = jssModule.create
 
-  const reactJssModule = require('./src')
+  const reactJssModule = require('../src')
   window.injectSheet = reactJssModule.default
   window.reactJss = reactJssModule.jss
   window.SheetsRegistry = reactJssModule.SheetsRegistry

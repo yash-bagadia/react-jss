@@ -2,9 +2,17 @@
 
 import expect from 'expect.js'
 import React from 'react'
+import {create} from 'jss'
 import getDisplayName from './getDisplayName'
+import {createGenerateClassName} from '../tests/helper'
 
 describe('injectSheet', () => {
+  let jss
+
+  beforeEach(() => {
+    jss = create({createGenerateClassName})
+  })
+
   describe('.injectSheet()', () => {
     let MyComponent
 
@@ -74,7 +82,7 @@ describe('injectSheet', () => {
     }
 
     it('should inject all by default', () => {
-      expect(getInjected()).to.eql(['classes', 'theme'])
+      expect(getInjected()).to.eql(['theme', 'classes'])
     })
 
     it('should inject sheet only', () => {
@@ -90,43 +98,7 @@ describe('injectSheet', () => {
     })
 
     it('should inject classes and theme', () => {
-      expect(getInjected({inject: ['classes', 'theme']})).to.eql(['classes', 'theme'])
-    })
-  })
-
-  describe('.injectSheet() classes prop', () => {
-    let passedClasses
-    let InnerComponent
-    let MyComponent
-
-    beforeEach(() => {
-      InnerComponent = ({classes}) => {
-        passedClasses = classes
-        return null
-      }
-      MyComponent = injectSheet({
-        button: {color: 'red'}
-      })(InnerComponent)
-    })
-
-    it('should inject classes map as a prop', () => {
-      render(<MyComponent />, node)
-      expect(passedClasses).to.only.have.keys(['button'])
-    })
-
-    it('should not overwrite existing classes property', () => {
-      const classes = 'classes prop'
-      render(<MyComponent classes={classes} />, node)
-      expect(passedClasses).to.equal(classes)
-    })
-
-    it('should be prefixed by the parent injected component\'s name', () => {
-      render(<MyComponent />, node)
-      Object.keys(passedClasses).forEach((ruleName) => {
-        expect(passedClasses[ruleName]).to.match(
-          new RegExp(`^${getDisplayName(InnerComponent)}-${ruleName}[\\s\\S]*$`)
-        )
-      })
+      expect(getInjected({inject: ['classes', 'theme']})).to.eql(['theme', 'classes'])
     })
   })
 
@@ -237,6 +209,71 @@ describe('injectSheet', () => {
       const Parent = () => <MyComponent sheet={mock} />
       render(<Parent />, node)
       expect(receivedSheet).to.be(mock)
+    })
+  })
+
+  describe('classes prop', () => {
+    it('should be prefixed by the parent component name', () => {
+      let passedClasses
+      const InnerComponent = ({classes}) => {
+        passedClasses = classes
+        return null
+      }
+      const MyComponent = injectSheet({
+        button: {color: 'red'}
+      })(InnerComponent)
+      render(<MyComponent />, node)
+      Object.keys(passedClasses).forEach((ruleName) => {
+        expect(passedClasses[ruleName]).to.match(
+          new RegExp(`^${getDisplayName(InnerComponent)}-${ruleName}[\\s\\S]*$`)
+        )
+      })
+    })
+
+    it('should use defaultProps.classes from InnerComponent', () => {
+      let classes
+      const InnerComponent = (props) => {
+        classes = props.classes
+        return null
+      }
+      InnerComponent.defaultProps = {
+        classes: {default: 'default'}
+      }
+      const MyComponent = injectSheet({}, {jss})(InnerComponent)
+      render(<MyComponent />, node)
+      expect(classes).to.eql({default: 'default'})
+    })
+
+    it('should merge the defaultProps.classes from InnerComponent', () => {
+      let classes
+      const InnerComponent = (props) => {
+        classes = props.classes
+        return null
+      }
+      InnerComponent.defaultProps = {
+        classes: {default: 'default'}
+      }
+      const MyComponent = injectSheet({
+        a: {color: 'red'}
+      }, {jss})(InnerComponent)
+      render(<MyComponent />, node)
+      expect(classes).to.eql({default: 'default', a: 'a-id'})
+    })
+
+    it('should merge users classes', () => {
+      let classes
+      const InnerComponent = (props) => {
+        classes = props.classes
+        return null
+      }
+      InnerComponent.defaultProps = {
+        classes: {default: 'default'}
+      }
+      const MyComponent = injectSheet({
+        a: {color: 'red'}
+      }, {jss})(InnerComponent)
+      render(<MyComponent classes={{user: 'user'}} />, node)
+      expect(classes).to.eql({default: 'default', a: 'a-id', user: 'user'})
     })
   })
 })
