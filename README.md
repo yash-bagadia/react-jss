@@ -44,7 +44,7 @@ It injects `classes` prop, which is a simple map of rule names and generated cla
 
 ### Example
 
-Try it out on [plaground](https://codesandbox.io/s/j3l06yyqpw).
+Try it out on [playground](https://codesandbox.io/s/j3l06yyqpw).
 
 ```javascript
 import React from 'react'
