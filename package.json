@@ -13,7 +13,7 @@
     "build:dist": "npm run build:dist:max && npm run build:dist:min",
     "build:dist:max": "cross-env NODE_ENV=development webpack src/index.js dist/react-jss.js",
     "build:dist:min": "cross-env NODE_ENV=production webpack src/index.js dist/react-jss.min.js",
-    "clean": "rimraf {lib,dist,tests,tmp}/*",
+    "clean": "rimraf {lib,dist,tmp}/*",
     "lint": "eslint ./src",
     "lint:staged": "lint-staged",
     "test": "cross-env NODE_ENV=test karma start --single-run ",
