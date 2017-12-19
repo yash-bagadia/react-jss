@@ -169,7 +169,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
     componentDidMount() {
       if (isThemingEnabled) {
-        this.unsubscribe = themeListener.subscribe(this.context, this.setTheme)
+        this.unsubscribeId = themeListener.subscribe(this.context, this.setTheme)
       }
     }
 
@@ -195,8 +195,8 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     componentWillUnmount() {
-      if (isThemingEnabled && typeof this.unsubscribe === 'function') {
-        this.unsubscribe()
+      if (this.unsubscribeId) {
+        themeListener.unsubscribe(this.context, this.unsubscribeId)
       }
 
       this.manager.unmanage(this.state.theme)
