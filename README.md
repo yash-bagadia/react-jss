@@ -1,4 +1,4 @@
-# React integration with JSS
+# JSS integration with React
 
 [![Gitter](https://badges.gitter.im/JoinChat.svg)](https://gitter.im/cssinjs/lobby)
 [![Build Status](https://travis-ci.org/cssinjs/react-kss.svg?branch=master)](https://travis-ci.org/cssinjs/react-jss)
