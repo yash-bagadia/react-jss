@@ -1,4 +1,4 @@
-# React integration of JSS
+# JSS integration with React
 
 [![Gitter](https://badges.gitter.im/JoinChat.svg)](https://gitter.im/cssinjs/lobby)
 [![Build Status](https://travis-ci.org/cssinjs/react-kss.svg?branch=master)](https://travis-ci.org/cssinjs/react-jss)
@@ -7,14 +7,14 @@
   <img alt='Sponsor' width='888' height='68' src='https://app.codesponsor.io/embed/yHSURRBaaXYK5KyrNZXn4iHe/cssinjs/react-jss.svg' />
 </a>
 
-React-JSS provides components for [JSS](https://github.com/cssinjs/jss) as a layer of abstraction. JSS and [presets](https://github.com/cssinjs/jss-preset-default) are already built in! Try it out on a [playground](https://codesandbox.io/s/j3l06yyqpw).
+React-JSS provides components for [JSS](https://github.com/cssinjs/jss) as a layer of abstraction. JSS and [presets](https://github.com/cssinjs/jss-preset-default) are already built in! Try it out in the [playground](https://codesandbox.io/s/j3l06yyqpw).
 
 The benefits are:
 
 - Theming support out of the box.
 - Critical CSS extraction.
-- Lazy evaluation - sheet is created only when component will mount.
-- Auto attach/detach - sheet will be rendered to the DOM when component is about to mount and will be removed when no element needs it.
+- Lazy evaluation - sheet is created only when the component will mount.
+- Auto attach/detach - sheet will be rendered to the DOM when the component is about to mount, and will be removed when no element needs it.
 - A Style Sheet gets shared between all elements.
 
 ## Table of Contents
@@ -39,12 +39,12 @@ npm install --save react-jss
 
 ## Usage
 
-React-JSS wraps your component with an [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750).
-It injects `classes` prop, which is a simple map of rule names and generated class names. It can act both as a simple wrapping function and as a [ES7 decorator](https://github.com/wycats/javascript-decorators)
+React-JSS wraps your component with a [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750).
+It injects a `classes` prop, which is a simple map of rule names and generated class names. It can act both as a simple wrapping function and as an [ES7 decorator](https://github.com/wycats/javascript-decorators)
 
 ### Example
 
-Try it out on [playground](https://codesandbox.io/s/j3l06yyqpw).
+Try it out in the [playground](https://codesandbox.io/s/j3l06yyqpw).
 
 ```javascript
 import React from 'react'
@@ -72,13 +72,13 @@ export default injectSheet(styles)(Button)
 
 ### Theming
 
-The idea is that you define theme, wrap your application with `ThemeProvider` and pass the `theme` to `ThemeProvider`. ThemeProvider will pass it over `context` to your styles creator function and to your props. After that you may change your theme, and all your components will get new theme automatically.
+The idea is that you define a theme, wrap your application with `ThemeProvider` and pass the `theme` to `ThemeProvider`. ThemeProvider will pass it over `context` to your styles creator function and to your props. After that you may change your theme, and all your components will get the new theme automatically.
 
-Under the hood `react-jss` uses unified CSSinJS `theming` solution for React. You can find [detailed docs in its repo](https://github.com/iamstarkov/theming).
+Under the hood `react-jss` uses the unified CSSinJS `theming` solution for React. You can find [detailed docs in its repo](https://github.com/iamstarkov/theming).
 
 Using `ThemeProvider`:
 
-* It has `theme` prop which should be an `object` or `function`:
+* It has a `theme` prop which should be an `object` or `function`:
   * If it is an `Object` and used in a root `ThemeProvider` then it's intact and being passed down the react tree.
   * If it is `Object` and used in a nested `ThemeProvider` then it's being merged with theme from a parent `ThemeProvider` and passed down the react tree.
   * If it is `Function` and used in a nested `ThemeProvider` then it's being applied to the theme from a parent `ThemeProvider`. If result is an `Object` it will be passed down the react tree, throws otherwise.
@@ -172,7 +172,7 @@ const App = () => (
 
 ### Server-side rendering
 
-After the application is mounted, you should remove the style tag used critical CSS rendered server-side.
+After the application is mounted, you should remove the style tag used by critical CSS rendered server-side.
 
 ```javascript
 import {renderToString} from 'react-dom/server'
@@ -208,7 +208,7 @@ export default function render(req, res) {
 
 ### Reuse styles in different components
 
-In order to reuse the same styles __and__ the same generated style sheet between 2 entirely different and unrelated components, we suggest to extract a renderer component into a separate one and reuse it.
+In order to reuse the same styles __and__ the same generated style sheet between 2 entirely different and unrelated components, we suggest extracting a renderer component and reusing that.
 
 ```javascript
 const styles = {
@@ -233,7 +233,7 @@ const SomeComponent2 = () => (
 )
 ```
 
-Alternatively you can create own Style Sheet and use the `composes` feature. Also you can mix in a common styles object, but take into account that it grow the overall CSS size.
+Alternatively you can create own Style Sheet and use the `composes` feature. Also you can mix in a common styles object, but take into account that it can increase the overall CSS size.
 
 ### The inner component
 
@@ -245,7 +245,7 @@ console.log(StyledComponent.InnerComponent) // Prints out the inner component.
 
 ### Custom setup
 
-If you want to specify a JSS version and plugins to use, you should create your [own Jss instance](https://github.com/cssinjs/jss/blob/master/docs/js-api.md#create-an-own-jss-instance), [setup plugins](https://github.com/cssinjs/jss/blob/master/docs/setup.md#setup-with-plugins) and pass it to `JssProvider`.
+If you want to specify a JSS version and plugins to use, you should create your [own JSS instance](https://github.com/cssinjs/jss/blob/master/docs/js-api.md#create-an-own-jss-instance), [setup plugins](https://github.com/cssinjs/jss/blob/master/docs/setup.md#setup-with-plugins) and pass it to `JssProvider`.
 
 ```javascript
 import {create as createJss} from 'jss'
@@ -262,7 +262,7 @@ const Component = () => (
 )
 ```
 
-You can also access the Jss instance being used by default.
+You can also access the JSS instance being used by default.
 
 ```javascript
 import {jss} from 'react-jss'
@@ -291,7 +291,7 @@ const Component = () => (
 )
 ```
 
-You can also additionally use `classNamePrefix` prop in order to add the app/subtree name to each class name.
+You can also additionally use the `classNamePrefix` prop in order to add the app/subtree name to each class name.
 This way you can see which app generated a class name in the DOM view.
 
 ```javascript
@@ -361,7 +361,7 @@ const Button = injectSheet(buttonStyles)(() => <button><Label>my button</Label><
 By default "classes" and "theme" are going to be injected to the child component over props. Property `theme` is only passed when you use a function instead of styles object.
 If you want to whitelist some of them, you can now use option `inject`. For e.g. if you want to access the StyleSheet instance, you need to pass `{inject: ['sheet']}` and it will be available as `props.sheet`.
 
-All user props passed to the HOC will be still forwarded as usual.
+All user props passed to the HOC will still be forwarded as usual.
 
 ```js
 
