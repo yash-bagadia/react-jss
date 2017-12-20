@@ -1,7 +1,7 @@
 {
   "name": "react-jss",
   "version": "8.2.0",
-  "description": "Integration of JSS for react.",
+  "description": "JSS integration with React",
   "main": "lib/index.js",
   "engines": {
     "node": ">=4"
