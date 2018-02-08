@@ -1,3 +1,7 @@
+## 8.3.0 / 2018-02-08
+
+- Update default preset to v4.3.0
+
 ## 8.2.1 / 2018-01-03
 
 - Production mode for defaultClassNamePrefix (#191).
