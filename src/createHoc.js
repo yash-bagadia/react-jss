@@ -127,7 +127,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
           classNamePrefix
         })
         this.manager.add(theme, staticSheet)
-        dynamicStyles = compose(staticSheet, getDynamicStyles(styles))
+        dynamicStyles = compose(staticSheet.classes, getDynamicStyles(styles))
         staticSheet[dynamicStylesNs] = dynamicStyles
       }
       else dynamicStyles = staticSheet[dynamicStylesNs]
