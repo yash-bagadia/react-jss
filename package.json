@@ -96,5 +96,12 @@
       "git add"
     ]
   },
-  "pre-commit": "lint:staged"
+  "pre-commit": "lint:staged",
+  "files": [
+    "lib",
+    "dist",
+    "readme.md",
+    "changelog.md",
+    "LICENSE"
+  ]
 }

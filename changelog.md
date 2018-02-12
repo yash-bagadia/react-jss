@@ -1,3 +1,7 @@
+## 8.3.2 / 2018-02-12
+
+- Add files to package.json
+
 ## 8.3.1 / 2018-02-12
 
 - Fix function rules
