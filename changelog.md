@@ -1,3 +1,7 @@
+## 8.3.3 / 2018-02-12
+
+- Add docs about fn values and rules
+
 ## 8.3.2 / 2018-02-12
 
 - Add files to package.json

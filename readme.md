@@ -5,13 +5,14 @@
 
 React-JSS provides components for [JSS](https://github.com/cssinjs/jss) as a layer of abstraction. JSS and [presets](https://github.com/cssinjs/jss-preset-default) are already built in! Try it out in the [playground](https://codesandbox.io/s/j3l06yyqpw).
 
-The benefits are:
+Benefits compared to lower level core:
 
-- Theming support out of the box.
+- Theming support.
 - Critical CSS extraction.
 - Lazy evaluation - sheet is created only when the component will mount.
 - Auto attach/detach - sheet will be rendered to the DOM when the component is about to mount, and will be removed when no element needs it.
 - A Style Sheet gets shared between all elements.
+- Function values and rules are updated automatically with props.
 
 ## Table of Contents
 
@@ -65,6 +66,36 @@ const Button = ({classes, children}) => (
 
 export default injectSheet(styles)(Button)
 ```
+
+### Dynamic values
+
+You can use [function values](https://github.com/cssinjs/jss/blob/master/docs/json-api.md#function-values), function rules and observables out of the box. Function values and function rules will receive a props object once component receives new props or mounts first time.
+
+```js
+const styles = {
+  button: {
+    background: props => props.color
+  },
+  label: (props) => ({
+    display: 'block',
+    fontWeight: props.fontWeight
+  })
+}
+
+const Button = ({classes, children}) => (
+  <button className={classes.button}>
+    <span className={classes.label}>
+      {children}
+    </span>
+  </button>
+)
+
+Button.defaultProps = {
+  fontWeight: 'bold',
+  color: 'red'
+}
+```
+
 
 ### Theming
 
