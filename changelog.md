@@ -1,3 +1,7 @@
+## 8.3.1 / 2018-02-12
+
+- Fix function rules
+
 ## 8.3.0 / 2018-02-08
 
 - Update default preset to v4.3.0

@@ -303,7 +303,7 @@ describe('injectSheet', () => {
     })
 
     it.skip('should pass no prefix in production', () => {
-      // Rewrire currently doesn't work, most probably because of how we rest
+      // Rewrire currently doesn't work, most probably because of how we reset
       // the tests #118
       createHoc.__Rewire__('env', 'production')
       renderTest()
