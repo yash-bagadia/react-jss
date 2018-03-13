@@ -1,3 +1,7 @@
+## 8.3.5 / 2018-03-13
+
+- Update package-lock.json
+
 ## 8.3.4 / 2018-03-13
 
 - Allow updating Jss instance of JssProvider
