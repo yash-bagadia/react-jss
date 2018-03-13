@@ -303,6 +303,66 @@ describe('theming', () => {
       }
     `)
   })
+  it('setState should use new context', () => {
+    const ComponentA = injectSheet(() => ({a: {left: 2}}))()
+    render((
+      <JssProvider jss={localJss}>
+        <ThemeProvider theme={ThemeA}>
+          <div>
+            <ComponentA />
+          </div>
+        </ThemeProvider>
+      </JssProvider>
+    ), node)
+
+    const styleTags = Array.from(document.querySelectorAll('style'))
+    const innerText = x => x.innerText
+    const trim = x => x.trim()
+    const actual = styleTags.map(innerText).map(trim).join('\n')
+
+    expect(actual).to.be(stripIndent`
+      .a-0 {
+        left: 2px;
+      }
+    `)
+    function rtl() {
+      return {
+        onProcessStyle(style, rule, sheet) {
+        return {
+          right: "2px"
+        }
+      }
+    }
+  }
+  const newJss = createJss({
+    ...preset(),
+    createGenerateClassName: () => {
+      let counter = 0
+      return rule => `${rule.key}-${counter++}`
+    }
+  })
+  newJss.use(rtl())
+    render((
+      <JssProvider jss={newJss}>
+        <ThemeProvider theme={ThemeB}>
+          <div>
+            <ComponentA />
+          </div>
+        </ThemeProvider>
+      </JssProvider>
+    ), node)
+    const newStyleTags = Array.from(document.querySelectorAll('style'))
+    const newInnerText = x => x.innerText
+    const newTrim = x => x.trim()
+    const newActual = newStyleTags.map(newInnerText).map(newTrim).join('\n')
+
+    expect(actual).to.be(stripIndent`
+      .a-0 {
+        right: 2px;
+      }
+    `)
+
+  })
 
   it('should render two different sheets with theming', () => {
     const ComponentA = injectSheet(() => ({a: {color: 'red'}}))()
