@@ -7,7 +7,6 @@ import getDisplayName from './getDisplayName'
 import createHoc from './createHoc'
 import {createGenerateClassName} from '../tests/helper'
 import {stripIndent} from 'common-tags'
-import preset from 'jss-preset-default'
 
 describe('injectSheet', () => {
   let jss
@@ -283,13 +282,7 @@ describe('injectSheet', () => {
       const ThemeA = {color: "blue"};
       const ThemeB = {color: "red"};
       const ComponentA = injectSheet(() => ({a: {left: 2}}))()
-      const localJss = createJss({
-        ...preset(),
-        createGenerateClassName: () => {
-          let counter = 0
-          return rule => `${rule.key}-${counter++}`
-        }
-      })
+      const localJss = create()
       render((
         <JssProvider jss={localJss}>
           <ThemeProvider theme={ThemeA}>
@@ -306,9 +299,9 @@ describe('injectSheet', () => {
       const actual = styleTags.map(innerText).map(trim).join('\n')
   
       expect(actual).to.be(stripIndent`
-        .a-0 {
-          left: 2px;
-        }
+      .NoRenderer-a-1-1 {
+        left: 2;
+      }
       `)
       function rtl() {
         return {
@@ -320,7 +313,6 @@ describe('injectSheet', () => {
         }
       }
       const newJss = createJss({
-        ...preset(),
         createGenerateClassName: () => {
           let counter = 0
           return rule => `${rule.key}-${counter++}`
@@ -342,9 +334,9 @@ describe('injectSheet', () => {
       const newActual = newStyleTags.map(newInnerText).map(newTrim).join('\n')
   
       expect(newActual).to.be(stripIndent`
-        .a-1 {
-          right: 2px;
-        }
+      .NoRenderer-a-1-2 {
+        right: 2px;
+      }
       `)
     })
   
