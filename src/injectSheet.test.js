@@ -3,10 +3,10 @@
 import expect from 'expect.js'
 import React from 'react'
 import {create} from 'jss'
+import {stripIndent} from 'common-tags'
 import getDisplayName from './getDisplayName'
 import createHoc from './createHoc'
 import {createGenerateClassName} from '../tests/helper'
-import {stripIndent} from 'common-tags'
 
 describe('injectSheet', () => {
   let jss
@@ -277,63 +277,6 @@ describe('injectSheet', () => {
       render(<MyComponent classes={{user: 'user'}} />, node)
       expect(classes).to.eql({default: 'default', a: 'a-id', user: 'user'})
     })
-
-    it('setState should use new context', () => {
-      const ThemeA = {color: "blue"};
-      const ThemeB = {color: "red"};
-      const ComponentA = injectSheet(() => ({a: {left: 2}}))()
-      render((
-        <JssProvider jss={jss}>
-          <ThemeProvider theme={ThemeA}>
-            <div>
-              <ComponentA />
-            </div>
-          </ThemeProvider>
-        </JssProvider>
-      ), node)
-  
-      const styleTags = Array.from(document.querySelectorAll('style'))
-      const innerText = x => x.innerText
-      const trim = x => x.trim()
-      const actual = styleTags.map(innerText).map(trim).join('\n')
-  
-      expect(actual).to.be(stripIndent`
-      .a-id {
-        left: 2;
-      }
-      `)
-      function rtl() {
-        return {
-          onProcessStyle(style, rule, sheet) {
-            return {
-              right: '2px'
-            }
-          }
-        }
-      }
-      const newJss = createJss({createGenerateClassName})
-      newJss.use(rtl())
-      render((
-        <JssProvider jss={newJss}>
-          <ThemeProvider theme={ThemeB}>
-            <div>
-              <ComponentA />
-            </div>
-          </ThemeProvider>
-        </JssProvider>
-      ), node)
-      const newStyleTags = Array.from(document.querySelectorAll('style'))
-      const newInnerText = x => x.innerText
-      const newTrim = x => x.trim()
-      const newActual = newStyleTags.map(newInnerText).map(newTrim).join('\n')
-  
-      expect(newActual).to.be(stripIndent`
-      .a-id {
-        right: 2px;
-      }
-      `)
-    })
-  
   })
 
   describe('classNamePrefix', () => {
@@ -367,6 +310,36 @@ describe('injectSheet', () => {
       renderTest()
       expect(classNamePrefix).to.be(undefined)
       createHoc.__ResetDependency__('env')
+    })
+  })
+
+  describe('rerender with a new JSS instance when using a ThemeProvider', () => {
+    it('should correctly render with a new JSS instance', () => {
+      const ComponentA = injectSheet(() => ({a: {left: '2px'}}))()
+      const ComponentB = ({localJss}) => (
+        <JssProvider jss={localJss}>
+          <ThemeProvider theme={{}}>
+            <ComponentA />
+          </ThemeProvider>
+        </JssProvider>
+      )
+      render(<ComponentB localJss={jss} />, node)
+
+      const newJss = createJss({
+        createGenerateClassName,
+        plugins: [{
+          onProcessStyle: () => ({right: '2px'})
+        }]
+      })
+
+      render(<ComponentB localJss={newJss} />, node)
+
+      const style = document.querySelectorAll('style')[0]
+      expect(style.innerText.trim()).to.be(stripIndent`
+        .a-id {
+          right: 2px;
+        }
+      `)
     })
   })
 })

@@ -175,8 +175,8 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       }
     }
 
-    componentWillReceiveProps(nextProps, newContext) {
-      this.context = newContext
+    componentWillReceiveProps(nextProps, nextContext) {
+      this.context = nextContext
       const {dynamicSheet} = this.state
       if (dynamicSheet) dynamicSheet.update(nextProps)
     }
