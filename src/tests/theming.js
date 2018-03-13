@@ -328,20 +328,20 @@ describe('theming', () => {
     function rtl() {
       return {
         onProcessStyle(style, rule, sheet) {
-        return {
-          right: "2px"
+          return {
+            right: '2px'
+          }
         }
       }
     }
-  }
-  const newJss = createJss({
-    ...preset(),
-    createGenerateClassName: () => {
-      let counter = 0
-      return rule => `${rule.key}-${counter++}`
-    }
-  })
-  newJss.use(rtl())
+    const newJss = createJss({
+      ...preset(),
+      createGenerateClassName: () => {
+        let counter = 0
+        return rule => `${rule.key}-${counter++}`
+      }
+    })
+    newJss.use(rtl())
     render((
       <JssProvider jss={newJss}>
         <ThemeProvider theme={ThemeB}>
@@ -356,12 +356,11 @@ describe('theming', () => {
     const newTrim = x => x.trim()
     const newActual = newStyleTags.map(newInnerText).map(newTrim).join('\n')
 
-    expect(actual).to.be(stripIndent`
-      .a-0 {
+    expect(newActual).to.be(stripIndent`
+      .a-1 {
         right: 2px;
       }
     `)
-
   })
 
   it('should render two different sheets with theming', () => {
