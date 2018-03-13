@@ -1,3 +1,8 @@
+## 8.3.4 / 2018-03-13
+
+- Allow updating Jss instance of JssProvider
+- Update JSS dependency to v9.7.0
+
 ## 8.3.3 / 2018-02-12
 
 - Add docs about fn values and rules
