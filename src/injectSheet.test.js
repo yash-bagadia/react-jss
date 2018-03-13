@@ -282,9 +282,8 @@ describe('injectSheet', () => {
       const ThemeA = {color: "blue"};
       const ThemeB = {color: "red"};
       const ComponentA = injectSheet(() => ({a: {left: 2}}))()
-      const localJss = create()
       render((
-        <JssProvider jss={localJss}>
+        <JssProvider jss={jss}>
           <ThemeProvider theme={ThemeA}>
             <div>
               <ComponentA />
@@ -299,7 +298,7 @@ describe('injectSheet', () => {
       const actual = styleTags.map(innerText).map(trim).join('\n')
   
       expect(actual).to.be(stripIndent`
-      .NoRenderer-a-1-1 {
+      .a-id {
         left: 2;
       }
       `)
@@ -312,12 +311,7 @@ describe('injectSheet', () => {
           }
         }
       }
-      const newJss = createJss({
-        createGenerateClassName: () => {
-          let counter = 0
-          return rule => `${rule.key}-${counter++}`
-        }
-      })
+      const newJss = createJss({createGenerateClassName})
       newJss.use(rtl())
       render((
         <JssProvider jss={newJss}>
@@ -334,7 +328,7 @@ describe('injectSheet', () => {
       const newActual = newStyleTags.map(newInnerText).map(newTrim).join('\n')
   
       expect(newActual).to.be(stripIndent`
-      .NoRenderer-a-1-2 {
+      .a-id {
         right: 2px;
       }
       `)
