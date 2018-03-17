@@ -70,7 +70,7 @@ describe('injectSheet', () => {
   })
 
   describe('injectSheet() option "inject"', () => {
-    const getInjected = (options) => {
+    const getInjected = (options, theme = {}, props = {}, bReturnPropsObject = false) => {
       let injectedProps
       const Renderer = (props) => {
         injectedProps = props
@@ -79,8 +79,8 @@ describe('injectSheet', () => {
       const MyComponent = injectSheet(() => ({
         button: {color: 'red'}
       }), options)(Renderer)
-      render(<ThemeProvider theme={{}}><MyComponent /></ThemeProvider>, node)
-      return Object.keys(injectedProps)
+      render(<ThemeProvider theme={theme}><MyComponent {...props} /></ThemeProvider>, node)
+      return bReturnPropsObject ? injectedProps : Object.keys(injectedProps)
     }
 
     it('should inject all by default', () => {
@@ -101,6 +101,16 @@ describe('injectSheet', () => {
 
     it('should inject classes and theme', () => {
       expect(getInjected({inject: ['classes', 'theme']})).to.eql(['theme', 'classes'])
+    })
+    it('should inject themeProps', () => {
+      expect(getInjected({inject: ['classes', {themeProps: 'ButtonBase'}]}, {color: 'red', ButtonBase: {height: 10}})).to.eql(['height', 'classes'])
+    })
+    it('should not break and inject classes', () => {
+      expect(getInjected({inject: ['classes', {themeProps: 'Button'}]}, {color: 'red', ButtonBase: {height: 10}})).to.eql(['classes'])
+    })
+    it('should override themeProps with prop passed to component', () => {
+      const heightProp = getInjected({inject: ['classes', {themeProps: 'ButtonBase'}]}, {color: 'red', ButtonBase: {height: 10}}, {height: 20}, true).height
+      expect(heightProp).to.eql(20)
     })
   })
 

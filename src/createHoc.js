@@ -40,10 +40,22 @@ const getStyles = (stylesOrCreator, theme) => {
 
 // Returns an object with array property as a key and true as a value.
 const toMap = arr => arr.reduce((map, prop) => {
-  map[prop] = true
+  if (typeof prop === 'object' && prop.themeProps) {
+    map.themeProps = prop.themeProps
+  }
+  else {
+    map[prop] = true
+  }
   return map
 }, {})
-
+const getRequiredThemeProps = (object, property) => {
+  if (object && typeof object == 'object') {
+    if (typeof property == 'string' && property !== '') {
+      const split = property.split('.')
+      return split.reduce((obj, prop) => obj && obj[prop], object)
+    }
+  }
+}
 const defaultInjectProps = {
   sheet: false,
   classes: true,
@@ -214,6 +226,12 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       const props = {}
       if (injectMap.sheet) props.sheet = sheet
       if (isThemingEnabled && injectMap.theme) props.theme = theme
+      if (isThemingEnabled && injectMap.themeProps) {
+        const ThemeProps = getRequiredThemeProps(theme, injectMap.themeProps)
+        if (typeof ThemeProps === 'object') {
+          Object.assign(props, ThemeProps)
+        }
+      }
       Object.assign(props, this.props)
       // We have merged classes already.
       if (injectMap.classes) props.classes = classes
