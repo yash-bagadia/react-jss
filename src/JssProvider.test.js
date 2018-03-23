@@ -290,8 +290,8 @@ describe('JssProvider', () => {
 
     it('should use Jss istance from the context', () => {
       let receivedSheet
-
-      const MyComponent = injectSheet({}, {inject: ['sheet']})(({sheet}) => {
+      const reduceProps = ({sheet}) => ({sheet})
+      const MyComponent = injectSheet({}, {reduceProps})(({sheet}) => {
         receivedSheet = sheet
         return null
       })

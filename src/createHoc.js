@@ -38,12 +38,6 @@ const getStyles = (stylesOrCreator, theme) => {
   return stylesOrCreator(theme)
 }
 
-// Returns an object with array property as a key and true as a value.
-const toMap = arr => arr.reduce((map, prop) => {
-  map[prop] = true
-  return map
-}, {})
-
 const defaultInjectProps = {
   sheet: false,
   classes: true,
@@ -62,8 +56,8 @@ let managersCounter = 0
  */
 export default (stylesOrCreator, InnerComponent, options = {}) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
-  const {theming = defaultTheming, inject, jss: optionsJss, ...sheetOptions} = options
-  const injectMap = inject ? toMap(inject) : defaultInjectProps
+  const {theming = defaultTheming, jss: optionsJss, reduceProps, ...sheetOptions} = options
+  const injectMap = defaultInjectProps
   const {themeListener} = theming
   const displayName = getDisplayName(InnerComponent)
   const defaultClassNamePrefix = env === 'production' ? undefined : `${displayName}-`
@@ -212,11 +206,20 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       const {theme, dynamicSheet, classes} = this.state
       const sheet = dynamicSheet || this.manager.get(theme)
       const props = {}
-      if (injectMap.sheet) props.sheet = sheet
-      if (isThemingEnabled && injectMap.theme) props.theme = theme
-      Object.assign(props, this.props)
-      // We have merged classes already.
-      if (injectMap.classes) props.classes = classes
+      if (typeof reduceProps === 'function') {
+        const propsToBeReduced = {}
+        propsToBeReduced.sheet = sheet
+        propsToBeReduced.classes = classes
+        if (isThemingEnabled) propsToBeReduced.theme = theme
+        Object.assign(props, {...reduceProps({...propsToBeReduced, ...this.props})})
+      }
+      else {
+        if (injectMap.sheet) props.sheet = sheet
+        if (isThemingEnabled && injectMap.theme) props.theme = theme
+        Object.assign(props, this.props)
+        // We have merged classes already.
+        if (injectMap.classes) props.classes = classes
+      }
       return <InnerComponent {...props} />
     }
   }

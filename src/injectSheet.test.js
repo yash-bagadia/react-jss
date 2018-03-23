@@ -70,7 +70,7 @@ describe('injectSheet', () => {
   })
 
   describe('injectSheet() option "inject"', () => {
-    const getInjected = (options) => {
+    const getInjected = (options, theme = {}, componentProps = {}, bReturnPropsObject = false) => {
       let injectedProps
       const Renderer = (props) => {
         injectedProps = props
@@ -79,8 +79,8 @@ describe('injectSheet', () => {
       const MyComponent = injectSheet(() => ({
         button: {color: 'red'}
       }), options)(Renderer)
-      render(<ThemeProvider theme={{}}><MyComponent /></ThemeProvider>, node)
-      return Object.keys(injectedProps)
+      render(<ThemeProvider theme={theme}><MyComponent {...componentProps} /></ThemeProvider>, node)
+      return bReturnPropsObject ? injectedProps : Object.keys(injectedProps)
     }
 
     it('should inject all by default', () => {
@@ -88,19 +88,65 @@ describe('injectSheet', () => {
     })
 
     it('should inject sheet only', () => {
-      expect(getInjected({inject: ['sheet']})).to.eql(['sheet'])
+      const reduceProps = (props) => {
+        const {sheet} = props
+        return {sheet}
+      }
+      expect(getInjected({reduceProps})).to.eql(['sheet'])
     })
 
     it('should inject classes only', () => {
-      expect(getInjected({inject: ['classes']})).to.eql(['classes'])
+      const reduceProps = (props) => {
+        const {classes} = props
+        return {classes}
+      }
+      expect(getInjected({reduceProps})).to.eql(['classes'])
     })
 
     it('should inject theme only', () => {
-      expect(getInjected({inject: ['theme']})).to.eql(['theme'])
+      const reduceProps = (props) => {
+        const {theme} = props
+        return {theme}
+      }
+      expect(getInjected({reduceProps})).to.eql(['theme'])
     })
 
     it('should inject classes and theme', () => {
-      expect(getInjected({inject: ['classes', 'theme']})).to.eql(['theme', 'classes'])
+      const reduceProps = (props) => {
+        const {theme, classes} = props
+        return {theme, classes}
+      }
+      expect(getInjected({reduceProps})).to.eql(['theme', 'classes'])
+    })
+    it('should inject custom prop from theme', () => {
+      const reduceProps = ({sheet, theme, classes, ...rest}) => ({
+        ...rest,
+        sheet,
+        ...theme.ButtonBase,
+        classes
+      })
+      expect(getInjected({reduceProps}, {color: 'red', ButtonBase: {height: 10}})).to.eql(['sheet', 'height', 'classes'])
+    })
+    it('should reduce props with static function', () => {
+      injectSheet.reduceProps = ({sheet, theme, classes, ...rest}) => ({
+        ...rest,
+        sheet,
+        ...theme.ButtonBase,
+        classes
+      })
+      const heightProp = getInjected({}, {color: 'red', ButtonBase: {height: 10}}, {}, true).height
+      expect(heightProp).to.eql(10)
+      injectSheet.reduceProps = undefined
+    })
+    it('should override themeProps with prop passed to component', () => {
+      const reduceProps = ({sheet, theme, classes, ...rest}) => ({
+        ...theme.ButtonBase,
+        ...rest,
+        sheet,
+        classes
+      })
+      const heightProp = getInjected({reduceProps}, {color: 'red', ButtonBase: {height: 10}}, {height: 20}, true).height
+      expect(heightProp).to.eql(20)
     })
   })
 
