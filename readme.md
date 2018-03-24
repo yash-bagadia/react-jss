@@ -386,18 +386,34 @@ const Button = injectSheet(buttonStyles)(() => <button><Label>my button</Label><
 ## Whitelist injected props
 
 By default "classes" and "theme" are going to be injected to the child component over props. Property `theme` is only passed when you use a function instead of styles object.
-If you want to whitelist some of them, you can now use option `inject`. For e.g. if you want to access the StyleSheet instance, you need to pass `{inject: ['sheet']}` and it will be available as `props.sheet`.
-
-All user props passed to the HOC will still be forwarded as usual.
+If you want to whitelist some of them, you can now use option `reduceProps` and pass a function to it which should return the props to be injected to child component. For e.g. if you want to access only the StyleSheet instance and props passed to the component, you need to pass `{reduceProps: ({sheet, theme,classes, ...rest}) => {return {sheet, ...rest}}}` and it will be available as `props.sheet`.
 
 ```js
 
-// Only `classes` prop will be passed by the ReactJSS HOC now. No `sheet` or `theme`.
-const Button = injectSheet(styles, {inject: ['classes', 'sheet']})(
+// Only `classes` and props passed to component will be passed by the ReactJSS HOC now. No `sheet` or `theme`.
+const Button = injectSheet(styles, {reduceProps: ({sheet, classes, theme, ...rest}) => {return {classes, ...rest}}})(
   ({classes}) => <button>My button</button>
 )
 ```
-
+To whitelist at a global level for all instances of injectSheet wrapped inside a JssProvider, you can pass `reduceProps` prop to JssProvider as follows:
+```js
+const styles = {
+color: 'red'
+}
+const reduceProps = (props) => {
+   const {theme, classes, sheet, ...rest} = props
+    return {classes, ...theme.ButtonBase, ...rest}
+ }
+const Example = props => {
+  const height = props.height;
+  return <div> value of height is {height} </div>;
+};
+export injectSheet(styles)(Example)
+//and if we render this Example component wrapped with JssProvider:
+<JssProvider reduceProps={reduceProps}><ThemeProvider theme={{color: 'blue', ButtonBase: {height: 10, width:20}}}><Example /> </ThemeProvider></JssProvider>
+//height and width will be injected to props of Example
+//Output will be: value of height is 10
+```
 ## Contributing
 
 See our [contribution guidelines](./contributing.md).
