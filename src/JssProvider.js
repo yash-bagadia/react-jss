@@ -9,6 +9,7 @@ export default class JssProvider extends Component {
   static propTypes = {
     ...propTypes,
     generateClassName: func,
+    reduceProps: func,
     classNamePrefix: string,
     children: node.isRequired
   }
@@ -22,7 +23,7 @@ export default class JssProvider extends Component {
   // 2. If value was passed, we set it on the child context.
   // 3. If value was not passed, we proxy parent context (default context behaviour).
   getChildContext() {
-    const {registry, classNamePrefix, jss: localJss, generateClassName} = this.props
+    const {registry, classNamePrefix, jss: localJss, generateClassName, reduceProps} = this.props
     const sheetOptions = this.context[ns.sheetOptions] || {}
     const context = {[ns.sheetOptions]: sheetOptions}
 
@@ -59,6 +60,7 @@ export default class JssProvider extends Component {
     }
 
     if (classNamePrefix) sheetOptions.classNamePrefix = classNamePrefix
+    if (reduceProps) sheetOptions.reduceProps = reduceProps
     if (localJss) context[ns.jss] = localJss
 
     return context

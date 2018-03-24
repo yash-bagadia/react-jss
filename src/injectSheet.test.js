@@ -127,16 +127,23 @@ describe('injectSheet', () => {
       })
       expect(getInjected({reduceProps}, {color: 'red', ButtonBase: {height: 10}})).to.eql(['sheet', 'height', 'classes'])
     })
-    it('should reduce props with static function', () => {
-      injectSheet.reduceProps = ({sheet, theme, classes, ...rest}) => ({
+    it('should reduce props with reduceProp passed to JssProvider', () => {
+      const reduceProps = ({sheet, theme, classes, ...rest}) => ({
         ...rest,
         sheet,
         ...theme.ButtonBase,
         classes
       })
-      const heightProp = getInjected({}, {color: 'red', ButtonBase: {height: 10}}, {}, true).height
-      expect(heightProp).to.eql(10)
-      injectSheet.reduceProps = undefined
+      let injectedProps
+      const Renderer = (props) => {
+        injectedProps = props
+        return null
+      }
+      const MyComponent = injectSheet(() => ({
+        button: {color: 'red'}
+      }))(Renderer)
+      render(<JssProvider reduceProps={reduceProps}><ThemeProvider theme={{color: 'red', ButtonBase: {height: 10}}}><MyComponent /></ThemeProvider></JssProvider>, node)
+      expect(injectedProps.height).to.eql(10)
     })
     it('should override themeProps with prop passed to component', () => {
       const reduceProps = ({sheet, theme, classes, ...rest}) => ({

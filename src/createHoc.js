@@ -56,7 +56,7 @@ let managersCounter = 0
  */
 export default (stylesOrCreator, InnerComponent, options = {}) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
-  const {theming = defaultTheming, jss: optionsJss, reduceProps, ...sheetOptions} = options
+  const {theming = defaultTheming, jss: optionsJss, ...sheetOptions} = options
   const injectMap = defaultInjectProps
   const {themeListener} = theming
   const displayName = getDisplayName(InnerComponent)
@@ -205,6 +205,10 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     render() {
       const {theme, dynamicSheet, classes} = this.state
       const sheet = dynamicSheet || this.manager.get(theme)
+      let {reduceProps} = sheetOptions
+      if (typeof reduceProps !== 'function' && this.context[ns.sheetOptions] && this.context[ns.sheetOptions].reduceProps) {
+        reduceProps = this.context[ns.sheetOptions].reduceProps
+      }
       const props = {}
       if (typeof reduceProps === 'function') {
         const propsToBeReduced = {}

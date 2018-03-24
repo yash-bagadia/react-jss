@@ -29,11 +29,6 @@ export default function injectSheet(stylesOrSheet, options = {}) {
     options.index = indexCounter++
   }
   return (InnerComponent = NoRenderer) => {
-    const {reduceProps} = options
-    // if reduceProps is not in options, check if static property for the function is set
-    if (typeof reduceProps !== 'function' && typeof injectSheet.reduceProps === 'function') {
-      options.reduceProps = injectSheet.reduceProps
-    }
     const Jss = createHoc(stylesOrSheet, InnerComponent, options)
     return hoistNonReactStatics(Jss, InnerComponent, {inner: true})
   }
