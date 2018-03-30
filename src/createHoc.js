@@ -214,15 +214,12 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
     render() {
       const {theme, dynamicSheet, classes} = this.state
-      const {innerRef, ...rest} = this.props
+      const {innerRef, ...props} = this.props
 
       const sheet = dynamicSheet || this.manager.get(theme)
-      const props = {}
 
       if (injectMap.sheet) props.sheet = sheet
       if (isThemingEnabled && injectMap.theme) props.theme = theme
-
-      Object.assign(props, rest)
 
       // We have merged classes already.
       if (injectMap.classes) props.classes = classes
