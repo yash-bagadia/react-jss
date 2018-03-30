@@ -1,3 +1,7 @@
+## 8.4.0 / 2018-03-31
+
+- Added `innerRef` prop to access the inner element.
+
 ## 8.3.5 / 2018-03-13
 
 - Update package-lock.json
