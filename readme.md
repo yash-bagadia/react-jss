@@ -23,6 +23,7 @@ Benefits compared to lower level core:
   * [Server-side rendering](#server-side-rendering)
   * [Reuse styles in different components](#reuse-styles-in-different-components)
   * [The inner component](#the-inner-component)
+  * [The inner ref](#the-inner-ref)
   * [Custom setup](#custom-setup)
   * [Decorators](#decorators)
 * [Contributing](#contributing)
@@ -268,6 +269,15 @@ Alternatively you can create own Style Sheet and use the `composes` feature. Als
 const InnerComponent = () => null
 const StyledComponent = injectSheet(styles, InnerComponent)
 console.log(StyledComponent.InnerComponent) // Prints out the inner component.
+```
+
+### The inner ref
+
+In order to get a `ref` to the inner element, use `innerRef` prop.
+
+```es6
+const StyledComponent = injectSheet({})(InnerComponent)
+<StyledComponent innerRef={(ref) => {console.log(ref)}} />
 ```
 
 ### Custom setup
