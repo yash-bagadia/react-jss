@@ -4,6 +4,7 @@ import expect from 'expect.js'
 import React from 'react'
 import {create} from 'jss'
 import {stripIndent} from 'common-tags'
+import {spy} from 'sinon'
 import getDisplayName from './getDisplayName'
 import createHoc from './createHoc'
 import {createGenerateClassName} from '../tests/helper'
@@ -191,6 +192,25 @@ describe('injectSheet', () => {
         button: {color: 'red'}
       })()
       expect(ComponentOuter.InnerComponent).to.be.a(Function)
+    })
+
+    it('should provide a ref on the "InnerComponent"', () => {
+      const handleRef = spy()
+
+      /* eslint-disable react/no-multi-comp, react/prefer-stateless-function */
+      class InnerComponent extends React.PureComponent {
+        render() {
+          return (
+            <div />
+          )
+        }
+      }
+      /* eslint-enable */
+
+      const StyledComponent = injectSheet({})(InnerComponent)
+      render(<StyledComponent innerRef={handleRef} />, node)
+
+      expect(handleRef.callCount).to.be(1)
     })
   })
 

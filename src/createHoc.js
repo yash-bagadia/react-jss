@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import defaultTheming from 'theming'
 import jss, {getDynamicStyles, SheetsManager} from './jss'
 import compose from './compose'
@@ -79,6 +80,9 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     static contextTypes = {
       ...contextTypes,
       ...(isThemingEnabled && themeListener.contextTypes)
+    }
+    static propTypes = {
+      innerRef: PropTypes.func,
     }
     static defaultProps = defaultProps
 
@@ -210,14 +214,17 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
     render() {
       const {theme, dynamicSheet, classes} = this.state
+      const {innerRef, ...props} = this.props
+
       const sheet = dynamicSheet || this.manager.get(theme)
-      const props = {}
-      if (injectMap.sheet) props.sheet = sheet
-      if (isThemingEnabled && injectMap.theme) props.theme = theme
-      Object.assign(props, this.props)
+
+      if (injectMap.sheet && !props.sheet) props.sheet = sheet
+      if (isThemingEnabled && injectMap.theme && !props.theme) props.theme = theme
+
       // We have merged classes already.
       if (injectMap.classes) props.classes = classes
-      return <InnerComponent {...props} />
+
+      return <InnerComponent ref={innerRef} {...props} />
     }
   }
 }
