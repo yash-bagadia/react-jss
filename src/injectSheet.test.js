@@ -193,9 +193,11 @@ describe('injectSheet', () => {
       })()
       expect(ComponentOuter.InnerComponent).to.be.a(Function)
     })
+  })
 
-    it('should provide a ref on the "InnerComponent"', () => {
-      const handleRef = spy()
+  describe('access inner element', () => {
+    it('should provide a ref to the inner element', () => {
+      const innerRef = spy()
 
       /* eslint-disable react/no-multi-comp, react/prefer-stateless-function */
       class InnerComponent extends React.PureComponent {
@@ -208,9 +210,9 @@ describe('injectSheet', () => {
       /* eslint-enable */
 
       const StyledComponent = injectSheet({})(InnerComponent)
-      render(<StyledComponent innerRef={handleRef} />, node)
+      render(<StyledComponent innerRef={innerRef} />, node)
 
-      expect(handleRef.callCount).to.be(1)
+      expect(innerRef.callCount).to.be(1)
     })
   })
 
