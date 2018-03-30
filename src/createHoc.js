@@ -218,8 +218,8 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
       const sheet = dynamicSheet || this.manager.get(theme)
 
-      if (injectMap.sheet) props.sheet = sheet
-      if (isThemingEnabled && injectMap.theme) props.theme = theme
+      if (injectMap.sheet && !props.sheet) props.sheet = sheet
+      if (isThemingEnabled && injectMap.theme && !props.theme) props.theme = theme
 
       // We have merged classes already.
       if (injectMap.classes) props.classes = classes
