@@ -1,7 +1,7 @@
 import {Component, Children} from 'react'
 import {node, func, string} from 'prop-types'
 import {createGenerateClassNameDefault} from './jss'
-import * as ns from './ns'
+import * as symbols from './symbols'
 import contextTypes from './contextTypes'
 import propTypes from './propTypes'
 
@@ -23,11 +23,11 @@ export default class JssProvider extends Component {
   // 3. If value was not passed, we proxy parent context (default context behaviour).
   getChildContext() {
     const {registry, classNamePrefix, jss: localJss, generateClassName} = this.props
-    const sheetOptions = this.context[ns.sheetOptions] || {}
-    const context = {[ns.sheetOptions]: sheetOptions}
+    const sheetOptions = this.context[symbols.sheetOptions] || {}
+    const context = {[symbols.sheetOptions]: sheetOptions}
 
     if (registry) {
-      context[ns.sheetsRegistry] = registry
+      context[symbols.sheetsRegistry] = registry
       // This way we identify a new request on the server, because user will create
       // a new Registry instance for each.
       if (registry !== this.registry) {
@@ -39,7 +39,7 @@ export default class JssProvider extends Component {
 
     // Make sure we don't loose managers when JssProvider is used inside of a stateful
     // component which decides to rerender.
-    context[ns.managers] = this.managers
+    context[symbols.managers] = this.managers
 
     if (generateClassName) {
       sheetOptions.generateClassName = generateClassName
@@ -59,7 +59,7 @@ export default class JssProvider extends Component {
     }
 
     if (classNamePrefix) sheetOptions.classNamePrefix = classNamePrefix
-    if (localJss) context[ns.jss] = localJss
+    if (localJss) context[symbols.jss] = localJss
 
     return context
   }
