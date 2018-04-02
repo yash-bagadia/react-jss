@@ -4,7 +4,7 @@ import defaultTheming from 'theming'
 import jss, {getDynamicStyles, SheetsManager} from './jss'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
-import * as ns from './ns'
+import * as symbols from './symbols'
 import contextTypes from './contextTypes'
 
 const env = process.env.NODE_ENV
@@ -94,11 +94,11 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     get jss() {
-      return this.context[ns.jss] || optionsJss || jss
+      return this.context[symbols.jss] || optionsJss || jss
     }
 
     get manager() {
-      const managers = this.context[ns.managers]
+      const managers = this.context[symbols.managers]
 
       // If `managers` map is present in the context, we use it in order to
       // let JssProvider reset them when new response has to render server-side.
@@ -113,7 +113,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     createState({theme, dynamicSheet}, {classes: userClasses}) {
-      const contextSheetOptions = this.context[ns.sheetOptions]
+      const contextSheetOptions = this.context[symbols.sheetOptions]
       let classNamePrefix = defaultClassNamePrefix
       let staticSheet = this.manager.get(theme)
       let dynamicStyles
@@ -154,7 +154,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     manage({theme, dynamicSheet}) {
-      const registry = this.context[ns.sheetsRegistry]
+      const registry = this.context[symbols.sheetsRegistry]
 
       const staticSheet = this.manager.manage(theme)
       if (registry) registry.add(staticSheet)
