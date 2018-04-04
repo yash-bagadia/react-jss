@@ -1,9 +1,10 @@
 import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import defaultTheming from 'theming'
 import jss, {getDynamicStyles, SheetsManager} from './jss'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
-import * as ns from './ns'
+import * as symbols from './symbols'
 import contextTypes from './contextTypes'
 
 const env = process.env.NODE_ENV
@@ -74,6 +75,9 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       ...contextTypes,
       ...(isThemingEnabled && themeListener.contextTypes)
     }
+    static propTypes = {
+      innerRef: PropTypes.func,
+    }
     static defaultProps = defaultProps
 
     constructor(props, context) {
@@ -84,11 +88,11 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     get jss() {
-      return this.context[ns.jss] || optionsJss || jss
+      return this.context[symbols.jss] || optionsJss || jss
     }
 
     get manager() {
-      const managers = this.context[ns.managers]
+      const managers = this.context[symbols.managers]
 
       // If `managers` map is present in the context, we use it in order to
       // let JssProvider reset them when new response has to render server-side.
@@ -103,7 +107,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     createState({theme, dynamicSheet}, {classes: userClasses}) {
-      const contextSheetOptions = this.context[ns.sheetOptions]
+      const contextSheetOptions = this.context[symbols.sheetOptions]
       let classNamePrefix = defaultClassNamePrefix
       let staticSheet = this.manager.get(theme)
       let dynamicStyles
@@ -144,7 +148,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     manage({theme, dynamicSheet}) {
-      const registry = this.context[ns.sheetsRegistry]
+      const registry = this.context[symbols.sheetsRegistry]
 
       const staticSheet = this.manager.manage(theme)
       if (registry) registry.add(staticSheet)
@@ -204,27 +208,28 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
     render() {
       const {theme, dynamicSheet, classes} = this.state
+      const {innerRef, ...props} = this.props
+
       const sheet = dynamicSheet || this.manager.get(theme)
       let {reduceProps} = sheetOptions
-      if (typeof reduceProps !== 'function' && this.context[ns.sheetOptions] && this.context[ns.sheetOptions].reduceProps) {
-        reduceProps = this.context[ns.sheetOptions].reduceProps
+      if (typeof reduceProps !== 'function' && this.context[symbols.sheetOptions] && this.context[symbols.sheetOptions].reduceProps) {
+        reduceProps = this.context[symbols.sheetOptions].reduceProps
       }
-      const props = {}
       if (typeof reduceProps === 'function') {
         const propsToBeReduced = {}
         propsToBeReduced.sheet = sheet
         propsToBeReduced.classes = classes
         if (isThemingEnabled) propsToBeReduced.theme = theme
-        Object.assign(props, {...reduceProps({...propsToBeReduced, ...this.props})})
+        Object.assign(props, {...reduceProps({...propsToBeReduced, ...props})})
       }
       else {
-        if (injectMap.sheet) props.sheet = sheet
-        if (isThemingEnabled && injectMap.theme) props.theme = theme
-        Object.assign(props, this.props)
+        if (injectMap.sheet && !props.sheet) props.sheet = sheet
+        if (isThemingEnabled && injectMap.theme && !props.theme) props.theme = theme
+
         // We have merged classes already.
         if (injectMap.classes) props.classes = classes
       }
-      return <InnerComponent {...props} />
+      return <InnerComponent ref={innerRef} {...props} />
     }
   }
 }
